@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Neural-Network on California Dreaming</title>
+    <link>https://binnz.github.io/tags/neural-network/</link>
+    <description>Recent content in Neural-Network on California Dreaming</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Sun, 19 Aug 2018 00:00:00 +0000</lastBuildDate><atom:link href="https://binnz.github.io/tags/neural-network/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Neural Network Architecture and Back-Propagation</title>
+      <link>https://binnz.github.io/post/2018-08-19-nn-xor/</link>
+      <pubDate>Sun, 19 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2018-08-19-nn-xor/</guid>
+      <description>&lt;p&gt;The Universal Approximation Theorem states that a 2-layer network can approximate any function, given a complex enough architecture.  That&amp;rsquo;s why we will create a neural network with two neurons in the hidden layer and we will later show how this can model the XOR function.&lt;/p&gt;
+&lt;p&gt;In this experiment, we will need to understand and write a simple neural network with backpropagation for “XOR” using only &lt;code&gt;numpy&lt;/code&gt; and other python standard library.&lt;/p&gt;
+&lt;p&gt;The code here will allow the user to specify any number of layers and neurons in each layer.  In addition, we are going to use the logistic function as the activity function for this network.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Code Example of a Neural Network for The Function XOR</title>
+      <link>https://binnz.github.io/post/2017-08-30-nn-xor/</link>
+      <pubDate>Wed, 30 Aug 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-08-30-nn-xor/</guid>
+      <description>&lt;p&gt;It is a well-known fact, and something we have already mentioned, that 1-layer neural networks cannot predict the function XOR. 1-layer neural nets can only classify linearly separable sets, however, as we have seen, the Universal Approximation Theorem states that a 2-layer network can approximate any function, given a complex enough architecture.&lt;/p&gt;
+&lt;p&gt;We will now create a neural network with two neurons in the hidden layer and we will show how this can model the XOR function. However, we will write code that will allow the reader to simply modify it to allow for any number of layers and neurons in each layer, so that the reader can try simulating different scenarios. We are also going to use the hyperbolic tangent as the activity function for this network. To train the network, we will implement the back-propagation algorithm discussed earlier.&lt;/p&gt;
+&lt;p&gt;In addition, if you are interested in the mathemetical derivation of this implementation, please see my another post &lt;a href=&#34;../../../2018/08/19/NN-XOR&#34;&gt;&lt;/a&gt;.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

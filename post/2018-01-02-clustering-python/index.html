@@ -1,0 +1,2222 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Clustering on New York City Bike Dataset - California Dreaming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+  
+  <meta name="description" content="Our   major   task  here  is   turn   data   into   different   clusters and   explain   what
+the   cluster   means.    We will try spatial   clustering, temporal   clustering and the combination of both.
+For each method of clustering, we will
+
+try   at   least   2   values for   each parameter in every algorithm.
+explain the clustering result.
+make   some observation ,    compare    different   method   and   parameters.
+">
+  
+  <meta itemprop="name" content="Clustering on New York City Bike Dataset - California Dreaming">
+  <meta itemprop="description" content="Our   major   task  here  is   turn   data   into   different   clusters and   explain   what
+the   cluster   means.    We will try spatial   clustering, temporal   clustering and the combination of both.
+For each method of clustering, we will
+
+try   at   least   2   values for   each parameter in every algorithm.
+explain the clustering result.
+make   some observation ,    compare    different   method   and   parameters.
+">
+  <meta itemprop="image" content="https://binnz.github.io/img/author.jpg">
+  
+  
+  <meta name="twitter:description" content="">
+  
+  <link rel="shortcut icon" href="https://binnz.github.io/img/favicon.ico"/>
+  <link rel="apple-touch-icon" href="https://binnz.github.io/apple-touch-icon.png" />
+  <link rel="apple-touch-icon-precomposed" href="https://binnz.github.io/apple-touch-icon.png" />
+  <link rel="stylesheet" href="https://binnz.github.io/highlight/styles/github.css">
+  <script src="https://binnz.github.io/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  
+  <link rel="stylesheet" href="https://binnz.github.io/font/hack/css/hack.min.css">
+  <link rel="stylesheet" href="https://binnz.github.io/css/style.css">
+</head>
+
+<body>
+  <header>
+    <div>
+  <div style="height:150px; width:100%; clear:both;"></div>
+  <div id="textlogo">
+    <h1 class="site-name"><a href="https://binnz.github.io/" title="California Dreaming">California Dreaming</a></h1>
+    <h2 class="blog-motto"></h2>
+  </div>
+  <div class="navbar"><a class="navbutton navmobile" href="#" title="menu"></a></div>
+			<div style="height:50px; width:100%; clear:both;"></div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="menu">
+			</a><div style="height:50px; width:100%; clear:both;"></div></div>
+  <nav class="animated">
+    <ul>
+      
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/post/">Archives</a></li>
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      <li>
+        <form class="search" method="get" action="https://www.google.com/search">
+          <div>
+            <input type="text" id="search" name="q" placeholder='Search'>
+          </div>
+        </form>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+  </header>
+  <div id="container">
+    <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+      <a href="https://binnz.github.io/post/2018-01-02-clustering-python/" title="Clustering on New York City Bike Dataset" itemprop="url">Clustering on New York City Bike Dataset</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="" title="">you</a>
+    
+  </p>
+  <p class="article-time">
+    <time datetime="2018-01-02 00:00:00 &#43;0000 UTC" itemprop="datePublished">2018-01-02</time>
+  </p>
+</header>
+
+	<div class="article-content">
+    
+    <p>Our   major   task  here  is   turn   data   into   different   clusters and   explain   what
+the   cluster   means.    We will try spatial   clustering, temporal   clustering and the combination of both.</p>
+<p>For each method of clustering, we will</p>
+<ul>
+<li>try   <strong>at   least   2   values for   each parameter</strong> in every algorithm.</li>
+<li><strong>explain</strong> the clustering result.</li>
+<li>make   some <strong>observation</strong> ,    <strong>compare</strong>    different   method   and   parameters.</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">scipy.cluster.hierarchy</span> <span class="kn">import</span> <span class="n">dendrogram</span><span class="p">,</span> <span class="n">linkage</span><span class="p">,</span> <span class="n">fcluster</span>
+<span class="kn">from</span> <span class="nn">geopy.distance</span> <span class="kn">import</span> <span class="n">vincenty</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
+<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">DBSCAN</span>
+<span class="kn">import</span> <span class="nn">matplotlib.cm</span> <span class="k">as</span> <span class="nn">cm</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="kn">import</span> <span class="n">cdist</span><span class="p">,</span> <span class="n">pdist</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">metrics</span>
+<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;ggplot&#39;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">mpl_toolkits.basemap</span> <span class="kn">import</span> <span class="n">Basemap</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="dataset">Dataset</h2>
+<p><a href="https://www.citibikenyc.com/system-data">New   York   Citi   Bike   Trip   Histories</a></p>
+<p>We&rsquo;ll   use   <a href="https://s3.amazonaws.com/tripdata/201707-citibike-tripdata.csv.zip"><code>201707-citibike-tripdata.csv.zip</code></a>   only.</p>
+<h3 id="a-schema">A. Schema</h3>
+<p>We have already preprocessed this dataset into the following 2 data frames:</p>
+<h4 id="1-every-stations-information">1. Every Station&rsquo;s Information</h4>
+<ul>
+<li><code>Station ID</code></li>
+<li><code>Station Name</code></li>
+<li><code>Station Latitude</code></li>
+<li><code>Station Longitude</code></li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">df_loc</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&#34;data/station_information.csv&#34;</span><span class="p">)</span>
+<span class="n">df_loc</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><div>
+<style>
+    .dataframe thead tr:only-child th {
+        text-align: right;
+    }
+<pre><code>.dataframe thead th {
+    text-align: left;
+}
+
+.dataframe tbody tr th {
+    vertical-align: top;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>station id</th>
+      <th>station name</th>
+      <th>station latitude</th>
+      <th>station longitude</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>539</td>
+      <td>Metropolitan Ave &amp; Bedford Ave</td>
+      <td>40.715348</td>
+      <td>-73.960241</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>293</td>
+      <td>Lafayette St &amp; E 8 St</td>
+      <td>40.730207</td>
+      <td>-73.991026</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3242</td>
+      <td>Schermerhorn St &amp; Court St</td>
+      <td>40.691029</td>
+      <td>-73.991834</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2002</td>
+      <td>Wythe Ave &amp; Metropolitan Ave</td>
+      <td>40.716887</td>
+      <td>-73.963198</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>361</td>
+      <td>Allen St &amp; Hester St</td>
+      <td>40.716059</td>
+      <td>-73.991908</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<h4 id="2-every-stations-flow-data">2. Every Station&rsquo;s Flow Data</h4>
+<ul>
+<li><code>Station ID</code></li>
+<li><code>Time</code>: One day is splitted into 48 segments in this case. (Every 30 minutes)</li>
+<li><code>In Flow Count</code>: The number of trips move to the station</li>
+<li><code>Out Flow Count</code>: The number of trips move from the station</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">df_flow</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&#34;data/station_flow.csv&#34;</span><span class="p">)</span>
+<span class="n">df_flow</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df_flow</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span>
+<span class="n">df_flow</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><div>
+<style>
+    .dataframe thead tr:only-child th {
+        text-align: right;
+    }
+<pre><code>.dataframe thead th {
+    text-align: left;
+}
+
+.dataframe tbody tr th {
+    vertical-align: top;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>station id</th>
+      <th>time</th>
+      <th>in_flow_count</th>
+      <th>out_flow_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>72</td>
+      <td>2017-07-01 00:00:00</td>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>72</td>
+      <td>2017-07-01 10:00:00</td>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>72</td>
+      <td>2017-07-01 10:30:00</td>
+      <td>7.0</td>
+      <td>7.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>72</td>
+      <td>2017-07-01 11:00:00</td>
+      <td>1.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>72</td>
+      <td>2017-07-01 12:00:00</td>
+      <td>2.0</td>
+      <td>6.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<h4 id="3-combine-the-above-2-data-frames">3. Combine the Above 2 Data Frames</h4>
+<p>For later usage, here I combine the above 2 data frames so that <strong>each station has not only its geo-information but also its flow counts at different times</strong> (only use the first week).</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">df_all</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_loc</span><span class="p">,</span> 
+                  <span class="n">df_flow</span><span class="p">[(</span><span class="n">df_flow</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span> <span class="o">==</span> <span class="mi">7</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_flow</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span> <span class="o">&lt;=</span> <span class="mi">7</span><span class="p">)]</span> \
+                         <span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;station id&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span>
+                  <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;station id&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+<span class="n">df_all</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><div>
+<style>
+    .dataframe thead tr:only-child th {
+        text-align: right;
+    }
+<pre><code>.dataframe thead th {
+    text-align: left;
+}
+
+.dataframe tbody tr th {
+    vertical-align: top;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>station id</th>
+      <th>station name</th>
+      <th>station latitude</th>
+      <th>station longitude</th>
+      <th>(in_flow_count, 2017-07-01 00:00:00)</th>
+      <th>(in_flow_count, 2017-07-01 00:30:00)</th>
+      <th>(in_flow_count, 2017-07-01 01:00:00)</th>
+      <th>(in_flow_count, 2017-07-01 01:30:00)</th>
+      <th>(in_flow_count, 2017-07-01 02:00:00)</th>
+      <th>(in_flow_count, 2017-07-01 02:30:00)</th>
+      <th>...</th>
+      <th>(out_flow_count, 2017-07-07 19:00:00)</th>
+      <th>(out_flow_count, 2017-07-07 19:30:00)</th>
+      <th>(out_flow_count, 2017-07-07 20:00:00)</th>
+      <th>(out_flow_count, 2017-07-07 20:30:00)</th>
+      <th>(out_flow_count, 2017-07-07 21:00:00)</th>
+      <th>(out_flow_count, 2017-07-07 21:30:00)</th>
+      <th>(out_flow_count, 2017-07-07 22:00:00)</th>
+      <th>(out_flow_count, 2017-07-07 22:30:00)</th>
+      <th>(out_flow_count, 2017-07-07 23:00:00)</th>
+      <th>(out_flow_count, 2017-07-07 23:30:00)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>539</td>
+      <td>Metropolitan Ave &amp; Bedford Ave</td>
+      <td>40.715348</td>
+      <td>-73.960241</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>7.0</td>
+      <td>7.0</td>
+      <td>6.0</td>
+      <td>4.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>5.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>293</td>
+      <td>Lafayette St &amp; E 8 St</td>
+      <td>40.730207</td>
+      <td>-73.991026</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>5.0</td>
+      <td>9.0</td>
+      <td>7.0</td>
+      <td>4.0</td>
+      <td>2.0</td>
+      <td>1.0</td>
+      <td>4.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>2.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3242</td>
+      <td>Schermerhorn St &amp; Court St</td>
+      <td>40.691029</td>
+      <td>-73.991834</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>4.0</td>
+      <td>3.0</td>
+      <td>1.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2002</td>
+      <td>Wythe Ave &amp; Metropolitan Ave</td>
+      <td>40.716887</td>
+      <td>-73.963198</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>9.0</td>
+      <td>7.0</td>
+      <td>2.0</td>
+      <td>4.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>4.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>361</td>
+      <td>Allen St &amp; Hester St</td>
+      <td>40.716059</td>
+      <td>-73.991908</td>
+      <td>3.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>...</td>
+      <td>5.0</td>
+      <td>6.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>2.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 676 columns</p>
+</div>
+<h2 id="spatial-clustering">Spatial Clustering</h2>
+<p>Using   stations’   geo-information   to   do   clustering</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">X</span> <span class="o">=</span> <span class="n">df_loc</span><span class="p">[[</span><span class="s1">&#39;station latitude&#39;</span><span class="p">,</span> <span class="s1">&#39;station longitude&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="a-kmeans">A. Kmeans</h3>
+<p>We will utilize scikit-learn function <a href="http://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html"><code>sklearn.cluster.KMeans</code></a>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">Parameters:
+- k     (Number of clusters)
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">Ks</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">kmean</span> <span class="o">=</span> <span class="p">[</span><span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">Ks</span><span class="p">]</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="elbow-method">Elbow Method</h4>
+<p>The Elbow method is a method of interpretation and validation of consistency within cluster analysis designed to help finding the appropriate number of clusters in a dataset.   This method looks at the percentage of variance explained as a function of the number of clusters: One should choose a number of clusters so that adding another cluster doesn&rsquo;t give much better modeling of the data.</p>
+<p>Percentage of variance explained is the ratio of the between-group variance to the total variance.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">plot_elbow</span><span class="p">(</span><span class="n">kmean</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="n">centroids</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">cluster_centers_</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">kmean</span><span class="p">]</span>
+    <span class="n">D_k</span> <span class="o">=</span> <span class="p">[</span><span class="n">cdist</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="s1">&#39;euclidean&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">center</span> <span class="ow">in</span> <span class="n">centroids</span><span class="p">]</span>
+    <span class="n">dist</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">D</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">D</span> <span class="ow">in</span> <span class="n">D_k</span><span class="p">]</span>
+
+    <span class="c1"># Total with-in sum of square</span>
+    <span class="n">wcss</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">d</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dist</span><span class="p">]</span>
+    <span class="n">tss</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">pdist</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">bss</span> <span class="o">=</span> <span class="n">tss</span><span class="o">-</span><span class="n">wcss</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Ks</span><span class="p">,</span> <span class="n">bss</span><span class="o">/</span><span class="n">tss</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span> <span class="s1">&#39;b*-&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Number of clusters&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Percentage of variance explained (%)&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Elbow for KMeans clustering&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">plot_elbow</span><span class="p">(</span><span class="n">kmean</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/zgN1bf2.png" alt=""></p>
+<p>Correspond to the figure above, the proper value for <code>k</code> may be <code>2, 3, or 4</code>.</p>
+<p>Here I will cluster the data points using different values of <code>k</code>.</p>
+<p>(Note that the function <code>plot_stations_map</code> is defined in the <a href="#Appendix">Appendix</a>)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">k</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+<span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span><span class="mi">15</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="n">est</span> <span class="o">=</span> <span class="n">kmean</span><span class="p">[</span><span class="n">k</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">df_loc</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">est</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Spatial Clustering with KMeans (k=</span><span class="si">{}</span><span class="s2">)&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+
+    <span class="n">plot_stations_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">df_loc</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/6WWmuA5.png" alt=""></p>
+<p>In my opinion, <strong>3</strong> or <strong>4</strong> clutsers can both well explains the geo-information of these citibike stations.</p>
+<h3 id="b-dbscan">B. DBSCAN</h3>
+<p>We will utilize scikit-learn function <a href="http://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html"><code>sklearn.cluster.DBSCAN</code></a>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">Parameters:
+- eps          (The maximum distance between two samples for them to be considered as in the same neighborhood)
+- min_smaple   (The number of samples in a neighborhood for a point to be considered as a core point.)
+- metric       (The metric to use when calculating distance between instances in a feature array.)
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="1-euclidean-distance-metrics">1. Euclidean Distance Metrics</h4>
+<p>Euclidean distance or Euclidean metric is one of the most common distance metrics, which is the &ldquo;ordinary&rdquo; straight-line distance between two points in Euclidean space.</p>
+<p>With metric=<code>&quot;euclidean&quot;</code>, here I also use the combinations of different values of <code>eps</code> and <code>min_sample</code>, where <strong><code>eps</code></strong> ranges from <code>0.004</code> to <code>0.006</code> <u>(unit: latitude/longitude)</u> and <strong><code>min_sample</code></strong> ranges from <code>3</code> to <code>5</code>.</p>
+<p>(Note that the function <code>plot_stations_map</code> is defined in the <a href="#Appendix">Appendix</a>)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">eps</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.004</span><span class="p">,</span> <span class="mf">0.005</span><span class="p">]</span>   <span class="c1"># unit: latitude/longitude</span>
+<span class="n">min_sample</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+<span class="n">n1</span><span class="p">,</span> <span class="n">n2</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">eps</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_sample</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">n1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">n2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n2</span><span class="p">):</span>
+        <span class="n">est</span> <span class="o">=</span> <span class="n">DBSCAN</span><span class="p">(</span><span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">min_samples</span><span class="o">=</span><span class="n">min_sample</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&#34;euclidean&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">df_loc</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">est</span><span class="o">.</span><span class="n">labels_</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">n2</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;DBSCAN (&#39;euclidean&#39;, eps=</span><span class="si">{}</span><span class="s2">, min_sample=</span><span class="si">{}</span><span class="s2">)&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">eps</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">min_sample</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+        
+        <span class="n">plot_stations_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">df_loc</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/yjjJNCi.png" alt=""></p>
+<p>Note that in the above figures, I only draw the core points and the boundary points.   That is, you will see that <strong>some stations are missing on the map since they are consider as noise points</strong> using the specified parameters.</p>
+<p>When <code>eps = 0.04</code>, this radius is so small that the clusters found are somehow too trivial.   In addition, the clustering result are all similar with greater values of <code>eps</code>.</p>
+<h4 id="2-self-defined-distance-metrics">2. Self-defined Distance Metrics</h4>
+<p>Since these stations are on Earth, it would be more precise if we use <strong>great-circle distance</strong> instead of Euclidean distance.
+The great-circle distance or orthodromic distance is the shortest distance between two points on the surface of a sphere, measured along the surface of the sphere.</p>
+<p>To calculate the great-circle distance, I use the function <a href="https://geopy.readthedocs.io/en/1.10.0/#module-geopy.distance"><code>vincenty</code></a> in package <code>GeoPy</code>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">greatCircleDistance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="n">lat1</span><span class="p">,</span> <span class="n">lon1</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">lat2</span><span class="p">,</span> <span class="n">lon2</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">vincenty</span><span class="p">((</span><span class="n">lat1</span><span class="p">,</span> <span class="n">lon1</span><span class="p">),</span> <span class="p">(</span><span class="n">lat2</span><span class="p">,</span> <span class="n">lon2</span><span class="p">))</span><span class="o">.</span><span class="n">meters</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Here I also use the combinations of different values of <code>eps</code> and <code>min_sample</code>, where <strong><code>eps</code></strong> ranges from <code>500</code> to <code>700</code> <u>(unit: meters)</u> and <strong><code>min_sample</code></strong> ranges from <code>5</code> to <code>10</code>.</p>
+<p>(Note that the function <code>plot_stations_map</code> is defined in the <a href="#Appendix">Appendix</a>)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">eps</span> <span class="o">=</span> <span class="p">[</span><span class="mi">500</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">700</span><span class="p">]</span>    <span class="c1"># unit: meter</span>
+<span class="n">min_sample</span> <span class="o">=</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
+<span class="n">n1</span><span class="p">,</span> <span class="n">n2</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">eps</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_sample</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">n2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">n1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n2</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n1</span><span class="p">):</span>
+        <span class="n">est</span> <span class="o">=</span> <span class="n">DBSCAN</span><span class="p">(</span><span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">min_samples</span><span class="o">=</span><span class="n">min_sample</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">metric</span><span class="o">=</span><span class="n">greatCircleDistance</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">df_loc</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">est</span><span class="o">.</span><span class="n">labels_</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">n2</span><span class="p">,</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n1</span><span class="o">*</span><span class="n">j</span><span class="o">+</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;DBSCAN (&#39;greatCircle&#39;, eps=</span><span class="si">{}</span><span class="s2">, min_sample=</span><span class="si">{}</span><span class="s2">)&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">eps</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">min_sample</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+
+        <span class="n">plot_stations_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">df_loc</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/aANWqZk.png" alt=""></p>
+<p>The clustering result is better with the great-circle distance, which is not surprised since the length of a longitude unit is not the same as the length of a latitude unit, undoubtedly.</p>
+<p>Furthermore, the clustering results are more meaningful.   For example, see the figure at lower left, all clusters are <strong>stations that has 10 neighbors in 500 meters</strong>, so we can even conclude that these clusters are districts with high population density or high population flows.</p>
+<h3 id="c-observation--comparisons">C. Observation &amp; Comparisons</h3>
+<p>To observe and compare the clustering result of KMeans and DBSCAN with differnt parameter values, I pick some of the best clustering results from each method, which are shown in the figures below:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">k</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+<span class="n">euc</span> <span class="o">=</span> <span class="p">[(</span><span class="mf">0.005</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.004</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]</span>   <span class="c1"># unit: latitude/longitude</span>
+<span class="n">gcd</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">600</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">600</span><span class="p">,</span> <span class="mi">10</span><span class="p">)]</span>    <span class="c1"># unit: meter</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">15</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+    <span class="n">est</span> <span class="o">=</span> <span class="n">kmean</span><span class="p">[</span><span class="n">k</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">df_loc</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">est</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>    
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Spatial Clustering with KMeans (k=</span><span class="si">{}</span><span class="s2">)&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+    <span class="n">plot_stations_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">df_loc</span><span class="p">)</span>
+    
+    <span class="n">est</span> <span class="o">=</span> <span class="n">DBSCAN</span><span class="p">(</span><span class="n">eps</span><span class="o">=</span><span class="n">euc</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">min_samples</span><span class="o">=</span><span class="n">euc</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&#34;euclidean&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">df_loc</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">est</span><span class="o">.</span><span class="n">labels_</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;DBSCAN (&#39;euclidean&#39;, eps=</span><span class="si">{}</span><span class="s2">, min_sample=</span><span class="si">{}</span><span class="s2">)&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">euc</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">euc</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">plot_stations_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">df_loc</span><span class="p">)</span>
+    
+    <span class="n">est</span> <span class="o">=</span> <span class="n">DBSCAN</span><span class="p">(</span><span class="n">eps</span><span class="o">=</span><span class="n">gcd</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">min_samples</span><span class="o">=</span><span class="n">gcd</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">metric</span><span class="o">=</span><span class="n">greatCircleDistance</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">df_loc</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">est</span><span class="o">.</span><span class="n">labels_</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;DBSCAN (&#39;greatCircle&#39;, eps=</span><span class="si">{}</span><span class="s2">, min_sample=</span><span class="si">{}</span><span class="s2">)&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gcd</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">gcd</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">plot_stations_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">df_loc</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/DRljD8n.png" alt=""></p>
+<p>Here are some conclusions:</p>
+<ol>
+<li>With DBSCAN, some stations would be <strong>missing</strong> and some clusters' <strong>sizes are too small</strong>; With KMeans, all stations would be clustered and their sizes are similar.</li>
+<li>With DBSCAN, we can <strong>separate stations which are on the different side of the river</strong>; With KMeans, stations on the different side of the river can not be well-separated.</li>
+<li>Using the great circle distance metrics would get more reasonable and also better clustering result.</li>
+</ol>
+<h2 id="temporal-clustering">Temporal Clustering</h2>
+<p>We&rsquo;ll use   the   <code>in-flow</code>   and   <code>out-flow</code>   data   in   the   first   week (7   days   $\times$   48   segment   $\times$ 2=<strong>672</strong>   features)    for   each   station.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">X</span> <span class="o">=</span> <span class="n">df_all</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&#34;station id&#34;</span><span class="p">,</span> <span class="s2">&#34;station name&#34;</span><span class="p">,</span> <span class="s2">&#34;station latitude&#34;</span><span class="p">,</span> <span class="s2">&#34;station longitude&#34;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="a-agglomerative---clustering">A. Agglomerative   Clustering</h3>
+<p>We will utilize SciPy&rsquo;s function <a href="https://docs.scipy.org/doc/scipy/reference/cluster.hierarchy.html"><code>scipy.cluster.hierarchy</code></a>.   You can also find detailed tutorial on <a href="https://joernhees.de/blog/2015/08/26/scipy-hierarchical-clustering-and-dendrogram-tutorial/">this page</a>.</p>
+<p><strong><code>linkage(y[, method, metric, optimal_ordering])</code></strong>	Perform hierarchical/agglomerative clustering.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">Parameters:
+- method (affinity, which defines inter-cluster similarity)
+    1. single	Perform single/min/nearest linkage.
+    2. complete	Perform complete/max/farthest point linkage.
+    3. average	Perform average/UPGMA linkage.
+    4. weighted	Perform weighted/WPGMA linkage.
+    5. centroid	Perform centroid/UPGMC linkage.
+    6. median	Perform median/WPGMC linkage.
+    7. ward	Perform Ward’s linkage.
+</code></pre></td></tr></table>
+</div>
+</div><p>In below I will show the clustering result of using <strong><code>single</code>, <code>complete</code>, <code>average</code>, and <code>ward</code></strong> affinity.</p>
+<p>(Note that the functions <code>plot_dendrogram</code> and <code>plot_agglomerative_clustering_result</code> are defined in the <a href="#Appendix">Appendix</a>)</p>
+<h4 id="1-single-affinity">1. Single Affinity</h4>
+<p><img src="https://i.imgur.com/fTWaf4Z.png" alt=""></p>
+<p>method=<code>&quot;single&quot;</code> assigns</p>
+<p>$$
+d(u, v) = min(dist(u[i], v[j]))
+$$</p>
+<p>for all points $i$ in cluster $u$ and $j$ in cluster $v$.   This is also known as the Nearest Point Algorithm.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">affinity</span> <span class="o">=</span> <span class="s1">&#39;single&#39;</span>
+<span class="n">Z</span> <span class="o">=</span> <span class="n">linkage</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">affinity</span><span class="p">)</span>
+<span class="n">plot_dendrogram</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> 
+                <span class="mi">50</span><span class="p">,</span>    <span class="c1"># only show the last 50 merges</span>
+                <span class="mi">125</span><span class="p">)</span>   <span class="c1"># only annotates distance above 125</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/EApwOge.png" alt=""></p>
+<p>Now we cut the hiearchical tree at <strong>different distance (the distance metrics is stated as above)</strong> to see the clustering result more clearly.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">dist</span> <span class="o">=</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">170</span><span class="p">]</span>
+<span class="n">plot_agglomerative_clustering_result</span><span class="p">(</span><span class="n">df_all</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">affinity</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/K6v5Wfm.png" alt=""></p>
+<p>Agglomerative clustering with <code>'single'</code> affinity is horrible in this case.</p>
+<ol>
+<li>The dendrogram shows that almost every clusters consists of only one member(sample).   <strong>The top 49 separated clusters are all one-point cluster.</strong></li>
+<li>The average flows of each cluster cannot be distinguished from each other either.</li>
+</ol>
+<h4 id="2-complete-affinity">2. Complete Affinity</h4>
+<p><img src="https://i.imgur.com/DntS4Cs.png" alt=""></p>
+<p>method=<code>&quot;complete&quot;</code> assigns</p>
+<p>$$
+d(u, v) = max(dist(u[i], v[j]))
+$$</p>
+<p>for all points $i$ in cluster $u$ and $j$ in cluster $v$.   This is also known by the Farthest Point Algorithm or Voor Hees Algorithm.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">affinity</span> <span class="o">=</span> <span class="s1">&#39;complete&#39;</span>
+<span class="n">Z</span> <span class="o">=</span> <span class="n">linkage</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">affinity</span><span class="p">)</span>
+<span class="n">plot_dendrogram</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> 
+                <span class="mi">30</span><span class="p">,</span>    <span class="c1"># only show the last 30 merges</span>
+                <span class="mi">200</span><span class="p">)</span>   <span class="c1"># only annotates distance above 200</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/0mfjinE.png" alt=""></p>
+<p>Now we cut the hiearchical tree at <strong>different distance (the distance metrics is stated as above)</strong> to see the clustering result more clearly.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">dist</span> <span class="o">=</span> <span class="p">[</span><span class="mi">350</span><span class="p">,</span> <span class="mi">250</span><span class="p">]</span>
+<span class="n">plot_agglomerative_clustering_result</span><span class="p">(</span><span class="n">df_all</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">affinity</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/LDuGWkP.png" alt=""></p>
+<p>The clustering result using <code>'complete'</code> affinity is a little better than that of using <code>'single'</code> affinity.</p>
+<ol>
+<li>There are still clusters consisting of only one point, but not a lot.</li>
+<li>With <code>cut-off distance = 300</code>, the average flows of each cluster are slightly distinguishable.</li>
+</ol>
+<h4 id="3-average-affinity">3. Average Affinity</h4>
+<p><img src="https://i.imgur.com/KFOYo0p.png" alt=""></p>
+<p>method=<code>&quot;average&quot;</code> assigns</p>
+<p>$$
+d(u, v) = \sum_{i,j}\frac{dist\big(u[i], v[j]\big)}{\big(\left| u \right| \times \left| v \right|\big)}
+$$</p>
+<p>for all points $i$ and $j$ where $|u|$ and $|v|$ are the cardinalities of clusters $u$ and $v$, respectively. This is also called the UPGMA algorithm.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">affinity</span> <span class="o">=</span> <span class="s1">&#39;average&#39;</span>
+<span class="n">Z</span> <span class="o">=</span> <span class="n">linkage</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">affinity</span><span class="p">)</span>
+<span class="n">plot_dendrogram</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> 
+                <span class="mi">30</span><span class="p">,</span>    <span class="c1"># only show the last 30 merges</span>
+                <span class="mi">150</span><span class="p">)</span>   <span class="c1"># only annotates distance above 200</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/jbsmIMV.png" alt=""></p>
+<p>Now we cut the hiearchical tree at <strong>different distance (the distance metrics is stated as above)</strong> to see the clustering result more clearly.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">dist</span> <span class="o">=</span> <span class="p">[</span><span class="mi">300</span><span class="p">,</span> <span class="mi">210</span><span class="p">]</span>
+<span class="n">plot_agglomerative_clustering_result</span><span class="p">(</span><span class="n">df_all</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">affinity</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/xZwKND2.png" alt=""></p>
+<p>The clustering result using <code>'average'</code> affinity is worse then expected.</p>
+<ol>
+<li>Compared to <code>'complete'</code> affinity, clustering result using <code>'average'</code>affinity shows more one-point clusters</li>
+<li>At the same time, the differences in average flows for each clusters are almost the same as that of <code>'complete'</code> affinity.</li>
+</ol>
+<h4 id="4-ward-affinity">4. Ward Affinity</h4>
+<p>method=<code>&quot;ward&quot;</code> uses the Ward variance minimization algorithm. The new entry $d(u,v)$ is computed as follows,</p>
+<p>$$
+d(u, v) = \sqrt{\frac{|v|+|s|}{T}d(v, s)^2+\frac{|v|+|t|}{T}d(v, t)^2-\frac{|v|}{T}d(s, t)^2}
+$$</p>
+<p>where $u$ is the newly joined cluster consisting of clusters $s$ and $t, v$ is an unused cluster in the forest, $T=|v|+|s|+|t|$, and $|∗|$ is the cardinality of its argument. This is also known as the incremental algorithm.</p>
+<p>(Note that the function <code>plot_dendrogram</code> is defined in the <a href="#Appendix">Appendix</a>)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">affinity</span> <span class="o">=</span> <span class="s1">&#39;ward&#39;</span>
+<span class="n">Z</span> <span class="o">=</span> <span class="n">linkage</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">affinity</span><span class="p">)</span>
+<span class="n">plot_dendrogram</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> 
+                <span class="mi">30</span><span class="p">,</span>    <span class="c1"># only show the last 30 merges</span>
+                <span class="mi">200</span><span class="p">)</span>   <span class="c1"># only annotates distance above 200</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/aNzQM8N.png" alt=""></p>
+<p>Now we cut the hiearchical tree at <strong>different distance (the distance metrics is stated as above)</strong> to see the clustering result more clearly.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">dist</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1200</span><span class="p">,</span> <span class="mi">400</span><span class="p">]</span>
+<span class="n">plot_agglomerative_clustering_result</span><span class="p">(</span><span class="n">df_all</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">affinity</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/7tdy6Je.png" alt=""></p>
+<p>Using variance minimization algorithm, the <code>'ward'</code> affinity separates the stations into clusters almost evenly.</p>
+<ol>
+<li>With <code>'ward'</code> affinity, the average flows are <strong>smoother</strong> than all the affinity used above.   This is because that with <code>'ward'</code> affinity, <strong>the size of the clusters are bigger</strong> and <strong>the flow counts of these clusters conecntrate better</strong>.</li>
+<li>We can clearly discover 3 types of stations and where they are:
+<ul>
+<li>the <strong>most popular</strong> stations (<strong>blue</strong> in the first figure above), which are all in Manhattan.</li>
+<li>the <strong>ordinary</strong> stations (<strong>red</strong> in the first figure above), which are mainly in Manhattan.</li>
+<li>the <strong>non-popular</strong> stations (<strong>green</strong> in the first figure above).</li>
+</ul>
+</li>
+</ol>
+<h3 id="b-agglomerative-clustering-with-pca-principle-component-analysis">B. Agglomerative Clustering with PCA (Principle Component Analysis)</h3>
+<p>There are 7   days   $\times$   48   segment   $\times$ 2=<strong>672</strong>   features    for   each   station. We would like to do dimension reduction on these features to see if the clustering result is better with lower dimentionality.</p>
+<p>We will utilize scikit-learn function <a href="http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html"><code>sklearn.decomposition.PCA</code></a>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">Parameters:
+- n_components
+</code></pre></td></tr></table>
+</div>
+</div><p>First we take a look at <strong>how well the priciple components explain the variance</strong> of our data.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">n_components</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">)</span>
+<span class="n">pca</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="n">X_pca</span> <span class="o">=</span> <span class="n">pca</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_components</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> 
+        <span class="n">pca</span><span class="o">.</span><span class="n">singular_values_</span><span class="p">,</span> 
+        <span class="s1">&#39;*&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Principle Components&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Singular Values&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Singular Values of Priciple Components&#39;</span><span class="p">)</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_components</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> 
+        <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">pca</span><span class="o">.</span><span class="n">singular_values_</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="nb">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">pca</span><span class="o">.</span><span class="n">singular_values_</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span> 
+        <span class="s1">&#39;*&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Principle Components&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Proportion of Variance Explained&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Variance Explained with Priciple Components&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/mPjXNgj.png" alt=""></p>
+<p>In the figure above, we can see that the <strong>first</strong> principle component can explain over <strong>60%</strong> of the data variance, and the <strong>top 5</strong> principles together can explains about <strong>80%</strong> of the data variance.</p>
+<p>Thus, I will use <code>n_component = 5</code> and <code>n_component = 1</code> below to do PCA and then agglomerative clustering (I will use <code>affinity = 'ward'</code> since it performs best for this data.)</p>
+<h4 id="1-extract-5-principle-components">1. Extract 5 Principle Components</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">n_components</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">)</span>
+<span class="n">pca</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="n">X_pca</span> <span class="o">=</span> <span class="n">pca</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">affinity</span> <span class="o">=</span> <span class="s1">&#39;ward&#39;</span>
+<span class="n">Z</span> <span class="o">=</span> <span class="n">linkage</span><span class="p">(</span><span class="n">X_pca</span><span class="p">,</span> <span class="n">affinity</span><span class="p">)</span>
+<span class="n">plot_dendrogram</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> 
+                <span class="mi">30</span><span class="p">,</span>    <span class="c1"># only show the last 30 merges</span>
+                <span class="mi">200</span><span class="p">)</span>   <span class="c1"># only annotates distance above 200</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/N01UoJp.png" alt=""></p>
+<p>Now we cut the hiearchical tree at <strong>different distance</strong> to see the clustering result more clearly.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">dist</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1200</span><span class="p">,</span> <span class="mi">700</span><span class="p">,</span> <span class="mi">350</span><span class="p">]</span>
+<span class="n">plot_agglomerative_PCA_clustering_result</span><span class="p">(</span><span class="n">df_all</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">affinity</span><span class="p">,</span> <span class="n">n_components</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/m0FYRKq.png" alt=""></p>
+<p>With only 5 features, we have <strong>almost the same clustering result as with 672 features</strong>.   Furthermore, <strong>the 5 clusters generated with 5 features here are a little better</strong> than the 5 clusters generated with 672 features, since the differnce in average flow are clearer here.</p>
+<h4 id="2-extract-1-principle-components">2. Extract 1 Principle Components</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">n_components</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">)</span>
+<span class="n">pca</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="n">X_pca</span> <span class="o">=</span> <span class="n">pca</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">affinity</span> <span class="o">=</span> <span class="s1">&#39;ward&#39;</span>
+<span class="n">Z</span> <span class="o">=</span> <span class="n">linkage</span><span class="p">(</span><span class="n">X_pca</span><span class="p">,</span> <span class="n">affinity</span><span class="p">)</span>
+<span class="n">plot_dendrogram</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> 
+                <span class="mi">30</span><span class="p">,</span>    <span class="c1"># only show the last 30 merges</span>
+                <span class="mi">200</span><span class="p">)</span>   <span class="c1"># only annotates distance above 200</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/mrYSAZ4.png" alt=""></p>
+<p>Now we cut the hiearchical tree at <strong>different distance</strong> to see the clustering result more clearly.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">dist</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1200</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">300</span><span class="p">]</span>
+<span class="n">plot_agglomerative_PCA_clustering_result</span><span class="p">(</span><span class="n">df_all</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">affinity</span><span class="p">,</span> <span class="n">n_components</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/WFfav4P.png" alt=""></p>
+<p>With only 1 feature, the clustering result is a little different than with 672 features.   For instance, the most popular stations (red in the first row) are different in Brooklyn.</p>
+<p>And, <strong>better than using all 672 features or 5 principle components</strong>, the 4 clusters created in the second row and the 5 clusters created in the last row are <strong>separated perfectly in the aspect of average flows over time</strong>.</p>
+<h3 id="c-observation--comparisons-1">C. Observation &amp; Comparisons</h3>
+<p>First, we compare the <strong>3 clusters</strong> generated from all 672 features with the ones generated from the extracted 5 features.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">affinity</span> <span class="o">=</span> <span class="s1">&#39;ward&#39;</span>
+<span class="n">feature_num</span> <span class="o">=</span> <span class="p">[</span><span class="mi">672</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">X</span><span class="p">,</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)]</span>
+<span class="n">Z</span> <span class="o">=</span> <span class="p">[</span><span class="n">linkage</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">affinity</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+<span class="n">dist</span> <span class="o">=</span> <span class="p">[</span><span class="mi">700</span><span class="p">,</span> <span class="mi">700</span><span class="p">]</span>
+<span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="n">df_all</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fcluster</span><span class="p">(</span><span class="n">Z</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dist</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;distance&#39;</span><span class="p">)</span>
+    
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Agglomerative Clustering (&#39;</span><span class="si">{}</span><span class="s2">&#39;, #feature=</span><span class="si">{}</span><span class="s2">, distance&gt;</span><span class="si">{}</span><span class="s2">)&#34;</span>\
+                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">affinity</span><span class="p">,</span> <span class="n">feature_num</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dist</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+    <span class="n">plot_stations_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">df_all</span><span class="p">)</span>
+    
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Average Flow for each cluster (#feature=</span><span class="si">{}</span><span class="s2">, distance&gt;</span><span class="si">{}</span><span class="s2">)&#34;</span>\
+                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">feature_num</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dist</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+    <span class="n">plot_flow_lines</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">df_all</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/5fpTW1z.png" alt=""></p>
+<p>We can see that using <strong>less than 1%</strong> of the original features, we can generate <strong>nearly the same</strong> clustering result.</p>
+<p>Next, in the figures below, we&rsquo;ll compare among the <strong>5 clusters</strong> generated from all 672 features, the extracted 5 features, and the extracted 1 feature.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">affinity</span> <span class="o">=</span> <span class="s1">&#39;ward&#39;</span>
+<span class="n">feature_num</span> <span class="o">=</span> <span class="p">[</span><span class="mi">672</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">X</span><span class="p">,</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)]</span>
+<span class="n">Z</span> <span class="o">=</span> <span class="p">[</span><span class="n">linkage</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">affinity</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+<span class="n">dist</span> <span class="o">=</span> <span class="p">[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">350</span><span class="p">,</span> <span class="mi">300</span><span class="p">]</span>
+<span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="n">df_all</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fcluster</span><span class="p">(</span><span class="n">Z</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dist</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;distance&#39;</span><span class="p">)</span>
+    
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Agglomerative Clustering (&#39;</span><span class="si">{}</span><span class="s2">&#39;, #feature=</span><span class="si">{}</span><span class="s2">, distance&gt;</span><span class="si">{}</span><span class="s2">)&#34;</span>\
+                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">affinity</span><span class="p">,</span> <span class="n">feature_num</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dist</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+    <span class="n">plot_stations_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">df_all</span><span class="p">)</span>
+    
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Average Flow for each cluster (#feature=</span><span class="si">{}</span><span class="s2">, distance&gt;</span><span class="si">{}</span><span class="s2">)&#34;</span>\
+                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">feature_num</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dist</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+    <span class="n">plot_flow_lines</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">df_all</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/cW8JqGw.png" alt=""></p>
+<p>It is clear that in the aspect of average flows, <strong>the 5 clusters generated from only 1 extracted component performs the best</strong>, and the ones generated from 5 extracted component performs a little better than the ones generated from all 672 features.</p>
+<p>That is, if our goal is to simply separate stations with their average flows over time, using only 1 extracted component is enough.</p>
+<h2 id="spatial-temporal-clustering">Spatial-Temporal Clustering</h2>
+<p>Try   to   combine   spatial   and   temporal   information   to   do   clustering,which   is   more important and meaningful.   We will give   them   different   weight   and   see   the   result.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">X</span> <span class="o">=</span> <span class="n">df_all</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&#34;station id&#34;</span><span class="p">,</span> <span class="s2">&#34;station name&#34;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>There are 2 things to consider when doing this kind of spatial-temporal clustering.</p>
+<ol>
+<li>
+<p>In clustering, <strong>each dimension of the sample points are equally influential</strong>.   Since the number of temporal features (672) are much larger than that of spatial features (2), we should adjust this imbalance ratio if <strong>we do not want the temporal features to dominate the clustering result</strong>.  The method I use is to <strong>extract a few principle components from the 672 temporal features</strong> so that the number of temporal features would be the closer to that of spatial features.</p>
+</li>
+<li>
+<p>The size of a latitude/longitude unit is not the same as the size of a flow count.   In other words, <strong>their scales are different</strong>.   Thus we need to do <strong>standardization</strong> to transform theirs values into the same scale.</p>
+</li>
+</ol>
+<p>Note that I will use the number of temporal features extracted to control the spatial-temporal weighting. The combinations are listed as belows:</p>
+<ul>
+<li>2 spatial features + 2 temporal features</li>
+<li>2 spatial features + 30 temporal features</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">combine_spatial_temporal</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">n_temporal</span><span class="p">):</span>
+    <span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">n_temporal</span><span class="p">)</span>
+    <span class="n">X_pca</span> <span class="o">=</span> <span class="n">pca</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">:])</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">X</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">],</span> <span class="n">X_pca</span><span class="p">))</span>
+    <span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+    <span class="n">X_std</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">X_std</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="a-2-clusters-of-different-temporal-spatial-weighting">A. 2 Clusters of Different Temporal-Spatial Weighting</h3>
+<p>Here we use KMeans to see the clustering result when <code>k=2</code>.</p>
+<p>(Note that the function <code>plot_spatial_temporal_clustering_result</code> is defined in the <a href="#Appendix">Appendix</a>)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">k</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">n_components</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">30</span><span class="p">]</span>
+<span class="n">Xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">combine_spatial_temporal</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">n_components</span><span class="p">]</span>
+<span class="n">kmean</span> <span class="o">=</span> <span class="p">[</span><span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">]</span>
+<span class="n">plot_spatial_temporal_clustering_result</span><span class="p">(</span><span class="n">kmean</span><span class="p">,</span> <span class="n">n_components</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">Xs</span><span class="p">,</span> <span class="n">df_all</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/8aQaVml.png" alt=""></p>
+<p>Surprisingly, with well-separated stations on map, we also obtain well-separated average flows for each cluster.   And <strong>the clustering result is nearly the same</strong> no matter the number of temporal feature is 2 or 30.</p>
+<h3 id="b-3-clusters-of-different-temporal-spatial-weighting">B. 3 Clusters of Different Temporal-Spatial Weighting</h3>
+<p>Here we use KMeans to see the clustering result when <code>k=3</code>.</p>
+<p>(Note that the function <code>plot_spatial_temporal_clustering_result</code> is defined in the <a href="#Appendix">Appendix</a>)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">k</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">n_components</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">30</span><span class="p">]</span>
+<span class="n">Xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">combine_spatial_temporal</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">n_components</span><span class="p">]</span>
+<span class="n">kmean</span> <span class="o">=</span> <span class="p">[</span><span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">]</span>
+<span class="n">plot_spatial_temporal_clustering_result</span><span class="p">(</span><span class="n">kmean</span><span class="p">,</span> <span class="n">n_components</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">Xs</span><span class="p">,</span> <span class="n">df_all</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/1Kj2otX.png" alt=""></p>
+<p>When using only <strong>2 temporal features</strong>, the data points are <strong>well separated on map</strong> but** not well separated in the aspect of their average flows** over time (the green line and red line in the upper image are very close).</p>
+<p>When using <strong>30 temporal features</strong>, the data points are still <strong>separated on map in some sense</strong>, and they are also <strong>well separated in the aspect of their average flows</strong> over time.</p>
+<h3 id="c-5-clusters-of-different-temporal-spatial-weighting">C. 5 Clusters of Different Temporal-Spatial Weighting</h3>
+<p>Here we use KMeans to see the clustering result when <code>k=5</code>.</p>
+<p>(Note that the function <code>plot_spatial_temporal_clustering_result</code> is defined in the <a href="#Appendix">Appendix</a>)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">k</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">n_components</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">30</span><span class="p">]</span>
+<span class="n">Xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">combine_spatial_temporal</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">n_components</span><span class="p">]</span>
+<span class="n">kmean</span> <span class="o">=</span> <span class="p">[</span><span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">]</span>
+<span class="n">plot_spatial_temporal_clustering_result</span><span class="p">(</span><span class="n">kmean</span><span class="p">,</span> <span class="n">n_components</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">Xs</span><span class="p">,</span> <span class="n">df_all</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/pbRGXmf.png" alt=""></p>
+<p>Check the y axis carefully you will find that in the aspect of average flows, the 5 clusters generated using 30 temporal features again separate better than using only 2 features.   However, the problem is that there are 2 clusters, which are colored in purple and yellow in the figure below, that <strong>contains only 1 data point</strong> when using 30 temporal features.</p>
+<h3 id="d-observation--comparisons">D. Observation &amp; Comparisons</h3>
+<p>To <u>obtain clusters that separates well spatially and temporally at the same time</u> is not easy.   In my opinion,</p>
+<ol>
+<li>if we want to <strong>obtain only 3 clusters, using 30 temporal fearures is better and also match our goal</strong>.</li>
+<li>However, if we want to <strong>obtain 5 or more clusters, using too many temporal features is not a good idea</strong> since there will likely be clusters that consist of only few data points.   This is beacause that the flows of these stations are  actually wide spreaded and higher dimentionality causes one-point cluster easier.</li>
+</ol>
+<h2 id="appendix">Appendix</h2>
+<p>Here are some frequently reused plotting functions in the above sections.</p>
+<h3 id="a-draw-multiple-plots-with-combinations-of-parameters">A. Draw Multiple Plots with Combinations of Parameters</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">plot_agglomerative_clustering_result</span><span class="p">(</span><span class="n">df_all</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">affinity</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">18</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">df_all</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fcluster</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">dist</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;distance&#39;</span><span class="p">)</span>
+        <span class="c1">#k = len(df_all[&#39;cluster&#39;].unique())</span>
+        <span class="c1">#print(&#34;[affinity=&#39;{}&#39;, cut-off distance={}]\nNumber of clusters: {}&#34;.format(affinity, dist[i], k))</span>
+
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Agglomerative Clustering (affinity=&#39;</span><span class="si">{}</span><span class="s2">&#39;, distance&gt;</span><span class="si">{}</span><span class="s2">)&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">affinity</span><span class="p">,</span> <span class="n">dist</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        <span class="n">plot_stations_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">df_all</span><span class="p">)</span>
+
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Average Flow for each cluster (affinity=&#39;</span><span class="si">{}</span><span class="s2">&#39;, distance&gt;</span><span class="si">{}</span><span class="s2">)&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">affinity</span><span class="p">,</span> <span class="n">dist</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        <span class="n">plot_flow_lines</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">df_all</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">plot_agglomerative_PCA_clustering_result</span><span class="p">(</span><span class="n">df_all</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">affinity</span><span class="p">,</span> <span class="n">n_components</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">df_all</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fcluster</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">dist</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;distance&#39;</span><span class="p">)</span>
+
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Agglomerative Clustering (n_components=</span><span class="si">{}</span><span class="s2">, distance&gt;</span><span class="si">{}</span><span class="s2">)&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n_components</span><span class="p">,</span> <span class="n">dist</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        <span class="n">plot_stations_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">df_all</span><span class="p">)</span>
+
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Average Flow for each cluster (n_components=</span><span class="si">{}</span><span class="s2">, distance&gt;</span><span class="si">{}</span><span class="s2">)&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n_components</span><span class="p">,</span> <span class="n">dist</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        <span class="n">plot_flow_lines</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">df_all</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">plot_spatial_temporal_clustering_result</span><span class="p">(</span><span class="n">kmean</span><span class="p">,</span> <span class="n">n_components</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">Xs</span><span class="p">,</span> <span class="n">df_all</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">n_components</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">15</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">est</span> <span class="o">=</span> <span class="n">kmean</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">df_all</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">est</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">Xs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Spatial-Temporal Clustering with KMeans (#temporal features=</span><span class="si">{}</span><span class="s2">, k=</span><span class="si">{}</span><span class="s2">)&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n_components</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">k</span><span class="p">))</span>
+        <span class="n">plot_stations_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">df_all</span><span class="p">)</span>
+
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Average Flow for each cluster (#temporal features=</span><span class="si">{}</span><span class="s2">, k=</span><span class="si">{}</span><span class="s2">)&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n_components</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">k</span><span class="p">))</span>
+        <span class="n">plot_flow_lines</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">df_all</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="b-draw-a-plot">B. Draw a Plot</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">plot_stations_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">stns</span><span class="p">):</span>
+    <span class="c1"># determine range to print based on min, max lat and lon of the data</span>
+    <span class="n">lat</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">stns</span><span class="p">[</span><span class="s1">&#39;station latitude&#39;</span><span class="p">])</span>
+    <span class="n">lon</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">stns</span><span class="p">[</span><span class="s1">&#39;station longitude&#39;</span><span class="p">])</span>
+    <span class="n">margin</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="c1"># buffer to add to the range</span>
+    <span class="n">lat_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span> <span class="o">-</span> <span class="n">margin</span>
+    <span class="n">lat_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span> <span class="o">+</span> <span class="n">margin</span>
+    <span class="n">lon_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span> <span class="o">-</span> <span class="n">margin</span>
+    <span class="n">lon_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span> <span class="o">+</span> <span class="n">margin</span>
+
+    <span class="c1"># create map using BASEMAP</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">Basemap</span><span class="p">(</span><span class="n">llcrnrlon</span><span class="o">=</span><span class="n">lon_min</span><span class="p">,</span>
+                <span class="n">llcrnrlat</span><span class="o">=</span><span class="n">lat_min</span><span class="p">,</span>
+                <span class="n">urcrnrlon</span><span class="o">=</span><span class="n">lon_max</span><span class="p">,</span>
+                <span class="n">urcrnrlat</span><span class="o">=</span><span class="n">lat_max</span><span class="p">,</span>
+                <span class="n">lat_0</span><span class="o">=</span><span class="p">(</span><span class="n">lat_max</span> <span class="o">-</span> <span class="n">lat_min</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">lon_0</span><span class="o">=</span><span class="p">(</span><span class="n">lon_max</span> <span class="o">-</span> <span class="n">lon_min</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;lcc&#39;</span><span class="p">,</span>
+                <span class="n">resolution</span> <span class="o">=</span> <span class="s1">&#39;f&#39;</span><span class="p">,)</span>
+
+    <span class="n">m</span><span class="o">.</span><span class="n">drawcoastlines</span><span class="p">()</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">fillcontinents</span><span class="p">(</span><span class="n">lake_color</span><span class="o">=</span><span class="s1">&#39;aqua&#39;</span><span class="p">)</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">drawmapboundary</span><span class="p">(</span><span class="n">fill_color</span><span class="o">=</span><span class="s1">&#39;aqua&#39;</span><span class="p">)</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">drawrivers</span><span class="p">()</span>    
+    
+    <span class="c1"># plot points</span>
+    <span class="n">clist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">stns</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+    <span class="k">if</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">in</span> <span class="n">clist</span><span class="p">:</span>
+        <span class="n">clist</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">clist</span><span class="p">)</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">Set1</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">k</span><span class="p">))))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">colors</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">stns</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">stns</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">clist</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>        
+        <span class="c1">#print(&#34;Cluster {} has {} samples.&#34;.format(clist[i], df.shape[0]))</span>
+        
+        <span class="c1"># convert lat and lon to map projection coordinates</span>
+        <span class="n">lons</span><span class="p">,</span> <span class="n">lats</span> <span class="o">=</span> <span class="n">m</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;station longitude&#39;</span><span class="p">]),</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;station latitude&#39;</span><span class="p">]))</span>        
+        <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">lons</span><span class="p">,</span> <span class="n">lats</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">plot_flow_lines</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">stns</span><span class="p">):</span>
+    <span class="n">clist</span> <span class="o">=</span> <span class="n">stns</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="k">if</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">in</span> <span class="n">clist</span><span class="p">:</span>
+        <span class="n">clist</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">clist</span><span class="p">)</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">Set1</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">colors</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">stns</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">stns</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">clist</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+        <span class="n">in_cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s1">&#39;in_flow_count&#39;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">,</span> <span class="n">df_all</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+        <span class="n">out_cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s1">&#39;out_flow_count&#39;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">,</span> <span class="n">df_all</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+        <span class="n">timeline</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">in_cols</span><span class="p">))</span>
+        <span class="n">flows</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">in_cols</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="n">out_cols</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">timeline</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">flows</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+        <span class="c1">#ax.plot(timeline, np.mean(flows, axis=0), color=color, alpha=0.3, linewidth=np.mean(np.std(flows, axis=0)))</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="c-draw-a-dendrogram">C. Draw a Dendrogram</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">plot_dendrogram</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Hierarchical Clustering Dendrogram&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;sample index&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;distance&#39;</span><span class="p">)</span>
+    <span class="n">fancy_dendrogram</span><span class="p">(</span>
+        <span class="n">Z</span><span class="p">,</span>
+        <span class="n">leaf_rotation</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span>  <span class="c1"># rotates the x axis labels</span>
+        <span class="n">leaf_font_size</span><span class="o">=</span><span class="mf">8.</span><span class="p">,</span>  <span class="c1"># font size for the x axis labels</span>
+        <span class="n">show_contracted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">truncate_mode</span><span class="o">=</span><span class="s1">&#39;lastp&#39;</span><span class="p">,</span>  <span class="c1"># show only the last p merged clusters</span>
+        <span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">,</span>  <span class="c1"># show only the last p merged clusters</span>
+        <span class="n">annotate_above</span><span class="o">=</span><span class="n">d</span><span class="p">,</span>  <span class="c1"># useful in small plots so annotations don&#39;t overlap</span>
+    <span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">fancy_dendrogram</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">max_d</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;max_d&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">max_d</span> <span class="ow">and</span> <span class="s1">&#39;color_threshold&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;color_threshold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_d</span>
+    <span class="n">annotate_above</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;annotate_above&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">ddata</span> <span class="o">=</span> <span class="n">dendrogram</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;no_plot&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Hierarchical Clustering Dendrogram (truncated)&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;sample index or (cluster size)&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;distance&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ddata</span><span class="p">[</span><span class="s1">&#39;icoord&#39;</span><span class="p">],</span> <span class="n">ddata</span><span class="p">[</span><span class="s1">&#39;dcoord&#39;</span><span class="p">],</span> <span class="n">ddata</span><span class="p">[</span><span class="s1">&#39;color_list&#39;</span><span class="p">]):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="nb">sum</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">])</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="n">annotate_above</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">c</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s2">&#34;</span><span class="si">%.3g</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="n">y</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">),</span>
+                             <span class="n">textcoords</span><span class="o">=</span><span class="s1">&#39;offset points&#39;</span><span class="p">,</span>
+                             <span class="n">va</span><span class="o">=</span><span class="s1">&#39;top&#39;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">max_d</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">max_d</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ddata</span>
+</code></pre></td></tr></table>
+</div>
+</div>
+    
+	</div>
+  <footer class="article-footer clearfix">
+  
+
+<div class="article-tags">
+  <span></span>
+  
+  <a href="https://binnz.github.io/tags/data-mining">Data-Mining</a>
+  
+  <a href="https://binnz.github.io/tags/python">Python</a>
+  
+  <a href="https://binnz.github.io/tags/scikit-learn">Scikit-Learn</a>
+  
+  <a href="https://binnz.github.io/tags/clustering">Clustering</a>
+  
+</div>
+
+
+
+
+
+<div class="article-categories">
+  <span></span>
+  
+  <a class="article-category-link" href="https://binnz.github.io/categories/programming">Programming</a>
+  
+</div>
+
+
+
+  <div class="article-share" id="share">
+    <div data-url="https://binnz.github.io/post/2018-01-02-clustering-python/" data-title="Clustering on New York City Bike Dataset" data-tsina="" class="share clearfix">
+    </div>
+  </div>
+</footer>
+
+	</article>
+  
+
+
+<section class="comment">
+<div id="disqus_thread"></div>
+</section>
+<script>
+  <!-- detect whether Disuqs can load -->
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', '//disqus.com/next/config.json?' + new Date().getTime(), true);
+  xhr.timeout = 3000; 
+
+  xhr.onload = function() { 
+
+
+var disqus_config = function () {
+this.page.url = "https://binnz.github.io/post/2018-01-02-clustering-python/";
+this.page.identifier = "https://binnz.github.io/post/2018-01-02-clustering-python/";
+};
+(function() { 
+var d = document, s = d.createElement('script');
+
+s.src = '//disc.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+}
+  xhr.ontimeout = function() {
+  <!-- cannot load Disqus, skip it. -->
+  return;
+}
+xhr.send(null);
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+    <div class="openaside"><a class="navbutton" href="#" title="Show SideBar"></a></div>
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide SideBar"></a></div>
+<aside class="clearfix">
+  
+
+<div class="categorieslist">
+  <p class="asidetitle">Categories</p>
+  <ul>
+    
+    <li><a href="https://binnz.github.io/categories/install" title="install">install<sup>2</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/life" title="life">life<sup>1</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/notes" title="notes">notes<sup>50</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/programming" title="programming">programming<sup>25</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/projects" title="projects">projects<sup>2</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/publications" title="publications">publications<sup>1</sup></a></li>
+    
+  </ul>
+</div>
+
+
+
+  
+
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+      
+			<li><a href="https://binnz.github.io/tags/ANDROID" title="android">android<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/APACHE-PIG" title="apache-pig">apache-pig<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/ASSOCIATION-ANALYSIS" title="association-analysis">association-analysis<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/BEER" title="beer">beer<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CLASSIFICATION" title="classification">classification<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CLUSTERING" title="clustering">clustering<sup>19</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CONFERENCE" title="conference">conference<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATA-MINING" title="data-mining">data-mining<sup>64</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATA-SCIENCE" title="data-science">data-science<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATABASE" title="database">database<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DEEP-LEARNING" title="deep-learning">deep-learning<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/ELASTICSEARCH" title="elasticsearch">elasticsearch<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/GRAPH" title="graph">graph<sup>12</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/HADOOP" title="hadoop">hadoop<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/INFORMATION-RETRIEVAL" title="information-retrieval">information-retrieval<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/JAVA" title="java">java<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/MACHINE-LEARNING" title="machine-learning">machine-learning<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NEURAL-NETWORK" title="neural-network">neural-network<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NLP" title="nlp">nlp<sup>4</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NLTK" title="nltk">nltk<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/PYTHON" title="python">python<sup>15</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/R" title="r">r<sup>4</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/RELATION-ALGEBRA" title="relation-algebra">relation-algebra<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SCIKIT-LEARN" title="scikit-learn">scikit-learn<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SPARK" title="spark">spark<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SQL" title="sql">sql<sup>3</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/STATISTICS" title="statistics">statistics<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/STREAMING" title="streaming">streaming<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/TIME-SERIES" title="time-series">time-series<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/TRAVEL" title="travel">travel<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/UNIT-TEST" title="unit-test">unit-test<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/VBA" title="vba">vba<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/WINDOWS" title="windows">windows<sup>1</sup></a></li>
+      
+		</ul>
+</div>
+
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle">Archives</p>
+    <ul class="archive-list">
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2021-06">2021年06月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2020-05">2020年05月</a><span class="archive-list-count">12</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2019-09">2019年09月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-09">2018年09月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-08">2018年08月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-06">2018年06月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-05">2018年05月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-04">2018年04月</a><span class="archive-list-count">5</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-03">2018年03月</a><span class="archive-list-count">5</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-01">2018年01月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-12">2017年12月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-11">2017年11月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-10">2017年10月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-09">2017年09月</a><span class="archive-list-count">10</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-08">2017年08月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-07">2017年07月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-05">2017年05月</a><span class="archive-list-count">3</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-04">2017年04月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-03">2017年03月</a><span class="archive-list-count">20</span>
+      </li>
+      
+    </ul>
+
+  </div>
+
+
+  
+
+<div class="tagcloudlist">
+  <p class="asidetitle">Tags Cloud</p>
+  <div class="tagcloudlist clearfix">
+    
+    <a href="https://binnz.github.io/tags/android" style="font-size: 12px;">android</a>
+    
+    <a href="https://binnz.github.io/tags/apache-pig" style="font-size: 12px;">apache-pig</a>
+    
+    <a href="https://binnz.github.io/tags/association-analysis" style="font-size: 12px;">association-analysis</a>
+    
+    <a href="https://binnz.github.io/tags/beer" style="font-size: 12px;">beer</a>
+    
+    <a href="https://binnz.github.io/tags/classification" style="font-size: 12px;">classification</a>
+    
+    <a href="https://binnz.github.io/tags/clustering" style="font-size: 12px;">clustering</a>
+    
+    <a href="https://binnz.github.io/tags/conference" style="font-size: 12px;">conference</a>
+    
+    <a href="https://binnz.github.io/tags/data-mining" style="font-size: 12px;">data-mining</a>
+    
+    <a href="https://binnz.github.io/tags/data-science" style="font-size: 12px;">data-science</a>
+    
+    <a href="https://binnz.github.io/tags/database" style="font-size: 12px;">database</a>
+    
+    <a href="https://binnz.github.io/tags/deep-learning" style="font-size: 12px;">deep-learning</a>
+    
+    <a href="https://binnz.github.io/tags/elasticsearch" style="font-size: 12px;">elasticsearch</a>
+    
+    <a href="https://binnz.github.io/tags/graph" style="font-size: 12px;">graph</a>
+    
+    <a href="https://binnz.github.io/tags/hadoop" style="font-size: 12px;">hadoop</a>
+    
+    <a href="https://binnz.github.io/tags/information-retrieval" style="font-size: 12px;">information-retrieval</a>
+    
+    <a href="https://binnz.github.io/tags/java" style="font-size: 12px;">java</a>
+    
+    <a href="https://binnz.github.io/tags/machine-learning" style="font-size: 12px;">machine-learning</a>
+    
+    <a href="https://binnz.github.io/tags/neural-network" style="font-size: 12px;">neural-network</a>
+    
+    <a href="https://binnz.github.io/tags/nlp" style="font-size: 12px;">nlp</a>
+    
+    <a href="https://binnz.github.io/tags/nltk" style="font-size: 12px;">nltk</a>
+    
+    <a href="https://binnz.github.io/tags/python" style="font-size: 12px;">python</a>
+    
+    <a href="https://binnz.github.io/tags/r" style="font-size: 12px;">r</a>
+    
+    <a href="https://binnz.github.io/tags/relation-algebra" style="font-size: 12px;">relation-algebra</a>
+    
+    <a href="https://binnz.github.io/tags/scikit-learn" style="font-size: 12px;">scikit-learn</a>
+    
+    <a href="https://binnz.github.io/tags/spark" style="font-size: 12px;">spark</a>
+    
+    <a href="https://binnz.github.io/tags/sql" style="font-size: 12px;">sql</a>
+    
+    <a href="https://binnz.github.io/tags/statistics" style="font-size: 12px;">statistics</a>
+    
+    <a href="https://binnz.github.io/tags/streaming" style="font-size: 12px;">streaming</a>
+    
+    <a href="https://binnz.github.io/tags/time-series" style="font-size: 12px;">time-series</a>
+    
+    <a href="https://binnz.github.io/tags/travel" style="font-size: 12px;">travel</a>
+    
+    <a href="https://binnz.github.io/tags/unit-test" style="font-size: 12px;">unit-test</a>
+    
+    <a href="https://binnz.github.io/tags/vba" style="font-size: 12px;">vba</a>
+    
+    <a href="https://binnz.github.io/tags/windows" style="font-size: 12px;">windows</a>
+    
+  </div>
+</div>
+
+
+
+  
+
+</aside>
+</div>
+
+  </div>
+  <footer><div id="footer" >
+  <div class="line">
+    <span></span>
+    
+    <div style='background:no-repeat url("https://binnz.github.io/img/US-MT-EPS-02-6001.png") left top;-webkit-background-size:6.875em 6.875em;-moz-background-size:6.875em 6.875em;background-size:6.875em 6.875em;' class="author" ></div>
+  </div>
+  <section class="info">
+    <p>hehe</p>
+  </section>
+  <div class="social-font clearfix">
+    <a href='http://weibo.com/coderzh' target="_blank" title="weibo"></a>
+    <a href='https://twitter.com/coderzh' target="_blank" title="twitter"></a>
+    <a href='https://github.com/binnz' target="_blank" class="icon-github" title="github"></a>
+    <a href='https://www.facebook.com/coderzh' target="_blank" title="facebook"></a>
+    <a href='https://www.linkedin.com/coderzh' target="_blank" title="linkedin"></a>
+  </div>
+  <p class="copyright">Powered by <a href="http://gohugo.io" target="_blank" title="hugo">hugo</a> and Theme by <a href="https://github.com/coderzh/hugo-pacman-theme" target="_blank" title="hugo-pacman-theme">hugo-pacman-theme</a> © 2021
+    
+    <a href="https://binnz.github.io/" title="California Dreaming">California Dreaming</a>
+    
+  </p>
+</div>
+</footer>
+  <script src="https://binnz.github.io/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+done = false;
+$(document).ready(function(){
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize();
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  $('form.search').on('submit', function (event) {
+    if (false === done) {
+      event.preventDefault();
+      var orgVal = $(this).find('#search').val();
+      $(this).find('#search').val('site:https:\/\/binnz.github.io\/ ' + orgVal);
+      done = true;
+      $(this).submit();
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://b.bshare.cn/barCode?site=weixin&url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});
+</script>
+
+
+
+
+
+</body>
+</html>

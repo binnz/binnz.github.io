@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Classification on California Dreaming</title>
+    <link>https://binnz.github.io/tags/classification/</link>
+    <description>Recent content in Classification on California Dreaming</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 23 Sep 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://binnz.github.io/tags/classification/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Classification Models in Machine Learning</title>
+      <link>https://binnz.github.io/post/2019-09-23-classification-models-in-machine-learning/</link>
+      <pubDate>Mon, 23 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2019-09-23-classification-models-in-machine-learning/</guid>
+      <description>&lt;p&gt;Classification is well so common in the area of machine learning and &lt;a href=&#34;https://scikit-learn.org/stable/&#34;&gt;scikit-learn&lt;/a&gt; provides a comprehensive toolkit that can be easily used.
+Here I will share some common classification models and how to apply them on a dataset using this good toolkit, while the classification process will cover&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;training and testing&lt;/li&gt;
+&lt;li&gt;cross validation and grid serach process&lt;/li&gt;
+&lt;li&gt;classification performace display&lt;/li&gt;
+&lt;li&gt;plots of area under curves&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+    <item>
+      <title>Spark MLlib Programming Practice with Airline Dataset</title>
+      <link>https://binnz.github.io/post/2018-09-17-spark-mllib/</link>
+      <pubDate>Mon, 17 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2018-09-17-spark-mllib/</guid>
+      <description>&lt;p&gt;In this document, I will build a predictive framework for predicting whether each flight in &lt;code&gt;2006&lt;/code&gt; will be cancelled or not by using the data from &lt;code&gt;2000&lt;/code&gt; to &lt;code&gt;2005&lt;/code&gt; as training data.&lt;/p&gt;
+&lt;p&gt;Items to be delivered in this document includes:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Show the predictive framework you designed. What features do you extract? What algorithms do you use in the framework?&lt;/li&gt;
+&lt;li&gt;Explain the validation method you use.&lt;/li&gt;
+&lt;li&gt;Explain the evaluation metric you use and show the effectiveness of your framework (i.e., use confusion matrix)&lt;/li&gt;
+&lt;li&gt;Show the validation results and give a summary of results.&lt;/li&gt;
+&lt;/ol&gt;</description>
+    </item>
+    
+    <item>
+      <title>Practice in R: Analysis on all individuals diagnosed with Type I diabetes</title>
+      <link>https://binnz.github.io/post/2018-09-10-r3/</link>
+      <pubDate>Mon, 10 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2018-09-10-r3/</guid>
+      <description>&lt;p&gt;The Wisconsin Diabetes Registry Study targeted all individuals $&amp;lt;30$ years of age diagnosed with Type I diabetes in southern Wisconsin, USA. Participants were requested to submit blood samples and were sent a questionnaire inquiring about hospitalizations and other events. The blood samples were used to determine glycosylated hemoglobin (GHb), and important indicator of glycemic control.&lt;/p&gt;
+&lt;p&gt;The data set &lt;code&gt;diabetes.txt&lt;/code&gt;, which can be downloaded from &lt;a href=&#34;http://ghuang.stat.nctu.edu.tw/course/datasci17/files/data/diabetes.txt&#34;&gt;here&lt;/a&gt;, contains the data from the Wisconsin Diabetes Registry Study. The data items are:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Variable name&lt;/th&gt;
+&lt;th&gt;meaning&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;ID&lt;/td&gt;
+&lt;td&gt;an unique identification number&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;HEALTH&lt;/td&gt;
+&lt;td&gt;self-reported health status: 1=excellent, 2=good, 3=fair, 4=poor&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;BH&lt;/td&gt;
+&lt;td&gt;dichotomized health status: 1=excellent health, 0=worse than excellent health&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;GENDER&lt;/td&gt;
+&lt;td&gt;sex code: 1=female, 0=male&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;GHb&lt;/td&gt;
+&lt;td&gt;overal mean glycosylated hemoglobin value in study&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;AGE&lt;/td&gt;
+&lt;td&gt;age at diagnosis (years)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;ul&gt;
+&lt;li&gt;In the section &amp;ldquo;Relationship of GHb with age&amp;rdquo;, we are interested in the relationship of GHb with age at diagnosis and/or self-reported health status&lt;/li&gt;
+&lt;li&gt;In the section &amp;ldquo;Modeling of dichotomized health status&amp;rdquo;, we use BH as the dependent variable (response variable) and use models such as logistic regression to show the explanationary power of other independent variables.&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+    <item>
+      <title>Imbalanced Data Classification</title>
+      <link>https://binnz.github.io/post/2017-07-25-imbalanced-data-classification/</link>
+      <pubDate>Tue, 25 Jul 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-07-25-imbalanced-data-classification/</guid>
+      <description>&lt;p&gt;Most of data in the real-word are imbalance in nature. Imbalanced class distribution is a scenario where the number of observations belonging to one class is significantly lower than those belonging to the other classes.   This happens because Machine Learning Algorithms are usually designed to improve accuracy by reducing the error. Thus, they do not take into account the class distribution / proportion or balance of classes.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Accuracy Paradox&lt;/strong&gt;
+Accuracy Paradox is the case where your accuracy measures tell the story that you have excellent accuracy (such as 90%), but the accuracy is only reflecting the underlying class distribution.&lt;/p&gt;
+&lt;/blockquote&gt;</description>
+    </item>
+    
+    <item>
+      <title>Bayes Classification</title>
+      <link>https://binnz.github.io/post/2017-03-23-bayes-classification/</link>
+      <pubDate>Thu, 23 Mar 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-03-23-bayes-classification/</guid>
+      <description>&lt;p&gt;Bayes classification is a probabilistic framework for solving classification problems.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Instance Based Classification</title>
+      <link>https://binnz.github.io/post/2017-03-22-instance-based-classification/</link>
+      <pubDate>Wed, 22 Mar 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-03-22-instance-based-classification/</guid>
+      <description>&lt;p&gt;Basic Idea of Instance-Based Classification:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Store the training records&lt;/li&gt;
+&lt;li&gt;Use training records to predict the class label of unseen cases&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+    <item>
+      <title>Rule Based Classification</title>
+      <link>https://binnz.github.io/post/2017-03-21-rule-based-classification/</link>
+      <pubDate>Tue, 21 Mar 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-03-21-rule-based-classification/</guid>
+      <description>&lt;p&gt;Rule-Based Classifier classify records by using a collection of “if…then…” rules.&lt;/p&gt;
+&lt;p&gt;$$
+(Condition) \rightarrow Class~Label
+$$&lt;/p&gt;
+&lt;p&gt;$$
+(Blood Type=Warm) \wedge (Lay Eggs=Yes) \rightarrow Birds
+\&lt;br&gt;
+(Taxable Income &amp;lt; 50K) \vee (Refund=Yes) \rightarrow Evade=No
+$$&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Data Mining - classification</title>
+      <link>https://binnz.github.io/post/2017-03-19-data-science-classification/</link>
+      <pubDate>Sun, 19 Mar 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-03-19-data-science-classification/</guid>
+      <description>&lt;p&gt;&lt;strong&gt;Definition&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Classification as the task of learning a &lt;strong&gt;target function&lt;/strong&gt; &lt;strong&gt;&lt;em&gt;f&lt;/em&gt;&lt;/strong&gt; that maps each attribute set &lt;strong&gt;&lt;em&gt;x&lt;/em&gt;&lt;/strong&gt; to one of the predicted class labels &lt;strong&gt;&lt;em&gt;y&lt;/em&gt;&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Classification Tasks&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Predicting tumor cells as benign or malignant&lt;/li&gt;
+&lt;li&gt;Classifying credit card transactions as legitimate or fraudulent&lt;/li&gt;
+&lt;li&gt;Categorizing news stories as finance, weather, entertainment, sports, etc.&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+    <item>
+      <title>Decision Tree</title>
+      <link>https://binnz.github.io/post/2017-03-19-decision-tree/</link>
+      <pubDate>Sun, 19 Mar 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-03-19-decision-tree/</guid>
+      <description>&lt;p&gt;Decision Tree Based Classification has the following properties:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Inexpensive to construct&lt;/li&gt;
+&lt;li&gt;Extremely fast at classifying unknown records&lt;/li&gt;
+&lt;li&gt;Easy to interpret for small-sized trees&lt;/li&gt;
+&lt;li&gt;Accuracy is comparable to other classification techniques for many simple data sets&lt;/li&gt;
+&lt;li&gt;Unsuitable for Large Datasets because sorting continuous attributes at each node needs entire data to fit in memory.&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

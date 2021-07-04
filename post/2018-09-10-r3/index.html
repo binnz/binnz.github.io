@@ -1,0 +1,2356 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Practice in R: Analysis on all individuals diagnosed with Type I diabetes - California Dreaming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+  
+  <meta name="description" content="The Wisconsin Diabetes Registry Study targeted all individuals $&lt;30$ years of age diagnosed with Type I diabetes in southern Wisconsin, USA. Participants were requested to submit blood samples and were sent a questionnaire inquiring about hospitalizations and other events. The blood samples were used to determine glycosylated hemoglobin (GHb), and important indicator of glycemic control.
+The data set diabetes.txt, which can be downloaded from here, contains the data from the Wisconsin Diabetes Registry Study. The data items are:
+
+
+
+Variable name
+meaning
+
+
+
+
+ID
+an unique identification number
+
+
+HEALTH
+self-reported health status: 1=excellent, 2=good, 3=fair, 4=poor
+
+
+BH
+dichotomized health status: 1=excellent health, 0=worse than excellent health
+
+
+GENDER
+sex code: 1=female, 0=male
+
+
+GHb
+overal mean glycosylated hemoglobin value in study
+
+
+AGE
+age at diagnosis (years)
+
+
+
+
+In the section &ldquo;Relationship of GHb with age&rdquo;, we are interested in the relationship of GHb with age at diagnosis and/or self-reported health status
+In the section &ldquo;Modeling of dichotomized health status&rdquo;, we use BH as the dependent variable (response variable) and use models such as logistic regression to show the explanationary power of other independent variables.
+">
+  
+  <meta itemprop="name" content="Practice in R: Analysis on all individuals diagnosed with Type I diabetes - California Dreaming">
+  <meta itemprop="description" content="The Wisconsin Diabetes Registry Study targeted all individuals $&lt;30$ years of age diagnosed with Type I diabetes in southern Wisconsin, USA. Participants were requested to submit blood samples and were sent a questionnaire inquiring about hospitalizations and other events. The blood samples were used to determine glycosylated hemoglobin (GHb), and important indicator of glycemic control.
+The data set diabetes.txt, which can be downloaded from here, contains the data from the Wisconsin Diabetes Registry Study. The data items are:
+
+
+
+Variable name
+meaning
+
+
+
+
+ID
+an unique identification number
+
+
+HEALTH
+self-reported health status: 1=excellent, 2=good, 3=fair, 4=poor
+
+
+BH
+dichotomized health status: 1=excellent health, 0=worse than excellent health
+
+
+GENDER
+sex code: 1=female, 0=male
+
+
+GHb
+overal mean glycosylated hemoglobin value in study
+
+
+AGE
+age at diagnosis (years)
+
+
+
+
+In the section &ldquo;Relationship of GHb with age&rdquo;, we are interested in the relationship of GHb with age at diagnosis and/or self-reported health status
+In the section &ldquo;Modeling of dichotomized health status&rdquo;, we use BH as the dependent variable (response variable) and use models such as logistic regression to show the explanationary power of other independent variables.
+">
+  <meta itemprop="image" content="https://binnz.github.io/img/author.jpg">
+  
+  
+  <meta name="twitter:description" content="">
+  
+  <link rel="shortcut icon" href="https://binnz.github.io/img/favicon.ico"/>
+  <link rel="apple-touch-icon" href="https://binnz.github.io/apple-touch-icon.png" />
+  <link rel="apple-touch-icon-precomposed" href="https://binnz.github.io/apple-touch-icon.png" />
+  <link rel="stylesheet" href="https://binnz.github.io/highlight/styles/github.css">
+  <script src="https://binnz.github.io/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  
+  <link rel="stylesheet" href="https://binnz.github.io/font/hack/css/hack.min.css">
+  <link rel="stylesheet" href="https://binnz.github.io/css/style.css">
+</head>
+
+<body>
+  <header>
+    <div>
+  <div style="height:150px; width:100%; clear:both;"></div>
+  <div id="textlogo">
+    <h1 class="site-name"><a href="https://binnz.github.io/" title="California Dreaming">California Dreaming</a></h1>
+    <h2 class="blog-motto"></h2>
+  </div>
+  <div class="navbar"><a class="navbutton navmobile" href="#" title="menu"></a></div>
+			<div style="height:50px; width:100%; clear:both;"></div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="menu">
+			</a><div style="height:50px; width:100%; clear:both;"></div></div>
+  <nav class="animated">
+    <ul>
+      
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/post/">Archives</a></li>
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      <li>
+        <form class="search" method="get" action="https://www.google.com/search">
+          <div>
+            <input type="text" id="search" name="q" placeholder='Search'>
+          </div>
+        </form>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+  </header>
+  <div id="container">
+    <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+      <a href="https://binnz.github.io/post/2018-09-10-r3/" title="Practice in R: Analysis on all individuals diagnosed with Type I diabetes" itemprop="url">Practice in R: Analysis on all individuals diagnosed with Type I diabetes</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="" title="">you</a>
+    
+  </p>
+  <p class="article-time">
+    <time datetime="2018-09-10 00:00:00 &#43;0000 UTC" itemprop="datePublished">2018-09-10</time>
+  </p>
+</header>
+
+	<div class="article-content">
+    
+    <p>The Wisconsin Diabetes Registry Study targeted all individuals $&lt;30$ years of age diagnosed with Type I diabetes in southern Wisconsin, USA. Participants were requested to submit blood samples and were sent a questionnaire inquiring about hospitalizations and other events. The blood samples were used to determine glycosylated hemoglobin (GHb), and important indicator of glycemic control.</p>
+<p>The data set <code>diabetes.txt</code>, which can be downloaded from <a href="http://ghuang.stat.nctu.edu.tw/course/datasci17/files/data/diabetes.txt">here</a>, contains the data from the Wisconsin Diabetes Registry Study. The data items are:</p>
+<table>
+<thead>
+<tr>
+<th>Variable name</th>
+<th>meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ID</td>
+<td>an unique identification number</td>
+</tr>
+<tr>
+<td>HEALTH</td>
+<td>self-reported health status: 1=excellent, 2=good, 3=fair, 4=poor</td>
+</tr>
+<tr>
+<td>BH</td>
+<td>dichotomized health status: 1=excellent health, 0=worse than excellent health</td>
+</tr>
+<tr>
+<td>GENDER</td>
+<td>sex code: 1=female, 0=male</td>
+</tr>
+<tr>
+<td>GHb</td>
+<td>overal mean glycosylated hemoglobin value in study</td>
+</tr>
+<tr>
+<td>AGE</td>
+<td>age at diagnosis (years)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>In the section &ldquo;Relationship of GHb with age&rdquo;, we are interested in the relationship of GHb with age at diagnosis and/or self-reported health status</li>
+<li>In the section &ldquo;Modeling of dichotomized health status&rdquo;, we use BH as the dependent variable (response variable) and use models such as logistic regression to show the explanationary power of other independent variables.</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="nf">library</span><span class="p">(</span><span class="n">psych</span><span class="p">)</span>
+<span class="nf">library</span><span class="p">(</span><span class="n">dplyr</span><span class="p">)</span>
+<span class="nf">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="n">df</span> <span class="o">&lt;-</span> <span class="nf">read.table</span><span class="p">(</span><span class="s">&#34;http://ghuang.stat.nctu.edu.tw/course/datasci17/files/data/diabetes.txt&#34;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="bp">T</span><span class="p">)</span>
+<span class="nf">head</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="relationship-of-ghb-with-age">Relationship of GHb with age</h2>
+<h3 id="investigate-the-association-between-ghb-and-age-at-diagnosis">Investigate the association between <strong>GHb</strong> and <strong>age</strong> at diagnosis</h3>
+<p>Our goal is to fit a linear regression to investigate the association between <strong>GHb</strong> and <strong>age</strong> at diagnosis.</p>
+<p>First, let us observe the distribution of response variable, $GHb$.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="nf">par</span><span class="p">(</span><span class="n">mfrow</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">3</span><span class="p">,</span><span class="m">1</span><span class="p">))</span>
+<span class="nf">hist</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">GHb</span><span class="p">,</span> <span class="n">main</span><span class="o">=</span><span class="s">&#34;Histogram for GHb&#34;</span><span class="p">,</span> <span class="n">xlab</span><span class="o">=</span><span class="s">&#34;GHb&#34;</span><span class="p">,</span> <span class="n">ylab</span><span class="o">=</span><span class="s">&#34;&#34;</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="s">&#34;blue&#34;</span><span class="p">,</span>  <span class="n">col</span><span class="o">=</span><span class="s">&#34;green&#34;</span><span class="p">,</span> <span class="n">breaks</span><span class="o">=</span><span class="m">100</span><span class="p">,</span> <span class="n">prob</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
+<span class="nf">lines</span><span class="p">(</span><span class="nf">density</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">GHb</span><span class="p">,</span> <span class="n">na.rm</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">))</span>
+
+<span class="nf">hist</span><span class="p">(</span><span class="nf">sqrt</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">GHb</span><span class="p">),</span> <span class="n">main</span><span class="o">=</span><span class="nf">expression</span><span class="p">(</span><span class="s">&#34;Histogram for&#34;</span> <span class="o">~</span> <span class="nf">sqrt</span><span class="p">(</span><span class="n">GHb</span><span class="p">)),</span> <span class="n">xlab</span><span class="o">=</span><span class="nf">expression</span><span class="p">(</span><span class="nf">sqrt</span><span class="p">(</span><span class="n">GHb</span><span class="p">)),</span> <span class="n">ylab</span><span class="o">=</span><span class="s">&#34;&#34;</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="s">&#34;blue&#34;</span><span class="p">,</span>  <span class="n">col</span><span class="o">=</span><span class="s">&#34;green&#34;</span><span class="p">,</span> <span class="n">breaks</span><span class="o">=</span><span class="m">100</span><span class="p">,</span> <span class="n">prob</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
+<span class="nf">lines</span><span class="p">(</span><span class="nf">density</span><span class="p">(</span><span class="nf">sqrt</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">GHb</span><span class="p">),</span> <span class="n">na.rm</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">))</span>
+
+<span class="nf">hist</span><span class="p">(</span><span class="nf">log</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">GHb</span><span class="p">),</span> <span class="n">main</span><span class="o">=</span><span class="s">&#34;Histogram for log(GHb)&#34;</span><span class="p">,</span> <span class="n">xlab</span><span class="o">=</span><span class="s">&#34;log(GHb)&#34;</span><span class="p">,</span> <span class="n">ylab</span><span class="o">=</span><span class="s">&#34;&#34;</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="s">&#34;blue&#34;</span><span class="p">,</span>  <span class="n">col</span><span class="o">=</span><span class="s">&#34;green&#34;</span><span class="p">,</span> <span class="n">breaks</span><span class="o">=</span><span class="m">100</span><span class="p">,</span> <span class="n">prob</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
+<span class="nf">lines</span><span class="p">(</span><span class="nf">density</span><span class="p">(</span><span class="nf">log</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">GHb</span><span class="p">),</span> <span class="n">na.rm</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">))</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/B2trZ8J.png" alt=""></p>
+<p>Since $GHb$ is right skewed, we should transfer $GHb$ to $log(GHb)$ according to the observation above.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="n">y</span> <span class="o">&lt;-</span> <span class="nf">describe</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">GHb</span><span class="p">)</span>
+<span class="n">logy</span> <span class="o">&lt;-</span> <span class="nf">describe</span><span class="p">(</span><span class="nf">log</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">GHb</span><span class="p">))</span>
+
+<span class="c1">## Show Result</span>
+<span class="n">tab</span> <span class="o">&lt;-</span> <span class="nf">matrix</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="n">y</span><span class="o">$</span><span class="n">skew</span><span class="p">,</span> <span class="n">logy</span><span class="o">$</span><span class="n">skew</span><span class="p">),</span> <span class="n">ncol</span><span class="o">=</span><span class="m">2</span><span class="p">,</span> <span class="n">byrow</span><span class="o">=</span><span class="bp">F</span><span class="p">)</span>
+<span class="nf">colnames</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&#34;GHb&#34;</span><span class="p">,</span> <span class="s">&#34;log(GHb)&#34;</span><span class="p">)</span>
+<span class="nf">rownames</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&#34;skewness&#34;</span><span class="p">)</span>
+<span class="n">tab</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">##                GHb   log(GHb)</span>
+<span class="c1">## skewness 0.8574995 0.03079306</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Now let&rsquo;s fit the linear regression model for the original value of $GHb$, $AGE$, and their transformation.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="n">df</span><span class="o">$</span><span class="n">AGE2</span> <span class="o">&lt;-</span> <span class="n">df</span><span class="o">$</span><span class="n">AGE^2</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="n">s1_1</span> <span class="o">&lt;-</span> <span class="n">df</span> <span class="o">%&gt;%</span> <span class="nf">lm</span><span class="p">(</span><span class="n">GHb</span> <span class="o">~</span> <span class="n">AGE</span><span class="p">,</span> <span class="n">dat</span><span class="o">=</span><span class="n">.)</span> <span class="o">%&gt;%</span> <span class="n">summary</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">s1_1</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">## </span>
+<span class="c1">## Call:</span>
+<span class="c1">## lm(formula = GHb ~ AGE, data = .)</span>
+<span class="c1">## </span>
+<span class="c1">## Residuals:</span>
+<span class="c1">##     Min      1Q  Median      3Q     Max </span>
+<span class="c1">## -5.1885 -1.4515 -0.2526  1.2454 11.0896 </span>
+<span class="c1">## </span>
+<span class="c1">## Coefficients:</span>
+<span class="c1">##             Estimate Std. Error t value Pr(&gt;|t|)    </span>
+<span class="c1">## (Intercept) 11.27118    0.17685  63.733   &lt;2e-16 ***</span>
+<span class="c1">## AGE         -0.02470    0.01391  -1.776   0.0763 .  </span>
+<span class="c1">## ---</span>
+<span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
+<span class="c1">## </span>
+<span class="c1">## Residual standard error: 2.132 on 555 degrees of freedom</span>
+<span class="c1">##   (9 observations deleted due to missingness)</span>
+<span class="c1">## Multiple R-squared:  0.005652,   Adjusted R-squared:  0.00386 </span>
+<span class="c1">## F-statistic: 3.155 on 1 and 555 DF,  p-value: 0.07625</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="n">s1_2</span> <span class="o">&lt;-</span> <span class="n">df</span> <span class="o">%&gt;%</span> <span class="nf">lm</span><span class="p">(</span><span class="n">GHb</span> <span class="o">~</span> <span class="n">AGE</span> <span class="o">+</span> <span class="n">AGE2</span><span class="p">,</span> <span class="n">dat</span><span class="o">=</span><span class="n">.)</span> <span class="o">%&gt;%</span> <span class="n">summary</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">s1_2</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">## </span>
+<span class="c1">## Call:</span>
+<span class="c1">## lm(formula = GHb ~ AGE + AGE2, data = .)</span>
+<span class="c1">## </span>
+<span class="c1">## Residuals:</span>
+<span class="c1">##     Min      1Q  Median      3Q     Max </span>
+<span class="c1">## -5.3567 -1.3668 -0.2108  1.2241 10.8219 </span>
+<span class="c1">## </span>
+<span class="c1">## Coefficients:</span>
+<span class="c1">##              Estimate Std. Error t value Pr(&gt;|t|)    </span>
+<span class="c1">## (Intercept) 10.444419   0.275136  37.961  &lt; 2e-16 ***</span>
+<span class="c1">## AGE          0.140172   0.044566   3.145 0.001748 ** </span>
+<span class="c1">## AGE2        -0.006034   0.001552  -3.889 0.000113 ***</span>
+<span class="c1">## ---</span>
+<span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
+<span class="c1">## </span>
+<span class="c1">## Residual standard error: 2.105 on 554 degrees of freedom</span>
+<span class="c1">##   (9 observations deleted due to missingness)</span>
+<span class="c1">## Multiple R-squared:  0.03207,    Adjusted R-squared:  0.02858 </span>
+<span class="c1">## F-statistic: 9.179 on 2 and 554 DF,  p-value: 0.0001198</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="n">s1_3</span> <span class="o">&lt;-</span> <span class="n">df</span> <span class="o">%&gt;%</span> <span class="nf">lm</span><span class="p">(</span><span class="nf">log</span><span class="p">(</span><span class="n">GHb</span><span class="p">)</span> <span class="o">~</span> <span class="n">AGE</span><span class="p">,</span> <span class="n">dat</span><span class="o">=</span><span class="n">.)</span> <span class="o">%&gt;%</span> <span class="n">summary</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">s1_3</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">## </span>
+<span class="c1">## Call:</span>
+<span class="c1">## lm(formula = log(GHb) ~ AGE, data = .)</span>
+<span class="c1">## </span>
+<span class="c1">## Residuals:</span>
+<span class="c1">##      Min       1Q   Median       3Q      Max </span>
+<span class="c1">## -0.62850 -0.12590 -0.00618  0.12537  0.71620 </span>
+<span class="c1">## </span>
+<span class="c1">## Coefficients:</span>
+<span class="c1">##              Estimate Std. Error t value Pr(&gt;|t|)    </span>
+<span class="c1">## (Intercept)  2.414185   0.015712 153.650   &lt;2e-16 ***</span>
+<span class="c1">## AGE         -0.003141   0.001236  -2.542   0.0113 *  </span>
+<span class="c1">## ---</span>
+<span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
+<span class="c1">## </span>
+<span class="c1">## Residual standard error: 0.1894 on 555 degrees of freedom</span>
+<span class="c1">##   (9 observations deleted due to missingness)</span>
+<span class="c1">## Multiple R-squared:  0.01151,    Adjusted R-squared:  0.009732 </span>
+<span class="c1">## F-statistic: 6.464 on 1 and 555 DF,  p-value: 0.01128</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="n">s1_4</span> <span class="o">&lt;-</span> <span class="n">df</span> <span class="o">%&gt;%</span> <span class="nf">lm</span><span class="p">(</span><span class="nf">log</span><span class="p">(</span><span class="n">GHb</span><span class="p">)</span> <span class="o">~</span> <span class="n">AGE</span> <span class="o">+</span> <span class="n">AGE2</span><span class="p">,</span> <span class="n">dat</span><span class="o">=</span><span class="n">.)</span> <span class="o">%&gt;%</span> <span class="n">summary</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">s1_4</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">## </span>
+<span class="c1">## Call:</span>
+<span class="c1">## lm(formula = log(GHb) ~ AGE + AGE2, data = .)</span>
+<span class="c1">## </span>
+<span class="c1">## Residuals:</span>
+<span class="c1">##     Min      1Q  Median      3Q     Max </span>
+<span class="c1">## -0.6432 -0.1218 -0.0054  0.1230  0.6928 </span>
+<span class="c1">## </span>
+<span class="c1">## Coefficients:</span>
+<span class="c1">##               Estimate Std. Error t value Pr(&gt;|t|)    </span>
+<span class="c1">## (Intercept)  2.3420739  0.0244565  95.765  &lt; 2e-16 ***</span>
+<span class="c1">## AGE          0.0112391  0.0039615   2.837 0.004719 ** </span>
+<span class="c1">## AGE2        -0.0005263  0.0001379  -3.816 0.000151 ***</span>
+<span class="c1">## ---</span>
+<span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
+<span class="c1">## </span>
+<span class="c1">## Residual standard error: 0.1871 on 554 degrees of freedom</span>
+<span class="c1">##   (9 observations deleted due to missingness)</span>
+<span class="c1">## Multiple R-squared:  0.03683,    Adjusted R-squared:  0.03335 </span>
+<span class="c1">## F-statistic: 10.59 on 2 and 554 DF,  p-value: 3.062e-05</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="q-is-the-square-term-of-age-needed">Q. Is the square term of AGE needed?</h4>
+<p>From the table below we can conclude that</p>
+<ol>
+<li>When $AGE^2$ is <strong>not</strong> included in the model, with $GHb$ as response, the variable $AGE$ has about <strong>85%</strong> confidence to be significant.</li>
+<li>When $AGE^2$ is included in the model, with $GHb$ as response, the variable $AGE$ has about <strong>99.65%</strong> confidence to be significant and the variable $AGE^2$ has about <strong>99.99%</strong> confidence to be siginificant.</li>
+<li>The value of $adjusted~R^2$ <strong>increases by about 0.0247</strong> when $AGE^2$ is included in the model.</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="n">tab</span> <span class="o">&lt;-</span> <span class="nf">matrix</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="n">s1_1</span><span class="o">$</span><span class="n">coefficients[2]</span><span class="p">,</span> <span class="n">s1_2</span><span class="o">$</span><span class="n">coefficients[2]</span><span class="p">,</span> 
+                <span class="n">s1_1</span><span class="o">$</span><span class="n">coefficients[8]</span><span class="p">,</span> <span class="n">s1_2</span><span class="o">$</span><span class="n">coefficients[11]</span><span class="p">,</span> 
+                <span class="m">0</span><span class="p">,</span> <span class="n">s1_2</span><span class="o">$</span><span class="n">coefficients[3]</span><span class="p">,</span> 
+                <span class="m">0</span><span class="p">,</span> <span class="n">s1_2</span><span class="o">$</span><span class="n">coefficients[12]</span><span class="p">,</span> 
+                <span class="n">s1_1</span><span class="o">$</span><span class="n">adj.r.squared</span><span class="p">,</span> <span class="n">s1_2</span><span class="o">$</span><span class="n">adj.r.squared</span><span class="p">),</span> <span class="n">ncol</span><span class="o">=</span><span class="m">2</span><span class="p">,</span> <span class="n">byrow</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span>
+<span class="nf">colnames</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&#34;[GHb ~ AGE]&#34;</span><span class="p">,</span> <span class="s">&#34;[GHb ~ AGE + AGE^2]&#34;</span><span class="p">)</span>
+<span class="nf">rownames</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&#34;Coefficient of AGE&#34;</span><span class="p">,</span> <span class="s">&#34;(P-Value of AGE)&#34;</span><span class="p">,</span> <span class="s">&#34;Coefficient of AGE^2&#34;</span><span class="p">,</span> <span class="s">&#34;(P-Value of AGE^2)&#34;</span><span class="p">,</span> 
+                   <span class="s">&#34;Adjusted r-squared&#34;</span><span class="p">)</span>
+<span class="n">tab</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">##                       [GHb ~ AGE] [GHb ~ AGE + AGE^2]</span>
+<span class="c1">## Coefficient of AGE   -0.024701508        0.1401722095</span>
+<span class="c1">## (P-Value of AGE)      0.076253926        0.0017484520</span>
+<span class="c1">## Coefficient of AGE^2  0.000000000       -0.0060337124</span>
+<span class="c1">## (P-Value of AGE^2)    0.000000000        0.0001129816</span>
+<span class="c1">## Adjusted r-squared    0.003860494        0.0285792238</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>From the table below we can conclude that</p>
+<ol>
+<li>When $AGE^2$ is <strong>not</strong> included in the model, with $log(GHb)$ as response, the variable $AGE$ has about <strong>98%</strong> confidence to be significant.</li>
+<li>When $AGE^2$ is included in the model, with $log(GHb)$ as response, the variable $AGE$ has about <strong>99%</strong> confidence to be significant and the variable $AGE^2$ has about <strong>99.97%</strong> confidence to be siginificant.</li>
+<li>The value of $adjusted~R^2$ <strong>increases by about 0.0236</strong> when $AGE^2$ is included in the model.</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="n">tab</span> <span class="o">&lt;-</span> <span class="nf">matrix</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="n">s1_3</span><span class="o">$</span><span class="n">coefficients[2]</span><span class="p">,</span> <span class="n">s1_4</span><span class="o">$</span><span class="n">coefficients[2]</span><span class="p">,</span> 
+                <span class="n">s1_3</span><span class="o">$</span><span class="n">coefficients[8]</span><span class="p">,</span> <span class="n">s1_4</span><span class="o">$</span><span class="n">coefficients[11]</span><span class="p">,</span> 
+                <span class="m">0</span><span class="p">,</span> <span class="n">s1_4</span><span class="o">$</span><span class="n">coefficients[3]</span><span class="p">,</span> 
+                <span class="m">0</span><span class="p">,</span> <span class="n">s1_4</span><span class="o">$</span><span class="n">coefficients[12]</span><span class="p">,</span> 
+                <span class="n">s1_3</span><span class="o">$</span><span class="n">adj.r.squared</span><span class="p">,</span> <span class="n">s1_4</span><span class="o">$</span><span class="n">adj.r.squared</span><span class="p">),</span> <span class="n">ncol</span><span class="o">=</span><span class="m">2</span><span class="p">,</span> <span class="n">byrow</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span>
+<span class="nf">colnames</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&#34;[log(GHb) ~ AGE]&#34;</span><span class="p">,</span> <span class="s">&#34;[log(GHb) ~ AGE + AGE^2]&#34;</span><span class="p">)</span>
+<span class="nf">rownames</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&#34;Coefficient of AGE&#34;</span><span class="p">,</span> <span class="s">&#34;(P-Value of AGE)&#34;</span><span class="p">,</span> <span class="s">&#34;Coefficient of AGE^2&#34;</span><span class="p">,</span> <span class="s">&#34;(P-Value of AGE^2)&#34;</span><span class="p">,</span> 
+                   <span class="s">&#34;Adjusted r-squared&#34;</span><span class="p">)</span>
+<span class="n">tab</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">##                      [log(GHb) ~ AGE] [log(GHb) ~ AGE + AGE^2]</span>
+<span class="c1">## Coefficient of AGE       -0.003141446             0.0112390969</span>
+<span class="c1">## (P-Value of AGE)          0.011277878             0.0047190001</span>
+<span class="c1">## Coefficient of AGE^2      0.000000000            -0.0005262698</span>
+<span class="c1">## (P-Value of AGE^2)        0.000000000             0.0001510187</span>
+<span class="c1">## Adjusted r-squared        0.009731938             0.0333503337</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>In conclusion, the linear regression model fit better when the variable $AGE^2$ is included in the model.   So the square term of $AGE$ is needed.</p>
+<h4 id="q-how-to-interpret-the-regression-coefficients">Q. How to interpret the regression coefficients?</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="nf">print</span><span class="p">(</span><span class="n">s1_4</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">## </span>
+<span class="c1">## Call:</span>
+<span class="c1">## lm(formula = log(GHb) ~ AGE + AGE2, data = .)</span>
+<span class="c1">## </span>
+<span class="c1">## Residuals:</span>
+<span class="c1">##     Min      1Q  Median      3Q     Max </span>
+<span class="c1">## -0.6432 -0.1218 -0.0054  0.1230  0.6928 </span>
+<span class="c1">## </span>
+<span class="c1">## Coefficients:</span>
+<span class="c1">##               Estimate Std. Error t value Pr(&gt;|t|)    </span>
+<span class="c1">## (Intercept)  2.3420739  0.0244565  95.765  &lt; 2e-16 ***</span>
+<span class="c1">## AGE          0.0112391  0.0039615   2.837 0.004719 ** </span>
+<span class="c1">## AGE2        -0.0005263  0.0001379  -3.816 0.000151 ***</span>
+<span class="c1">## ---</span>
+<span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
+<span class="c1">## </span>
+<span class="c1">## Residual standard error: 0.1871 on 554 degrees of freedom</span>
+<span class="c1">##   (9 observations deleted due to missingness)</span>
+<span class="c1">## Multiple R-squared:  0.03683,    Adjusted R-squared:  0.03335 </span>
+<span class="c1">## F-statistic: 10.59 on 2 and 554 DF,  p-value: 3.062e-05</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>The glycosylated hemoglobin value of a person is correlated with his/her age at diagnoisis.   The model above stated that there is a linear relationship between the logarithm value of a person&rsquo;s glycosylated hemoglobin value and his/her age.</p>
+<p>That is,</p>
+<ol>
+<li>The initial value of $log(GHb)$ is $2.3420739$ when $AGE$ is 0.</li>
+<li>When $AGE$ changes from 0 to 1, it can cause $(1-0) \times (0.0112391)+(1^2-0^2) \times (-0.0005263)=0.0107128$ units of increase in $log(GHb)$.</li>
+<li>When $AGE$ changes from 1 to 2, it can cause $(1-0) \times (0.0112391)+(2^2-1^2) \times (-0.0005263)=0.0096602$ units of increase in $log(GHb)$.</li>
+<li>&hellip;(and so on.)</li>
+</ol>
+<h3 id="investigate-the-association-between-ghb-and-self-reported-health-status">Investigate the association between <strong>GHb</strong> and <strong>self-reported health status</strong></h3>
+<p>Now fit a linear regression model for <strong>GHb</strong> versus <strong>self-reported health status</strong>.</p>
+<p>First, we create dummy variables for self-reported health status, using the group that has the highest mean GHb value as the baseline. Which group is the baseline? (Note: when creating dummy variables, pay attention to the missing values in HEALTH).</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="n">tab</span> <span class="o">&lt;-</span> <span class="nf">matrix</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="nf">mean</span><span class="p">(</span><span class="nf">subset</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">HEALTH</span> <span class="o">==</span> <span class="m">1</span> <span class="o">&amp;</span> <span class="o">!</span><span class="nf">is.na</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">GHb</span><span class="p">))</span><span class="o">$</span><span class="n">GHb</span><span class="p">),</span> 
+                <span class="nf">mean</span><span class="p">(</span><span class="nf">subset</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">HEALTH</span> <span class="o">==</span> <span class="m">2</span> <span class="o">&amp;</span> <span class="o">!</span><span class="nf">is.na</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">GHb</span><span class="p">))</span><span class="o">$</span><span class="n">GHb</span><span class="p">),</span> 
+                <span class="nf">mean</span><span class="p">(</span><span class="nf">subset</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">HEALTH</span> <span class="o">==</span> <span class="m">3</span> <span class="o">&amp;</span> <span class="o">!</span><span class="nf">is.na</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">GHb</span><span class="p">))</span><span class="o">$</span><span class="n">GHb</span><span class="p">),</span> 
+                <span class="nf">mean</span><span class="p">(</span><span class="nf">subset</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">HEALTH</span> <span class="o">==</span> <span class="m">4</span> <span class="o">&amp;</span> <span class="o">!</span><span class="nf">is.na</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">GHb</span><span class="p">))</span><span class="o">$</span><span class="n">GHb</span><span class="p">)),</span> <span class="n">ncol</span><span class="o">=</span><span class="m">4</span><span class="p">,</span> <span class="n">byrow</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span>
+<span class="nf">colnames</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="m">1</span><span class="o">:</span><span class="m">4</span><span class="p">)</span>
+<span class="nf">rownames</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&#34;Mean GHb&#34;</span><span class="p">)</span>
+<span class="n">tab</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">##                 1        2        3        4</span>
+<span class="c1">## Mean GHb 10.62296 11.13718 12.08103 11.38529</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>We will use the group with $HEALTH = 3$ as baseline when creating dummy variables since it is the group that has the highest mean GHb value.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="c1">## Create dummy variables</span>
+<span class="n">df</span><span class="o">$</span><span class="n">H1</span> <span class="o">&lt;-</span> <span class="nf">ifelse</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">HEALTH</span> <span class="o">==</span> <span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+<span class="n">df</span><span class="o">$</span><span class="n">H2</span> <span class="o">&lt;-</span> <span class="nf">ifelse</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">HEALTH</span> <span class="o">==</span> <span class="m">2</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+<span class="n">df</span><span class="o">$</span><span class="n">H4</span> <span class="o">&lt;-</span> <span class="nf">ifelse</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">HEALTH</span> <span class="o">==</span> <span class="m">4</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+
+<span class="c1">## Remove NA values in HEALTH column to prevent counting these records as HEALTH == 3</span>
+<span class="n">df</span> <span class="o">%&gt;%</span> <span class="nf">select</span><span class="p">(</span><span class="n">HEALTH</span><span class="p">,</span> <span class="n">H1</span><span class="p">,</span> <span class="n">H2</span><span class="p">,</span> <span class="n">H4</span><span class="p">,</span> <span class="n">GHb</span><span class="p">)</span> <span class="o">%&gt;%</span> 
+       <span class="nf">na.omit</span><span class="p">()</span> <span class="o">%&gt;%</span> 
+       <span class="nf">lm</span><span class="p">(</span><span class="nf">log</span><span class="p">(</span><span class="n">GHb</span><span class="p">)</span> <span class="o">~</span> <span class="n">H1</span> <span class="o">+</span> <span class="n">H2</span> <span class="o">+</span> <span class="n">H4</span><span class="p">,</span> <span class="n">dat</span><span class="o">=</span><span class="n">.)</span> <span class="o">%&gt;%</span> 
+       <span class="nf">summary</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">## </span>
+<span class="c1">## Call:</span>
+<span class="c1">## lm(formula = log(GHb) ~ H1 + H2 + H4, data = .)</span>
+<span class="c1">## </span>
+<span class="c1">## Residuals:</span>
+<span class="c1">##      Min       1Q   Median       3Q      Max </span>
+<span class="c1">## -0.66510 -0.11337  0.00143  0.12009  0.64702 </span>
+<span class="c1">## </span>
+<span class="c1">## Coefficients:</span>
+<span class="c1">##             Estimate Std. Error t value Pr(&gt;|t|)    </span>
+<span class="c1">## (Intercept)  2.46878    0.02758  89.520  &lt; 2e-16 ***</span>
+<span class="c1">## H1          -0.12256    0.03011  -4.071 5.38e-05 ***</span>
+<span class="c1">## H2          -0.07558    0.02992  -2.526   0.0118 *  </span>
+<span class="c1">## H4          -0.03657    0.13510  -0.271   0.7867    </span>
+<span class="c1">## ---</span>
+<span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
+<span class="c1">## </span>
+<span class="c1">## Residual standard error: 0.187 on 544 degrees of freedom</span>
+<span class="c1">## Multiple R-squared:  0.03483,    Adjusted R-squared:  0.02951 </span>
+<span class="c1">## F-statistic: 6.543 on 3 and 544 DF,  p-value: 0.0002368</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="q-what-is-the-interpretation-of-regression-coefficients">Q. What is the interpretation of regression coefficients?</h4>
+<p>The linear model we obtain is
+$$
+log(GHb) = 2.46878 - 0.12256 \times H1 - 0.07558 \times H2  - 0.03657 \times H4
+$$</p>
+<ol>
+<li>For people whose health status is 3, the mean value of $log(GHb)$ is $2.46878$.</li>
+<li>$-0.12256$ is the difference in mean value of $log(GHb)$ between people whose health status is 1 and people whose health status is 3.</li>
+<li>$-0.07558$ is the difference in mean value of $log(GHb)$ between people whose health status is 2 and people whose health status is 3.</li>
+<li>$-0.03657$ is the difference in mean value of $log(GHb)$ between people whose health status is 4 and people whose health status is 3.</li>
+</ol>
+<h3 id="investigate-the-association-between-ghb-and-self-reported-health-status-after-adjusting-for-age">Investigate the association between <strong>GHb</strong> and <strong>self-reported health status</strong> after adjusting for age</h3>
+<p>Based on previous results, study the relationship of <strong>GHb</strong> with <strong>age</strong> at diagnosis and <strong>self-reported health status</strong>. Is self-reported health status significantly associated with GHb after adjusting for age at diagnosis, and vice versa?</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="c1">## fit sevral linear models needed</span>
+<span class="n">s3_1</span> <span class="o">&lt;-</span> <span class="n">df</span> <span class="o">%&gt;%</span> <span class="nf">lm</span><span class="p">(</span><span class="nf">log</span><span class="p">(</span><span class="n">GHb</span><span class="p">)</span> <span class="o">~</span> <span class="n">HEALTH</span><span class="p">,</span> <span class="n">dat</span><span class="o">=</span><span class="n">.)</span> <span class="o">%&gt;%</span> <span class="n">summary</span>
+<span class="n">s3_2</span> <span class="o">&lt;-</span> <span class="n">df</span> <span class="o">%&gt;%</span> <span class="nf">lm</span><span class="p">(</span><span class="nf">log</span><span class="p">(</span><span class="n">GHb</span><span class="p">)</span> <span class="o">~</span> <span class="n">AGE</span><span class="p">,</span> <span class="n">dat</span><span class="o">=</span><span class="n">.)</span> <span class="o">%&gt;%</span> <span class="n">summary</span>
+<span class="n">s3_3</span> <span class="o">&lt;-</span> <span class="n">df</span> <span class="o">%&gt;%</span> <span class="nf">lm</span><span class="p">(</span><span class="nf">log</span><span class="p">(</span><span class="n">GHb</span><span class="p">)</span> <span class="o">~</span> <span class="n">HEALTH</span> <span class="o">+</span> <span class="n">AGE</span><span class="p">,</span> <span class="n">dat</span><span class="o">=</span><span class="n">.)</span> <span class="o">%&gt;%</span> <span class="n">summary</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="c1">## Compare coefficients of the fitted models</span>
+<span class="n">tab</span> <span class="o">&lt;-</span> <span class="nf">matrix</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="n">s3_1</span><span class="o">$</span><span class="n">coefficients[2]</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> 
+                <span class="m">0</span><span class="p">,</span> <span class="n">s3_2</span><span class="o">$</span><span class="n">coefficients[2]</span><span class="p">,</span> 
+                <span class="n">s3_3</span><span class="o">$</span><span class="n">coefficients[2]</span><span class="p">,</span> <span class="n">s3_3</span><span class="o">$</span><span class="n">coefficients[3]</span><span class="p">),</span> <span class="n">ncol</span><span class="o">=</span><span class="m">3</span><span class="p">,</span> <span class="n">byrow</span><span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span>
+<span class="nf">colnames</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&#34;[log(GHb) ~ HEALTH]&#34;</span><span class="p">,</span> <span class="s">&#34;[log(GHb) ~ AGE]&#34;</span><span class="p">,</span> <span class="s">&#34;[log(GHb) ~ HEALTH + AGE]&#34;</span><span class="p">)</span>
+<span class="nf">rownames</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&#34;Coefficient of HEALTH&#34;</span><span class="p">,</span> <span class="s">&#34;Coefficient of AGE&#34;</span><span class="p">)</span>
+<span class="n">tab</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">##                       [log(GHb) ~ HEALTH] [log(GHb) ~ AGE]</span>
+<span class="c1">## Coefficient of HEALTH          0.05361706      0.000000000</span>
+<span class="c1">## Coefficient of AGE             0.00000000     -0.003141446</span>
+<span class="c1">##                       [log(GHb) ~ HEALTH + AGE]</span>
+<span class="c1">## Coefficient of HEALTH               0.059016012</span>
+<span class="c1">## Coefficient of AGE                 -0.003951742</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Since the coefficient of $HEALTH$ doesn&rsquo;t change substantially when $AGE$ is included in the model, $AGE$ is not a confounding effect of the association between $HEALTH$ and $log(GHb)$.</p>
+<p>At the same time, the coefficient of $AGE$ doesn&rsquo;t change substantially when $HEALTH$ is included in the model, so $HEALTH$ is not a confounding effect of the association between $AGE$ and $log(GHb)$ as well.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="c1">## Compare p-values of the fitted models</span>
+<span class="n">tab</span> <span class="o">&lt;-</span> <span class="nf">matrix</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="n">s3_1</span><span class="o">$</span><span class="n">coefficients[8]</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> 
+                <span class="m">0</span><span class="p">,</span> <span class="n">s3_2</span><span class="o">$</span><span class="n">coefficients[8]</span><span class="p">,</span> 
+                <span class="n">s3_3</span><span class="o">$</span><span class="n">coefficients[11]</span><span class="p">,</span> <span class="n">s3_3</span><span class="o">$</span><span class="n">coefficients[12]</span><span class="p">),</span> <span class="n">ncol</span><span class="o">=</span><span class="m">3</span><span class="p">,</span> <span class="n">byrow</span><span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span>
+<span class="nf">colnames</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&#34;[log(GHb) ~ HEALTH]&#34;</span><span class="p">,</span> <span class="s">&#34;[log(GHb) ~ AGE]&#34;</span><span class="p">,</span> <span class="s">&#34;[log(GHb) ~ HEALTH + AGE]&#34;</span><span class="p">)</span>
+<span class="nf">rownames</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&#34;P-value of HEALTH&#34;</span><span class="p">,</span> <span class="s">&#34;P-value of AGE&#34;</span><span class="p">)</span>
+<span class="n">tab</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">##                   [log(GHb) ~ HEALTH] [log(GHb) ~ AGE]</span>
+<span class="c1">## P-value of HEALTH        1.743485e-05       0.00000000</span>
+<span class="c1">## P-value of AGE           0.000000e+00       0.01127788</span>
+<span class="c1">##                   [log(GHb) ~ HEALTH + AGE]</span>
+<span class="c1">## P-value of HEALTH              2.411324e-06</span>
+<span class="c1">## P-value of AGE                 1.411564e-03</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>The p-value of $HEALTH$ does get a little lower (from 99.997% confidence level to 99.999% confidence level) when $AGE$ is included in the model, so we would say that self-reported health status is a little more significantly associated with GHb after adjusting for age at diagnosis.</p>
+<p>At the same time, the p-value of $AGE$ gets lower (from 97% confidence level to 99.7% confidence level) when $AGE$ is included in the model, so we would say that age at diagnosis is more significantly associated with GHb after adjusting for self-reported health status.</p>
+<h3 id="association-between-ghb-and-age-varies-across-different-health-status-groups">Association between GHb and AGE varies across different health status groups</h3>
+<p>Now we need a model that allows the association between GHb and AGE varies across different health status groups. The square term of AGE is not contained in the model.</p>
+<h4 id="q-what-is-the-model">Q. What is the model?</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="n">lr</span> <span class="o">&lt;-</span> <span class="n">df</span> <span class="o">%&gt;%</span> <span class="nf">lm</span><span class="p">(</span><span class="n">GHb</span> <span class="o">~</span> <span class="n">AGE</span> <span class="o">+</span> <span class="n">H1</span> <span class="o">+</span> <span class="n">H2</span> <span class="o">+</span> <span class="n">H4</span> <span class="o">+</span> <span class="n">H1</span><span class="o">*</span><span class="n">AGE</span> <span class="o">+</span> <span class="n">H2</span><span class="o">*</span><span class="n">AGE</span> <span class="o">+</span> <span class="n">H4</span><span class="o">*</span><span class="n">AGE</span><span class="p">,</span> <span class="n">dat</span><span class="o">=</span><span class="n">.)</span>
+<span class="nf">print</span><span class="p">(</span><span class="nf">summary</span><span class="p">(</span><span class="n">lr</span><span class="p">))</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">## </span>
+<span class="c1">## Call:</span>
+<span class="c1">## lm(formula = GHb ~ AGE + H1 + H2 + H4 + H1 * AGE + H2 * AGE + </span>
+<span class="c1">##     H4 * AGE, data = .)</span>
+<span class="c1">## </span>
+<span class="c1">## Residuals:</span>
+<span class="c1">##     Min      1Q  Median      3Q     Max </span>
+<span class="c1">## -5.0986 -1.4412 -0.2503  1.1178 10.2820 </span>
+<span class="c1">## </span>
+<span class="c1">## Coefficients:</span>
+<span class="c1">##              Estimate Std. Error t value Pr(&gt;|t|)    </span>
+<span class="c1">## (Intercept) 11.203788   0.671771  16.678   &lt;2e-16 ***</span>
+<span class="c1">## AGE          0.064940   0.044260   1.467   0.1429    </span>
+<span class="c1">## H1          -0.256499   0.721944  -0.355   0.7225    </span>
+<span class="c1">## H2           0.573093   0.718160   0.798   0.4252    </span>
+<span class="c1">## H4          -0.005499   2.299794  -0.002   0.9981    </span>
+<span class="c1">## AGE:H1      -0.096599   0.049536  -1.950   0.0517 .  </span>
+<span class="c1">## AGE:H2      -0.122140   0.048391  -2.524   0.0119 *  </span>
+<span class="c1">## AGE:H4      -0.052905   0.114284  -0.463   0.6436    </span>
+<span class="c1">## ---</span>
+<span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
+<span class="c1">## </span>
+<span class="c1">## Residual standard error: 2.077 on 540 degrees of freedom</span>
+<span class="c1">##   (18 observations deleted due to missingness)</span>
+<span class="c1">## Multiple R-squared:  0.05972,    Adjusted R-squared:  0.04753 </span>
+<span class="c1">## F-statistic: 4.899 on 7 and 540 DF,  p-value: 2.226e-05</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="q-average-ghb-change-for-each-health-status-group">Q. Average GHb change for each health status group?</h4>
+<p>For each health status group, what is the mean GHb change per one-year incresae in AGE (the slope)?</p>
+<ol>
+<li>When $HEALTH = 3$, the mean $GHb$ increase by $0.064940$ per one-year incresae in $AGE$, while its initial value is $11.203788$ when $AGE = 0$.</li>
+<li>When $HEALTH = 1$, the mean $GHb$ increase by $0.064940+(-0.096599)=-0.031659$ per one-year incresae in $AGE$, while its initial value is $11.203788+(-0.256499)=10.94729$ when $AGE = 0$.</li>
+<li>When $HEALTH = 2$, the mean $GHb$ increase by $0.064940+(-0.122140)=-0.0572$ per one-year incresae in $AGE$, while its initial value is $11.203788+0.573093=11.77688$ when $AGE = 0$.</li>
+<li>When $HEALTH = 4$, the mean $GHb$ increase by $0.064940+(-0.052905)=0.012035$ per one-year incresae in $AGE$, while its initial value is $11.203788+(-0.052905)=11.15088$ when $AGE = 0$.</li>
+</ol>
+<h2 id="modeling-of-dichotomized-health-status">Modeling of dichotomized health status</h2>
+<h3 id="diagnostic-plots-of-linear-model">Diagnostic plots of linear model</h3>
+<p>Draw various diagnostic plots (e.g., the q-q plot, the (studentized)-residuals-versus-predicted-values plot) of the model built in above. Do you find any outliers/extreme points? Are there any model assumptions being violated?</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="nf">plot</span><span class="p">(</span><span class="n">lr</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="m">1</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/MmCLCM1.png" alt=""></p>
+<p>The first plot depicts residuals versus fitted values. The plot of residuals versus predicted values is useful for checking the assumption of linearity and homoscedasticity.</p>
+<p>This model <strong>does NOT perfectly meet the assumption of linearity</strong> since we could see our residuals take on a defined shape (an unobvious parabola) instead of equally spread around the y = 0 line.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="nf">plot</span><span class="p">(</span><span class="n">lr</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="m">2</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/FrFP55w.png" alt=""></p>
+<p>The normality assumption is evaluated based on the residuals and can be evaluated using a QQ-plot by comparing the residuals to “ideal” normal observations along the 45-degree line.</p>
+<p>With this model, the tails are observed to be ‘heavier’ (have larger values) than what we would expect, which <strong>violates the normality of residuals assumption</strong>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="nf">plot</span><span class="p">(</span><span class="n">lr</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="m">3</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/qWotq1A.png" alt=""></p>
+<p>The third plot is a scale-location plot (square rooted standardized residual vs. predicted value). This is useful for checking the assumption of <strong>homoscedasticity</strong>.</p>
+<p>We can see there is <strong>almost constant variance</strong> across the range of standardized residuals for each fitted value,  suggesting that the homoscedasticity assumption is satisfied here.</p>
+<p>In this scale-location plot, we can also see some <strong>potential outliers (observation 544, 273, and 369)</strong> that have specifically high standardized rediduals (&gt; 2.0).</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="nf">plot</span><span class="p">(</span><span class="n">lr</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="m">5</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/GaUckAD.png" alt=""></p>
+<p>The fourth plot helps us find influential cases, if any are present in the data. Influential outliers are of the greatest concern while outliers may or may not be influential points.</p>
+<p><strong>Observations 369, 32, and 547 stick out</strong>. However, they are not influential outlier since they don’t cross Cook’s distance line.</p>
+<h3 id="age-adjusted-odds-ratios-for-sex-versus-dichotomized-health-status">Age adjusted odds ratios for sex versus dichotomized health status</h3>
+<p>Use logistic regression to obtain the <strong>crude odds ratio</strong> as well as the <strong>age adjusted odds ratio</strong> for <strong>sex versus dichotomized health status</strong> (use age as a continuous variable).</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="n">df</span> <span class="o">%&gt;%</span> <span class="nf">glm</span><span class="p">(</span><span class="n">BH</span> <span class="o">~</span> <span class="n">GENDER</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="n">binomial</span><span class="p">,</span> <span class="n">dat</span><span class="o">=</span><span class="n">.)</span> <span class="o">%&gt;%</span> <span class="nf">summary</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">## </span>
+<span class="c1">## Call:</span>
+<span class="c1">## glm(formula = BH ~ GENDER, family = binomial, data = .)</span>
+<span class="c1">## </span>
+<span class="c1">## Deviance Residuals: </span>
+<span class="c1">##     Min       1Q   Median       3Q      Max  </span>
+<span class="c1">## -1.1481  -1.1481  -0.9703   1.2070   1.3997  </span>
+<span class="c1">## </span>
+<span class="c1">## Coefficients:</span>
+<span class="c1">##             Estimate Std. Error z value Pr(&gt;|z|)  </span>
+<span class="c1">## (Intercept) -0.06947    0.11792  -0.589   0.5558  </span>
+<span class="c1">## GENDER      -0.43937    0.17251  -2.547   0.0109 *</span>
+<span class="c1">## ---</span>
+<span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
+<span class="c1">## </span>
+<span class="c1">## (Dispersion parameter for binomial family taken to be 1)</span>
+<span class="c1">## </span>
+<span class="c1">##     Null deviance: 761.49  on 556  degrees of freedom</span>
+<span class="c1">## Residual deviance: 754.95  on 555  degrees of freedom</span>
+<span class="c1">##   (9 observations deleted due to missingness)</span>
+<span class="c1">## AIC: 758.95</span>
+<span class="c1">## </span>
+<span class="c1">## Number of Fisher Scoring iterations: 4</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>The crude odds ratio:</p>
+<ol>
+<li>For people whose $GENDER = 0$ (male), their odds to be $BH = 1$ (excellent health) is $e^{-0.06947} = 0.9328881$.</li>
+<li>For people whose $GENDER = 1$ (female), their odds ratio to be $BH = 1$ (excellent health) is $e^{-0.43937} = 0.6444423$, comparing to people whose $GENDER = 0$ (male).</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="n">df</span> <span class="o">%&gt;%</span> <span class="nf">glm</span><span class="p">(</span><span class="n">BH</span> <span class="o">~</span> <span class="n">GENDER</span> <span class="o">+</span> <span class="n">AGE</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="n">binomial</span><span class="p">,</span> <span class="n">dat</span><span class="o">=</span><span class="n">.)</span> <span class="o">%&gt;%</span> <span class="nf">summary</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">## </span>
+<span class="c1">## Call:</span>
+<span class="c1">## glm(formula = BH ~ GENDER + AGE, family = binomial, data = .)</span>
+<span class="c1">## </span>
+<span class="c1">## Deviance Residuals: </span>
+<span class="c1">##    Min      1Q  Median      3Q     Max  </span>
+<span class="c1">## -1.313  -1.056  -0.900   1.240   1.682  </span>
+<span class="c1">## </span>
+<span class="c1">## Coefficients:</span>
+<span class="c1">##             Estimate Std. Error z value Pr(&gt;|z|)   </span>
+<span class="c1">## (Intercept)  0.34282    0.19032   1.801  0.07166 . </span>
+<span class="c1">## GENDER      -0.44678    0.17377  -2.571  0.01014 * </span>
+<span class="c1">## AGE         -0.03716    0.01350  -2.753  0.00591 **</span>
+<span class="c1">## ---</span>
+<span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
+<span class="c1">## </span>
+<span class="c1">## (Dispersion parameter for binomial family taken to be 1)</span>
+<span class="c1">## </span>
+<span class="c1">##     Null deviance: 761.49  on 556  degrees of freedom</span>
+<span class="c1">## Residual deviance: 747.12  on 554  degrees of freedom</span>
+<span class="c1">##   (9 observations deleted due to missingness)</span>
+<span class="c1">## AIC: 753.12</span>
+<span class="c1">## </span>
+<span class="c1">## Number of Fisher Scoring iterations: 4</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>The adjusted odds ratio:</p>
+<ol>
+<li>For people whose $GENDER = 0$ (male) and $AGE = 0$, their odds to be $BH = 1$ (excellent health) is $e^{0.34282} = 1.408915$.</li>
+<li>When the value of $AGE$ is the same, for people whose $GENDER = 1$ (female), their odds ratio to be $BH = 1$ (excellent health) is $e^{-0.44678} = 0.6396846$, comparing to people whose $GENDER = 0$ (male).</li>
+<li>When the value of $GENDER$ is the same, for every one unit increase in $AGE$, the odds ratio to be $BH = 1$ (excellent health) is $e^{-0.03716} = 0.963522$.</li>
+</ol>
+<h3 id="age-stratum-adjusted-odds-ratios-for-sex-versus-dichotomized-health-status">Age-stratum adjusted odds ratios for sex versus dichotomized health status</h3>
+<p>Create an age stratum variable (values 1=$\mbox{age}\leq 7$, 2=$7&lt;\mbox{age}\leq 11$, 3=$11&lt;\mbox{age}\leq 15$, 4=$15&lt;\mbox{age}$), and corresponding dummy variables, using ages 0-7 as the baseline group. Use logistic regression to obtain age-stratum adjusted odds ratios for sex versus dichotomized health status.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="c1">## Create age stratum variables</span>
+<span class="n">df</span><span class="o">$</span><span class="n">AGE_7_11</span> <span class="o">&lt;-</span> <span class="nf">ifelse</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">AGE</span><span class="o">&gt;</span><span class="m">7</span> <span class="o">&amp;</span> <span class="n">df</span><span class="o">$</span><span class="n">AGE</span><span class="o">&lt;=</span><span class="m">11</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+<span class="n">df</span><span class="o">$</span><span class="n">AGE_11_15</span> <span class="o">&lt;-</span> <span class="nf">ifelse</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">AGE</span><span class="o">&gt;</span><span class="m">11</span> <span class="o">&amp;</span> <span class="n">df</span><span class="o">$</span><span class="n">AGE</span><span class="o">&lt;=</span><span class="m">15</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+<span class="n">df</span><span class="o">$</span><span class="n">AGE_15_30</span> <span class="o">&lt;-</span> <span class="nf">ifelse</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">AGE</span><span class="o">&gt;</span><span class="m">15</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+
+<span class="c1">## Fit logistic regression model</span>
+<span class="n">s7</span> <span class="o">&lt;-</span> <span class="n">df</span> <span class="o">%&gt;%</span> <span class="nf">glm</span><span class="p">(</span><span class="n">BH</span> <span class="o">~</span> <span class="n">GENDER</span> <span class="o">+</span> <span class="n">AGE_7_11</span> <span class="o">+</span> <span class="n">AGE_11_15</span> <span class="o">+</span> <span class="n">AGE_15_30</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="n">binomial</span><span class="p">,</span> <span class="n">dat</span><span class="o">=</span><span class="n">.)</span> <span class="o">%&gt;%</span> <span class="nf">summary</span><span class="p">()</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">s7</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">## </span>
+<span class="c1">## Call:</span>
+<span class="c1">## glm(formula = BH ~ GENDER + AGE_7_11 + AGE_11_15 + AGE_15_30, </span>
+<span class="c1">##     family = binomial, data = .)</span>
+<span class="c1">## </span>
+<span class="c1">## Deviance Residuals: </span>
+<span class="c1">##     Min       1Q   Median       3Q      Max  </span>
+<span class="c1">## -1.2546  -1.0617  -0.8012   1.2664   1.6079  </span>
+<span class="c1">## </span>
+<span class="c1">## Coefficients:</span>
+<span class="c1">##              Estimate Std. Error z value Pr(&gt;|z|)   </span>
+<span class="c1">## (Intercept)  0.174604   0.172706   1.011  0.31202   </span>
+<span class="c1">## GENDER      -0.457927   0.175081  -2.616  0.00891 **</span>
+<span class="c1">## AGE_7_11     0.004949   0.233725   0.021  0.98311   </span>
+<span class="c1">## AGE_11_15   -0.381393   0.238721  -1.598  0.11012   </span>
+<span class="c1">## AGE_15_30   -0.688456   0.246636  -2.791  0.00525 **</span>
+<span class="c1">## ---</span>
+<span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
+<span class="c1">## </span>
+<span class="c1">## (Dispersion parameter for binomial family taken to be 1)</span>
+<span class="c1">## </span>
+<span class="c1">##     Null deviance: 761.49  on 556  degrees of freedom</span>
+<span class="c1">## Residual deviance: 744.27  on 552  degrees of freedom</span>
+<span class="c1">##   (9 observations deleted due to missingness)</span>
+<span class="c1">## AIC: 754.27</span>
+<span class="c1">## </span>
+<span class="c1">## Number of Fisher Scoring iterations: 4</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>The adjusted odds ratio:</p>
+<ol>
+<li>For people whose $GENDER = 0$ (male) and $AGE &lt;= 7$, their odds to be $BH = 1$ (excellent health) is $e^{0.174604} = 1.190775$.</li>
+<li>When the value of $AGE$ is in the same group (1~7, 7~11, 11~15, or 15~30), for people whose $GENDER = 1$ (female), their odds ratio to be $BH = 1$ (excellent health) is $e^{-0.457927} = 0.6325937$, comparing to people whose $GENDER = 0$ (male).</li>
+<li>When the value of $GENDER$ is the same, for people whose $AGE$ is in $(7, 11]$, their odds ratio to be $BH = 1$ (excellent health) is $e^{0.004949} = 1.004961$, comparing to people whose $AGE$ is in $(0, 7]$.</li>
+<li>When the value of $GENDER$ is the same, for people whose $AGE$ is in $(11, 15]$, their odds ratio to be $BH = 1$ (excellent health) is $e^{-0.381393} = 0.6829095$, comparing to people whose $AGE$ is in $(0, 7]$.</li>
+<li>When the value of $GENDER$ is the same, for people whose $AGE$ is in $(15, 30]$, their odds ratio to be $BH = 1$ (excellent health) is $e^{-0.688456} = 0.5023511$, comparing to people whose $AGE$ is in $(0, 7]$.</li>
+</ol>
+<h3 id="differences-in-two-ways-of-adjusting-for-age">Differences in two ways of adjusting for age</h3>
+<p>Comment on whether the adjusted odds ratio for sex versus health status is different with the two ways of adjusting for age (i.e., compare adjusting for continuous age versus adjusting for age strata). What assumptions do you make in each way of adjusting for age? Which analysis is more appropriate?</p>
+<p>The table below compares <strong>the odds ratio</strong> (when the value of $GENDER$ is the same and the value of $AGE$ increases) using the two ways of adjusting for age.</p>
+<p>we can see that the odds ratio <strong>remains the same</strong> when adjusting for continuous age, while the odss ratio <strong>decreases with the rise of $AGE$</strong> when adjusting for age strata.</p>
+<table>
+<thead>
+<tr>
+<th>odds ratio</th>
+<th>AGE from 0 to 1</th>
+<th>AGE from 1 to 2</th>
+<th>&hellip;</th>
+<th>AGE from 7 to 8</th>
+<th>&hellip;</th>
+<th>AGE from 11 to 12</th>
+<th>&hellip;</th>
+<th>AGE from 15 to 16</th>
+<th>&hellip;</th>
+<th>AGE from 29 to 30</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>adjusting for continuous age</td>
+<td>0.963522</td>
+<td>0.963522</td>
+<td>0.963522</td>
+<td>0.963522</td>
+<td>0.963522</td>
+<td>0.963522</td>
+<td>0.963522</td>
+<td>0.963522</td>
+<td>0.963522</td>
+<td>0.963522</td>
+</tr>
+<tr>
+<td>adjusting for age strata</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1.004961</td>
+<td>1</td>
+<td>0.6829095/1.004961 = 0.6795383</td>
+<td>1</td>
+<td>0.5023511/0.6829095 = 0.7356042</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>The table below compares <strong>the odds</strong> (when $GENDER = 0$ and the value of $AGE$ increases) using the two ways of adjusting for age.</p>
+<p>we can see that the odds ratio <strong>decreases linearly with the rise of $AGE$</strong> when adjusting for continuous age, while the odss ratio <strong>decreases nonlinearly with the rise of $AGE$</strong> when adjusting for age strata.</p>
+<table>
+<thead>
+<tr>
+<th>odds</th>
+<th>AGE = 0</th>
+<th>AGE = 1</th>
+<th>&hellip;</th>
+<th>AGE = 8</th>
+<th>&hellip;</th>
+<th>AGE = 12</th>
+<th>&hellip;</th>
+<th>AGE = 16</th>
+<th>&hellip;</th>
+<th>AGE = 30</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>adjusting for continuous age</td>
+<td>1.408915</td>
+<td>1.357521</td>
+<td>&hellip;</td>
+<td>1.046593</td>
+<td>&hellip;</td>
+<td>0.9020371</td>
+<td>&hellip;</td>
+<td>0.7774473</td>
+<td>&hellip;</td>
+<td>0.4620977</td>
+</tr>
+<tr>
+<td>adjusting for age strata</td>
+<td>1.190775</td>
+<td>1.190775</td>
+<td>1.190775</td>
+<td>1.190775*1.004961 = 1.196682</td>
+<td>1.196682</td>
+<td>1.190775*0.6829095 = 0.8131916</td>
+<td>0.8131916</td>
+<td>1.190775*0.5023511 = 0.5981871</td>
+<td>0.5981871</td>
+<td>0.5981871</td>
+</tr>
+</tbody>
+</table>
+<p>When we adjust for continuous $AGE$, we take the assumption that the odds ratio is the same for every 1 unit increase in $AGE$.</p>
+<p>However, in the plot below we can see that the decrease in proportion of people whose $BH = 1$ is not linear to the increase in $AGE$.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="c1">## Create discrete number of AGE and factor type of BH for plot usage</span>
+<span class="n">df</span><span class="o">$</span><span class="n">AGE_floor</span> <span class="o">&lt;-</span> <span class="nf">floor</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">AGE</span><span class="p">)</span>
+<span class="n">df</span><span class="o">$</span><span class="n">BH_type</span> <span class="o">&lt;-</span> <span class="nf">as.factor</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">BH</span><span class="p">)</span>
+
+<span class="c1">## Plot the stacked bar chart to show the changes in count for BH=0 and BH=1 as AGE increases</span>
+<span class="nf">par</span><span class="p">(</span><span class="n">mfrow</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="m">2</span><span class="p">))</span>
+<span class="nf">ggplot</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="n">df</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">AGE_floor</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">BH_type</span><span class="p">))</span> <span class="o">+</span> <span class="nf">geom_bar</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/wSdHMHq.png" alt=""></p>
+<p>The odds ratio for $AGE$ changed from 7 to 8 should not be the same as the odds ratio for $AGE$ changed from 15 to 16.   So in my opinion, age-stratum adjusted odds ratios is more appropriate while the age stratum variable should be carefully set to meet the criteria.</p>
+<h3 id="interpretation-of-the-odds-ratios-for-age">Interpretation of the odds ratios for age</h3>
+<p>Interpret the odds ratios for age in the two logistic regression approaches above (i.e., one adjusted for continuous age and one adjusted for age strata).</p>
+<ol>
+<li>Odds ratios for age when adjusted for continuous age</li>
+</ol>
+<ul>
+<li>For people whose $GENDER = 0$ (male) and $AGE = 0$, their odds to be $BH = 1$ (excellent health) is $e^{0.34282} = 1.408915$.</li>
+<li>When the value of $GENDER$ is the same, for every one unit increase in $AGE$, the odds ratio to be $BH = 1$ (excellent health) is $e^{-0.03716} = 0.963522$.</li>
+</ul>
+<ol start="2">
+<li>Odds ratios for age when adjusted for age strata</li>
+</ol>
+<ul>
+<li>For people whose $GENDER = 0$ (male) and $AGE &lt;= 7$, their odds to be $BH = 1$ (excellent health) is $e^{0.174604} = 1.190775$.</li>
+<li>For people whose $GENDER = 0$ (male) and $AGE &lt;= 7$, their odds to be $BH = 1$ (excellent health) is $e^{0.181806} = 1.199381$.</li>
+<li>When the value of $GENDER$ is the same, for people whose $AGE$ is in $(7, 11]$, their odds ratio to be $BH = 1$ (excellent health) is $e^{0.004949} = 1.004961$, comparing to people whose $AGE$ is in $(0, 7]$.</li>
+<li>When the value of $GENDER$ is the same, for people whose $AGE$ is in $(11, 15]$, their odds ratio to be $BH = 1$ (excellent health) is $e^{-0.381393} = 0.6829095$, comparing to people whose $AGE$ is in $(0, 7]$.</li>
+<li>When the value of $GENDER$ is the same, for people whose $AGE$ is in $(15, 30]$, their odds ratio to be $BH = 1$ (excellent health) is $e^{-0.688456} = 0.5023511$, comparing to people whose $AGE$ is in $(0, 7]$.</li>
+</ul>
+<h3 id="add-ghb-to-age-stratum-adjusted-logistic-regression-model">Add GHb to age-stratum adjusted logistic regression model</h3>
+<p>Add GHb to the logistic regression in section &ldquo;Age-stratum adjusted odds ratios for sex versus dichotomized health status&rdquo;. Do the relationships of sex and/or age with health status change with and without adding GHb?</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="c1">## Add GHb to the logistic regression in Problem 7</span>
+<span class="n">s10</span> <span class="o">&lt;-</span> <span class="n">df</span> <span class="o">%&gt;%</span> <span class="nf">glm</span><span class="p">(</span><span class="n">BH</span> <span class="o">~</span> <span class="n">GHb</span> <span class="o">+</span> <span class="n">GENDER</span> <span class="o">+</span> <span class="n">AGE_7_11</span> <span class="o">+</span> <span class="n">AGE_11_15</span> <span class="o">+</span> <span class="n">AGE_15_30</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="n">binomial</span><span class="p">,</span> <span class="n">dat</span><span class="o">=</span><span class="n">.)</span> <span class="o">%&gt;%</span> <span class="nf">summary</span><span class="p">()</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">s10</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">## </span>
+<span class="c1">## Call:</span>
+<span class="c1">## glm(formula = BH ~ GHb + GENDER + AGE_7_11 + AGE_11_15 + AGE_15_30, </span>
+<span class="c1">##     family = binomial, data = .)</span>
+<span class="c1">## </span>
+<span class="c1">## Deviance Residuals: </span>
+<span class="c1">##     Min       1Q   Median       3Q      Max  </span>
+<span class="c1">## -1.5019  -1.0810  -0.7762   1.1771   2.0793  </span>
+<span class="c1">## </span>
+<span class="c1">## Coefficients:</span>
+<span class="c1">##             Estimate Std. Error z value Pr(&gt;|z|)    </span>
+<span class="c1">## (Intercept)  2.22501    0.54087   4.114 3.89e-05 ***</span>
+<span class="c1">## GHb         -0.18960    0.04742  -3.998 6.39e-05 ***</span>
+<span class="c1">## GENDER      -0.47525    0.17869  -2.660  0.00782 ** </span>
+<span class="c1">## AGE_7_11     0.14736    0.23993   0.614  0.53910    </span>
+<span class="c1">## AGE_11_15   -0.27022    0.24427  -1.106  0.26863    </span>
+<span class="c1">## AGE_15_30   -0.72966    0.25671  -2.842  0.00448 ** </span>
+<span class="c1">## ---</span>
+<span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
+<span class="c1">## </span>
+<span class="c1">## (Dispersion parameter for binomial family taken to be 1)</span>
+<span class="c1">## </span>
+<span class="c1">##     Null deviance: 751.23  on 547  degrees of freedom</span>
+<span class="c1">## Residual deviance: 719.08  on 542  degrees of freedom</span>
+<span class="c1">##   (18 observations deleted due to missingness)</span>
+<span class="c1">## AIC: 731.08</span>
+<span class="c1">## </span>
+<span class="c1">## Number of Fisher Scoring iterations: 4</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="c1">## Create table that compares the model created in Problem 7 with the model created in Problem 10</span>
+<span class="n">tab</span> <span class="o">&lt;-</span> <span class="nf">matrix</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="n">s7</span><span class="o">$</span><span class="n">coefficients[2</span><span class="o">:</span><span class="m">5</span><span class="n">]</span><span class="p">,</span> <span class="n">s10</span><span class="o">$</span><span class="n">coefficients[3</span><span class="o">:</span><span class="m">6</span><span class="n">]</span><span class="p">,</span> <span class="n">s10</span><span class="o">$</span><span class="n">coefficients[3</span><span class="o">:</span><span class="m">6</span><span class="n">]</span><span class="o">-</span><span class="n">s7</span><span class="o">$</span><span class="n">coefficients[2</span><span class="o">:</span><span class="m">5</span><span class="n">]</span><span class="p">)</span>
+              <span class="p">,</span><span class="n">ncol</span><span class="o">=</span><span class="m">3</span><span class="p">,</span> <span class="n">byrow</span><span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span>
+
+<span class="c1">## Show results</span>
+<span class="nf">colnames</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&#34;Without adjusted for GHb (A)&#34;</span><span class="p">,</span> <span class="s">&#34;Adjusted for GHb (B)&#34;</span><span class="p">,</span> <span class="s">&#34;Difference (B-A)&#34;</span><span class="p">)</span>
+<span class="nf">rownames</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">paste</span><span class="p">(</span><span class="s">&#34;Coefficient of&#34;</span><span class="p">,</span> <span class="nf">rownames</span><span class="p">(</span><span class="n">s7</span><span class="o">$</span><span class="n">coefficients</span><span class="p">)</span><span class="n">[2</span><span class="o">:</span><span class="m">5</span><span class="n">]</span><span class="p">)</span>
+<span class="n">tab</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">##                          Without adjusted for GHb (A) Adjusted for GHb (B)</span>
+<span class="c1">## Coefficient of GENDER                    -0.457927163           -0.4752462</span>
+<span class="c1">## Coefficient of AGE_7_11                   0.004948754            0.1473575</span>
+<span class="c1">## Coefficient of AGE_11_15                 -0.381392527           -0.2702213</span>
+<span class="c1">## Coefficient of AGE_15_30                 -0.688455966           -0.7296650</span>
+<span class="c1">##                          Difference (B-A)</span>
+<span class="c1">## Coefficient of GENDER         -0.01731905</span>
+<span class="c1">## Coefficient of AGE_7_11        0.14240873</span>
+<span class="c1">## Coefficient of AGE_11_15       0.11117118</span>
+<span class="c1">## Coefficient of AGE_15_30      -0.04120900</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>From the table above, we can see that the difference in coefficient of $GENDER$ is little, so we can say that the relationship between sex and health status barely changes when adjusting for $GHb$.</p>
+<p>For the relationship between age and health status, we can see that the coefficient of <code>AGE_15_30</code> also barely changes while the changes in the coefficient of <code>AGE_7_11</code> and <code>AGE_11_15</code> are both obvious, indicating that when adjusting for <code>GHb</code>, the relationship between age and health status changes.</p>
+<h3 id="interactions-between-ghb-and-sex">Interactions between GHb and sex</h3>
+<p>For the model above, examine whether GHb interacts with sex in its relationship with binary self reported health status. Interpret the odds ratio for GHb <strong>with and without the interaction term between sex and GHb</strong>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="c1">## Add interaction term of GHb and sex to the logistic regression in Problem 10</span>
+<span class="n">lr</span> <span class="o">&lt;-</span> <span class="n">df</span> <span class="o">%&gt;%</span> <span class="nf">glm</span><span class="p">(</span><span class="n">BH</span> <span class="o">~</span> <span class="n">GHb</span><span class="o">*</span><span class="n">GENDER</span> <span class="o">+</span> <span class="n">GHb</span> <span class="o">+</span> <span class="n">GENDER</span> <span class="o">+</span> <span class="n">AGE_7_11</span> <span class="o">+</span> <span class="n">AGE_11_15</span> <span class="o">+</span> <span class="n">AGE_15_30</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="n">binomial</span><span class="p">,</span> <span class="n">dat</span><span class="o">=</span><span class="n">.)</span>
+<span class="n">s11</span> <span class="o">&lt;-</span> <span class="nf">summary</span><span class="p">(</span><span class="n">lr</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">s11</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">## </span>
+<span class="c1">## Call:</span>
+<span class="c1">## glm(formula = BH ~ GHb * GENDER + GHb + GENDER + AGE_7_11 + AGE_11_15 + </span>
+<span class="c1">##     AGE_15_30, family = binomial, data = .)</span>
+<span class="c1">## </span>
+<span class="c1">## Deviance Residuals: </span>
+<span class="c1">##     Min       1Q   Median       3Q      Max  </span>
+<span class="c1">## -1.4803  -1.0843  -0.7648   1.1717   2.1282  </span>
+<span class="c1">## </span>
+<span class="c1">## Coefficients:</span>
+<span class="c1">##             Estimate Std. Error z value Pr(&gt;|z|)   </span>
+<span class="c1">## (Intercept)  2.10289    0.68891   3.053  0.00227 **</span>
+<span class="c1">## GHb         -0.17839    0.06150  -2.901  0.00372 **</span>
+<span class="c1">## GENDER      -0.19460    1.00698  -0.193  0.84677   </span>
+<span class="c1">## AGE_7_11     0.14893    0.24010   0.620  0.53509   </span>
+<span class="c1">## AGE_11_15   -0.27181    0.24436  -1.112  0.26599   </span>
+<span class="c1">## AGE_15_30   -0.73012    0.25646  -2.847  0.00441 **</span>
+<span class="c1">## GHb:GENDER  -0.02590    0.09148  -0.283  0.77711   </span>
+<span class="c1">## ---</span>
+<span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
+<span class="c1">## </span>
+<span class="c1">## (Dispersion parameter for binomial family taken to be 1)</span>
+<span class="c1">## </span>
+<span class="c1">##     Null deviance: 751.23  on 547  degrees of freedom</span>
+<span class="c1">## Residual deviance: 719.00  on 541  degrees of freedom</span>
+<span class="c1">##   (18 observations deleted due to missingness)</span>
+<span class="c1">## AIC: 733</span>
+<span class="c1">## </span>
+<span class="c1">## Number of Fisher Scoring iterations: 4</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>The table below <strong>compares the coefficient estimates</strong> of the model &ldquo;<code>BH ~ GHb + GENDER + AGE_7_11 + AGE_11_15 + AGE_15_30</code>&rdquo; with that of the model &ldquo;<code>BH ~ GHbxGENDER + GHb + GENDER + AGE_7_11 + AGE_11_15 + AGE_15_30</code>&rdquo;.</p>
+<p>We can see that only the coefficient of $GENDER$ changes a lot when the interaction term between sex and GHb is included in the model.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="c1">## Create a table to compares the coefficient estimates of the model created in Problem 10</span>
+<span class="c1">## with that of the model created in Problem 11</span>
+<span class="n">c10</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="n">s10</span><span class="o">$</span><span class="n">coefficients[1</span><span class="o">:</span><span class="m">6</span><span class="n">]</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+<span class="n">tab</span> <span class="o">&lt;-</span> <span class="nf">matrix</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="n">c10</span><span class="p">,</span> <span class="n">s11</span><span class="o">$</span><span class="n">coefficients[1</span><span class="o">:</span><span class="m">7</span><span class="n">]</span><span class="p">,</span> <span class="n">s11</span><span class="o">$</span><span class="n">coefficients[1</span><span class="o">:</span><span class="m">7</span><span class="n">]</span><span class="o">-</span><span class="n">c10</span><span class="p">),</span> <span class="n">ncol</span><span class="o">=</span><span class="m">3</span><span class="p">,</span> <span class="n">byrow</span><span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span>
+<span class="nf">colnames</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&#34;Without interaction term (A)&#34;</span><span class="p">,</span> 
+                   <span class="s">&#34;With GHbxGENDER interaction term (B)&#34;</span><span class="p">,</span> 
+                   <span class="s">&#34;Difference (B-A)&#34;</span><span class="p">)</span>
+<span class="nf">rownames</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">paste</span><span class="p">(</span><span class="s">&#34;Coefficient of&#34;</span><span class="p">,</span> <span class="nf">rownames</span><span class="p">(</span><span class="n">s11</span><span class="o">$</span><span class="n">coefficients</span><span class="p">)</span><span class="n">[1</span><span class="o">:</span><span class="m">7</span><span class="n">]</span><span class="p">)</span>
+<span class="n">tab</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">##                            Without interaction term (A)</span>
+<span class="c1">## Coefficient of (Intercept)                    2.2250121</span>
+<span class="c1">## Coefficient of GHb                           -0.1895995</span>
+<span class="c1">## Coefficient of GENDER                        -0.4752462</span>
+<span class="c1">## Coefficient of AGE_7_11                       0.1473575</span>
+<span class="c1">## Coefficient of AGE_11_15                     -0.2702213</span>
+<span class="c1">## Coefficient of AGE_15_30                     -0.7296650</span>
+<span class="c1">## Coefficient of GHb:GENDER                     0.0000000</span>
+<span class="c1">##                            With GHbxGENDER interaction term (B)</span>
+<span class="c1">## Coefficient of (Intercept)                            2.1028939</span>
+<span class="c1">## Coefficient of GHb                                   -0.1783871</span>
+<span class="c1">## Coefficient of GENDER                                -0.1945955</span>
+<span class="c1">## Coefficient of AGE_7_11                               0.1489271</span>
+<span class="c1">## Coefficient of AGE_11_15                             -0.2718147</span>
+<span class="c1">## Coefficient of AGE_15_30                             -0.7301234</span>
+<span class="c1">## Coefficient of GHb:GENDER                            -0.0258973</span>
+<span class="c1">##                            Difference (B-A)</span>
+<span class="c1">## Coefficient of (Intercept)    -0.1221181704</span>
+<span class="c1">## Coefficient of GHb             0.0112123582</span>
+<span class="c1">## Coefficient of GENDER          0.2806507166</span>
+<span class="c1">## Coefficient of AGE_7_11        0.0015696085</span>
+<span class="c1">## Coefficient of AGE_11_15      -0.0015933818</span>
+<span class="c1">## Coefficient of AGE_15_30      -0.0004584788</span>
+<span class="c1">## Coefficient of GHb:GENDER     -0.0258973009</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>The table below <strong>compares the p-values of coefficient estimates</strong> of the model &ldquo;<code>BH ~ GHb + GENDER + AGE_7_11 + AGE_11_15 + AGE_15_30</code>&rdquo; with that of the model &ldquo;<code>BH ~ GHbxGENDER + GHb + GENDER + AGE_7_11 + AGE_11_15 + AGE_15_30</code>&rdquo;.</p>
+<p>We can see that only the p-values of $AGE$ decreases, however, the decreasement is very little.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="c1">## Create a table to compares the p-values of coefficient estimates of the model created in Problem 10</span>
+<span class="c1">## with that of the model created in Problem 11</span>
+<span class="n">c10</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="n">s10</span><span class="o">$</span><span class="n">coefficients[19</span><span class="o">:</span><span class="m">24</span><span class="n">]</span><span class="p">)</span>
+<span class="n">tab</span> <span class="o">&lt;-</span> <span class="nf">matrix</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="nf">paste</span><span class="p">(</span><span class="n">c10</span><span class="o">*</span><span class="m">100</span><span class="p">,</span><span class="s">&#34;%&#34;</span><span class="p">),</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nf">paste</span><span class="p">(</span><span class="n">s11</span><span class="o">$</span><span class="n">coefficients[22</span><span class="o">:</span><span class="m">28</span><span class="n">]</span><span class="o">*</span><span class="m">100</span><span class="p">,</span><span class="s">&#34;%&#34;</span><span class="p">),</span> 
+                <span class="n">c10</span> <span class="o">&gt;</span> <span class="n">s11</span><span class="o">$</span><span class="n">coefficients[22</span><span class="o">:</span><span class="m">27</span><span class="n">]</span><span class="p">,</span> <span class="s">&#34;&#34;</span><span class="p">),</span> <span class="n">ncol</span><span class="o">=</span><span class="m">3</span><span class="p">,</span> <span class="n">byrow</span><span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span>
+<span class="nf">colnames</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&#34;Without interaction term (A)&#34;</span><span class="p">,</span> <span class="s">&#34;With GHbxGENDER interaction term (B)&#34;</span><span class="p">,</span> <span class="s">&#34;Improve? (B&lt;A)&#34;</span><span class="p">)</span>
+<span class="nf">rownames</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">paste</span><span class="p">(</span><span class="s">&#34;P-Value of&#34;</span><span class="p">,</span> <span class="nf">rownames</span><span class="p">(</span><span class="n">s11</span><span class="o">$</span><span class="n">coefficients</span><span class="p">)</span><span class="n">[1</span><span class="o">:</span><span class="m">7</span><span class="n">]</span><span class="p">)</span>
+<span class="n">tab</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">##                        Without interaction term (A)</span>
+<span class="c1">## P-Value of (Intercept) &#34;0.00389207609628805 %&#34;     </span>
+<span class="c1">## P-Value of GHb         &#34;0.00638515903016335 %&#34;     </span>
+<span class="c1">## P-Value of GENDER      &#34;0.78244556917265 %&#34;        </span>
+<span class="c1">## P-Value of AGE_7_11    &#34;53.9096020131784 %&#34;        </span>
+<span class="c1">## P-Value of AGE_11_15   &#34;26.8628262334859 %&#34;        </span>
+<span class="c1">## P-Value of AGE_15_30   &#34;0.447848256770686 %&#34;       </span>
+<span class="c1">## P-Value of GHb:GENDER  &#34;&#34;                          </span>
+<span class="c1">##                        With GHbxGENDER interaction term (B) Improve? (B&lt;A)</span>
+<span class="c1">## P-Value of (Intercept) &#34;0.226931741023107 %&#34;                &#34;FALSE&#34;       </span>
+<span class="c1">## P-Value of GHb         &#34;0.3724813715314 %&#34;                  &#34;FALSE&#34;       </span>
+<span class="c1">## P-Value of GENDER      &#34;84.6765569053408 %&#34;                 &#34;FALSE&#34;       </span>
+<span class="c1">## P-Value of AGE_7_11    &#34;53.5086408698207 %&#34;                 &#34;TRUE&#34;        </span>
+<span class="c1">## P-Value of AGE_11_15   &#34;26.5986364359719 %&#34;                 &#34;TRUE&#34;        </span>
+<span class="c1">## P-Value of AGE_15_30   &#34;0.441444423092713 %&#34;                &#34;TRUE&#34;        </span>
+<span class="c1">## P-Value of GHb:GENDER  &#34;77.7107997742709 %&#34;                 &#34;&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="q-does-ghb-interacts-with-sex-in-its-relationship-with-binary-self-reported-health-status">Q. Does GHb interacts with sex in its relationship with binary self reported health status?</h4>
+<p>In the second table above, we can see that we have extremely low confidence to reject the hypothesis that the interation term $GHb:GENDER$ is not 0. Thus in my opinion, <strong>$GHb$ does not well interacts with $GENDER$</strong> although the coefficient estimate of $GENDER$ changes a lot when the interaction term $GHb:GENDER$ is included in the model.</p>
+<p>We can also check the diagnostic plots as belows, and it would be obvious that this model that includes the interaction term violoates the assumption of linearity, homoscedasticity, and normality since the residuals are not randomly spread out about the line and the variability in the residuals is not constant either.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="c1">## Diagnostic charts for </span>
+<span class="nf">par</span><span class="p">(</span><span class="n">mfrow</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">2</span><span class="p">,</span><span class="m">2</span><span class="p">))</span>
+<span class="nf">plot</span><span class="p">(</span><span class="n">lr</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/hrMTXho.png" alt=""></p>
+<h4 id="q-interpret-the-odds-ratio-for-ghb-without-the-interaction-term-between-sex-and-ghb">Q. Interpret the odds ratio for GHb without the interaction term between sex and GHb</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="nf">print</span><span class="p">(</span><span class="n">s10</span><span class="o">$</span><span class="n">call</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">s10</span><span class="o">$</span><span class="n">coefficients</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">## glm(formula = BH ~ GHb + GENDER + AGE_7_11 + AGE_11_15 + AGE_15_30, </span>
+<span class="c1">##     family = binomial, data = .)</span>
+
+<span class="c1">##               Estimate Std. Error    z value     Pr(&gt;|z|)</span>
+<span class="c1">## (Intercept)  2.2250121 0.54086611  4.1137947 3.892076e-05</span>
+<span class="c1">## GHb         -0.1895995 0.04742233 -3.9981051 6.385159e-05</span>
+<span class="c1">## GENDER      -0.4752462 0.17869406 -2.6595524 7.824456e-03</span>
+<span class="c1">## AGE_7_11     0.1473575 0.23992534  0.6141806 5.390960e-01</span>
+<span class="c1">## AGE_11_15   -0.2702213 0.24427295 -1.1062270 2.686283e-01</span>
+<span class="c1">## AGE_15_30   -0.7296650 0.25671349 -2.8423320 4.478483e-03</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>For people whose $GHb = 0$, $GENDER = 0$ (male) and $AGE &lt;= 7$, their odds to be $BH = 1$ (excellent health) is $e^{2.2250121} = 9.253595$.</li>
+<li>When the value of $GENDER$ is the same and the value of $AGE$ is in the same group (1~7, 7~11, 11~15, or 15~30), every one unit increase in $GHb$, their odds ratio to be $BH = 1$ (excellent health) is $e^{-0.1895995} = 0.8272904$.</li>
+<li>When the value of $GHb$ is the same and the value of $AGE$ is in the same group (1~7, 7~11, 11~15, or 15~30), for people whose $GENDER = 1$ (female), their odds ratio to be $BH = 1$ (excellent health) is $e^{-0.4752462} = 0.621732$, comparing to people whose $GENDER = 0$ (male).</li>
+<li>When the value of $GENDER$ is the same and the value of $GHb$ is also the same,, for people whose $AGE$ is in $(7, 11]$, their odds ratio to be $BH = 1$ (excellent health) is $e^{0.1473575} = 1.158768$, comparing to people whose $AGE$ is in $(0, 7]$.</li>
+<li>When the value of $GENDER$ is the same and the value of $GHb$ is also the same, for people whose $AGE$ is in $(11, 15]$, their odds ratio to be $BH = 1$ (excellent health) is $e^{-0.2702213} = 0.7632106$, comparing to people whose $AGE$ is in $(0, 7]$.</li>
+<li>When the value of $GENDER$ is the same and the value of $GHb$ is also the same,, for people whose $AGE$ is in $(15, 30]$, their odds ratio to be $BH = 1$ (excellent health) is $e^{-0.7296650} = 0.4820705$, comparing to people whose $AGE$ is in $(0, 7]$.</li>
+</ul>
+<h4 id="q-interpret-the-odds-ratio-for-ghb-with-the-interaction-term-between-sex-and-ghb">Q. Interpret the odds ratio for GHb with the interaction term between sex and GHb</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-r" data-lang="r"><span class="nf">print</span><span class="p">(</span><span class="n">s11</span><span class="o">$</span><span class="n">call</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">s11</span><span class="o">$</span><span class="n">coefficients</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">## glm(formula = BH ~ GHb * GENDER + GHb + GENDER + AGE_7_11 + AGE_11_15 + </span>
+<span class="c1">##     AGE_15_30, family = binomial, data = .)</span>
+
+<span class="c1">##               Estimate Std. Error    z value    Pr(&gt;|z|)</span>
+<span class="c1">## (Intercept)  2.1028939 0.68890517  3.0525159 0.002269317</span>
+<span class="c1">## GHb         -0.1783871 0.06150065 -2.9005727 0.003724814</span>
+<span class="c1">## GENDER      -0.1945955 1.00697835 -0.1932470 0.846765569</span>
+<span class="c1">## AGE_7_11     0.1489271 0.24010416  0.6202603 0.535086409</span>
+<span class="c1">## AGE_11_15   -0.2718147 0.24436011 -1.1123531 0.265986364</span>
+<span class="c1">## AGE_15_30   -0.7301234 0.25646081 -2.8469201 0.004414444</span>
+<span class="c1">## GHb:GENDER  -0.0258973 0.09148087 -0.2830898 0.777107998</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>For people whose $GHb = 0$, $GENDER = 0$ (male) and $AGE &lt;= 7$, their odds to be $BH = 1$ (excellent health) is $e^{2.1028939} = 8.189836$.</li>
+<li>When the value of $AGE$ is in the same group (1~7, 7~11, 11~15, or 15~30):
+- When $GENDER = 0$, every one unit increase in $GHb$, their odds ratio to be $BH = 1$ (excellent health) is $e^{-0.1783871} = 0.8366185$.
+- When $GENDER = 1$, every one unit increase in $GHb$, their odds ratio to be $BH = 1$ (excellent health) is $e^{-0.1783871} + e^{-0.0258973} = 1.811054$.</li>
+<li>When the value of $AGE$ is in the same group (1~7, 7~11, 11~15, or 15~30):
+- When $GHb = 0$, for people whose $GENDER = 1$ (female), their odds ratio to be $BH = 1$ (excellent health) is $e^{-0.1945955} = 0.8231676$, comparing to people whose $GENDER = 0$ (male).
+- When $GHb = c = constant$, for people whose $GENDER = 1$ (female), their odds ratio to be $BH = 1$ (excellent health) is $e^{-0.1945955}+e^{-0.0258973 \times c}$, comparing to people whose $GENDER = 0$ (male).</li>
+<li>When the value of $GENDER$ is the same and the value of $GHb$ is also the same,, for people whose $AGE$ is in $(7, 11]$, their odds ratio to be $BH = 1$ (excellent health) is $e^{0.14892715} = 1.160588$, comparing to people whose $AGE$ is in $(0, 7]$.</li>
+<li>When the value of $GENDER$ is the same and the value of $GHb$ is also the same, for people whose $AGE$ is in $(11, 15]$, their odds ratio to be $BH = 1$ (excellent health) is $e^{-0.27181473} = 0.76199546$, comparing to people whose $AGE$ is in $(0, 7]$.</li>
+<li>When the value of $GENDER$ is the same and the value of $GHb$ is also the same,, for people whose $AGE$ is in $(15, 30]$, their odds ratio to be $BH = 1$ (excellent health) is $e^{-0.7301234} = 0.4818495$, comparing to people whose $AGE$ is in $(0, 7]$.</li>
+</ul>
+<h2 id="references">References</h2>
+<ul>
+<li>Data Science, Statistics, and R (資料科學、統計與 R) Fall 2017, lectured by <a href="http://ghuang.stat.nctu.edu.tw/">Dr. Guan-Hua Huang (黃冠華)</a></li>
+</ul>
+    
+	</div>
+  <footer class="article-footer clearfix">
+  
+
+<div class="article-tags">
+  <span></span>
+  
+  <a href="https://binnz.github.io/tags/data-mining">Data-Mining</a>
+  
+  <a href="https://binnz.github.io/tags/statistics">Statistics</a>
+  
+  <a href="https://binnz.github.io/tags/r">R</a>
+  
+  <a href="https://binnz.github.io/tags/classification">Classification</a>
+  
+</div>
+
+
+
+
+
+<div class="article-categories">
+  <span></span>
+  
+  <a class="article-category-link" href="https://binnz.github.io/categories/programming">Programming</a>
+  
+</div>
+
+
+
+  <div class="article-share" id="share">
+    <div data-url="https://binnz.github.io/post/2018-09-10-r3/" data-title="Practice in R: Analysis on all individuals diagnosed with Type I diabetes" data-tsina="" class="share clearfix">
+    </div>
+  </div>
+</footer>
+
+	</article>
+  
+
+
+<section class="comment">
+<div id="disqus_thread"></div>
+</section>
+<script>
+  <!-- detect whether Disuqs can load -->
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', '//disqus.com/next/config.json?' + new Date().getTime(), true);
+  xhr.timeout = 3000; 
+
+  xhr.onload = function() { 
+
+
+var disqus_config = function () {
+this.page.url = "https://binnz.github.io/post/2018-09-10-r3/";
+this.page.identifier = "https://binnz.github.io/post/2018-09-10-r3/";
+};
+(function() { 
+var d = document, s = d.createElement('script');
+
+s.src = '//disc.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+}
+  xhr.ontimeout = function() {
+  <!-- cannot load Disqus, skip it. -->
+  return;
+}
+xhr.send(null);
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+    <div class="openaside"><a class="navbutton" href="#" title="Show SideBar"></a></div>
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide SideBar"></a></div>
+<aside class="clearfix">
+  
+
+<div class="categorieslist">
+  <p class="asidetitle">Categories</p>
+  <ul>
+    
+    <li><a href="https://binnz.github.io/categories/install" title="install">install<sup>2</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/life" title="life">life<sup>1</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/notes" title="notes">notes<sup>50</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/programming" title="programming">programming<sup>25</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/projects" title="projects">projects<sup>2</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/publications" title="publications">publications<sup>1</sup></a></li>
+    
+  </ul>
+</div>
+
+
+
+  
+
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+      
+			<li><a href="https://binnz.github.io/tags/ANDROID" title="android">android<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/APACHE-PIG" title="apache-pig">apache-pig<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/ASSOCIATION-ANALYSIS" title="association-analysis">association-analysis<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/BEER" title="beer">beer<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CLASSIFICATION" title="classification">classification<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CLUSTERING" title="clustering">clustering<sup>19</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CONFERENCE" title="conference">conference<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATA-MINING" title="data-mining">data-mining<sup>64</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATA-SCIENCE" title="data-science">data-science<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATABASE" title="database">database<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DEEP-LEARNING" title="deep-learning">deep-learning<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/ELASTICSEARCH" title="elasticsearch">elasticsearch<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/GRAPH" title="graph">graph<sup>12</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/HADOOP" title="hadoop">hadoop<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/INFORMATION-RETRIEVAL" title="information-retrieval">information-retrieval<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/JAVA" title="java">java<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/MACHINE-LEARNING" title="machine-learning">machine-learning<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NEURAL-NETWORK" title="neural-network">neural-network<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NLP" title="nlp">nlp<sup>4</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NLTK" title="nltk">nltk<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/PYTHON" title="python">python<sup>15</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/R" title="r">r<sup>4</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/RELATION-ALGEBRA" title="relation-algebra">relation-algebra<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SCIKIT-LEARN" title="scikit-learn">scikit-learn<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SPARK" title="spark">spark<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SQL" title="sql">sql<sup>3</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/STATISTICS" title="statistics">statistics<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/STREAMING" title="streaming">streaming<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/TIME-SERIES" title="time-series">time-series<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/TRAVEL" title="travel">travel<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/UNIT-TEST" title="unit-test">unit-test<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/VBA" title="vba">vba<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/WINDOWS" title="windows">windows<sup>1</sup></a></li>
+      
+		</ul>
+</div>
+
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle">Archives</p>
+    <ul class="archive-list">
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2021-06">2021年06月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2020-05">2020年05月</a><span class="archive-list-count">12</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2019-09">2019年09月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-09">2018年09月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-08">2018年08月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-06">2018年06月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-05">2018年05月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-04">2018年04月</a><span class="archive-list-count">5</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-03">2018年03月</a><span class="archive-list-count">5</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-01">2018年01月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-12">2017年12月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-11">2017年11月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-10">2017年10月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-09">2017年09月</a><span class="archive-list-count">10</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-08">2017年08月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-07">2017年07月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-05">2017年05月</a><span class="archive-list-count">3</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-04">2017年04月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-03">2017年03月</a><span class="archive-list-count">20</span>
+      </li>
+      
+    </ul>
+
+  </div>
+
+
+  
+
+<div class="tagcloudlist">
+  <p class="asidetitle">Tags Cloud</p>
+  <div class="tagcloudlist clearfix">
+    
+    <a href="https://binnz.github.io/tags/android" style="font-size: 12px;">android</a>
+    
+    <a href="https://binnz.github.io/tags/apache-pig" style="font-size: 12px;">apache-pig</a>
+    
+    <a href="https://binnz.github.io/tags/association-analysis" style="font-size: 12px;">association-analysis</a>
+    
+    <a href="https://binnz.github.io/tags/beer" style="font-size: 12px;">beer</a>
+    
+    <a href="https://binnz.github.io/tags/classification" style="font-size: 12px;">classification</a>
+    
+    <a href="https://binnz.github.io/tags/clustering" style="font-size: 12px;">clustering</a>
+    
+    <a href="https://binnz.github.io/tags/conference" style="font-size: 12px;">conference</a>
+    
+    <a href="https://binnz.github.io/tags/data-mining" style="font-size: 12px;">data-mining</a>
+    
+    <a href="https://binnz.github.io/tags/data-science" style="font-size: 12px;">data-science</a>
+    
+    <a href="https://binnz.github.io/tags/database" style="font-size: 12px;">database</a>
+    
+    <a href="https://binnz.github.io/tags/deep-learning" style="font-size: 12px;">deep-learning</a>
+    
+    <a href="https://binnz.github.io/tags/elasticsearch" style="font-size: 12px;">elasticsearch</a>
+    
+    <a href="https://binnz.github.io/tags/graph" style="font-size: 12px;">graph</a>
+    
+    <a href="https://binnz.github.io/tags/hadoop" style="font-size: 12px;">hadoop</a>
+    
+    <a href="https://binnz.github.io/tags/information-retrieval" style="font-size: 12px;">information-retrieval</a>
+    
+    <a href="https://binnz.github.io/tags/java" style="font-size: 12px;">java</a>
+    
+    <a href="https://binnz.github.io/tags/machine-learning" style="font-size: 12px;">machine-learning</a>
+    
+    <a href="https://binnz.github.io/tags/neural-network" style="font-size: 12px;">neural-network</a>
+    
+    <a href="https://binnz.github.io/tags/nlp" style="font-size: 12px;">nlp</a>
+    
+    <a href="https://binnz.github.io/tags/nltk" style="font-size: 12px;">nltk</a>
+    
+    <a href="https://binnz.github.io/tags/python" style="font-size: 12px;">python</a>
+    
+    <a href="https://binnz.github.io/tags/r" style="font-size: 12px;">r</a>
+    
+    <a href="https://binnz.github.io/tags/relation-algebra" style="font-size: 12px;">relation-algebra</a>
+    
+    <a href="https://binnz.github.io/tags/scikit-learn" style="font-size: 12px;">scikit-learn</a>
+    
+    <a href="https://binnz.github.io/tags/spark" style="font-size: 12px;">spark</a>
+    
+    <a href="https://binnz.github.io/tags/sql" style="font-size: 12px;">sql</a>
+    
+    <a href="https://binnz.github.io/tags/statistics" style="font-size: 12px;">statistics</a>
+    
+    <a href="https://binnz.github.io/tags/streaming" style="font-size: 12px;">streaming</a>
+    
+    <a href="https://binnz.github.io/tags/time-series" style="font-size: 12px;">time-series</a>
+    
+    <a href="https://binnz.github.io/tags/travel" style="font-size: 12px;">travel</a>
+    
+    <a href="https://binnz.github.io/tags/unit-test" style="font-size: 12px;">unit-test</a>
+    
+    <a href="https://binnz.github.io/tags/vba" style="font-size: 12px;">vba</a>
+    
+    <a href="https://binnz.github.io/tags/windows" style="font-size: 12px;">windows</a>
+    
+  </div>
+</div>
+
+
+
+  
+
+</aside>
+</div>
+
+  </div>
+  <footer><div id="footer" >
+  <div class="line">
+    <span></span>
+    
+    <div style='background:no-repeat url("https://binnz.github.io/img/US-MT-EPS-02-6001.png") left top;-webkit-background-size:6.875em 6.875em;-moz-background-size:6.875em 6.875em;background-size:6.875em 6.875em;' class="author" ></div>
+  </div>
+  <section class="info">
+    <p>hehe</p>
+  </section>
+  <div class="social-font clearfix">
+    <a href='http://weibo.com/coderzh' target="_blank" title="weibo"></a>
+    <a href='https://twitter.com/coderzh' target="_blank" title="twitter"></a>
+    <a href='https://github.com/binnz' target="_blank" class="icon-github" title="github"></a>
+    <a href='https://www.facebook.com/coderzh' target="_blank" title="facebook"></a>
+    <a href='https://www.linkedin.com/coderzh' target="_blank" title="linkedin"></a>
+  </div>
+  <p class="copyright">Powered by <a href="http://gohugo.io" target="_blank" title="hugo">hugo</a> and Theme by <a href="https://github.com/coderzh/hugo-pacman-theme" target="_blank" title="hugo-pacman-theme">hugo-pacman-theme</a> © 2021
+    
+    <a href="https://binnz.github.io/" title="California Dreaming">California Dreaming</a>
+    
+  </p>
+</div>
+</footer>
+  <script src="https://binnz.github.io/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+done = false;
+$(document).ready(function(){
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize();
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  $('form.search').on('submit', function (event) {
+    if (false === done) {
+      event.preventDefault();
+      var orgVal = $(this).find('#search').val();
+      $(this).find('#search').val('site:https:\/\/binnz.github.io\/ ' + orgVal);
+      done = true;
+      $(this).submit();
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://b.bshare.cn/barCode?site=weixin&url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});
+</script>
+
+
+
+
+
+</body>
+</html>

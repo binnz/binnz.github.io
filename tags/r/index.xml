@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>R on California Dreaming</title>
+    <link>https://binnz.github.io/tags/r/</link>
+    <description>Recent content in R on California Dreaming</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 10 Sep 2018 00:00:00 +0000</lastBuildDate><atom:link href="https://binnz.github.io/tags/r/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Practice in R: Analysis on all individuals diagnosed with Type I diabetes</title>
+      <link>https://binnz.github.io/post/2018-09-10-r3/</link>
+      <pubDate>Mon, 10 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2018-09-10-r3/</guid>
+      <description>&lt;p&gt;The Wisconsin Diabetes Registry Study targeted all individuals $&amp;lt;30$ years of age diagnosed with Type I diabetes in southern Wisconsin, USA. Participants were requested to submit blood samples and were sent a questionnaire inquiring about hospitalizations and other events. The blood samples were used to determine glycosylated hemoglobin (GHb), and important indicator of glycemic control.&lt;/p&gt;
+&lt;p&gt;The data set &lt;code&gt;diabetes.txt&lt;/code&gt;, which can be downloaded from &lt;a href=&#34;http://ghuang.stat.nctu.edu.tw/course/datasci17/files/data/diabetes.txt&#34;&gt;here&lt;/a&gt;, contains the data from the Wisconsin Diabetes Registry Study. The data items are:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Variable name&lt;/th&gt;
+&lt;th&gt;meaning&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;ID&lt;/td&gt;
+&lt;td&gt;an unique identification number&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;HEALTH&lt;/td&gt;
+&lt;td&gt;self-reported health status: 1=excellent, 2=good, 3=fair, 4=poor&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;BH&lt;/td&gt;
+&lt;td&gt;dichotomized health status: 1=excellent health, 0=worse than excellent health&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;GENDER&lt;/td&gt;
+&lt;td&gt;sex code: 1=female, 0=male&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;GHb&lt;/td&gt;
+&lt;td&gt;overal mean glycosylated hemoglobin value in study&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;AGE&lt;/td&gt;
+&lt;td&gt;age at diagnosis (years)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;ul&gt;
+&lt;li&gt;In the section &amp;ldquo;Relationship of GHb with age&amp;rdquo;, we are interested in the relationship of GHb with age at diagnosis and/or self-reported health status&lt;/li&gt;
+&lt;li&gt;In the section &amp;ldquo;Modeling of dichotomized health status&amp;rdquo;, we use BH as the dependent variable (response variable) and use models such as logistic regression to show the explanationary power of other independent variables.&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+    <item>
+      <title>Practice in R: Insights on Poverty</title>
+      <link>https://binnz.github.io/post/2018-09-10-poverty/</link>
+      <pubDate>Mon, 10 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2018-09-10-poverty/</guid>
+      <description>&lt;p&gt;This practice is based on Hans Rosling talks &lt;a href=&#34;https://www.ted.com/talks/hans_rosling_reveals_new_insights_on_poverty?language=en&#34;&gt;New Insights on Poverty&lt;/a&gt; and &lt;a href=&#34;https://www.ted.com/talks/hans_rosling_shows_the_best_stats_you_ve_ever_seen&#34;&gt;The Best Stats You&amp;rsquo;ve Ever Seen&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The assignment uses data to answer specific question about global health and economics. The data contradicts commonly held preconceived notions. For example, Hans Rosling starts his talk by asking: &amp;ldquo;for each of the six pairs of countries below, which country do you think had the highest child mortality in 2015?&amp;rdquo;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Sri Lanka or Turkey&lt;/li&gt;
+&lt;li&gt;Poland or South Korea&lt;/li&gt;
+&lt;li&gt;Malaysia or Russia&lt;/li&gt;
+&lt;li&gt;Pakistan or Vietnam&lt;/li&gt;
+&lt;li&gt;Thailand or South Africa&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Most people get them wrong. Why is this? In part it is due to our preconceived notion that the world is divided into two groups: the
+&lt;em&gt;Western world&lt;/em&gt; versus the &lt;em&gt;third world&lt;/em&gt;, characterized by &amp;ldquo;long life,small family&amp;rdquo; and &amp;ldquo;short life, large family&amp;rdquo; respectively. In this homework we will use data visualization to gain insights on this topic.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Practice in R: Monte Carlo Simulation &amp; Central Limit Theorem (CLT)</title>
+      <link>https://binnz.github.io/post/2018-09-10-r2/</link>
+      <pubDate>Mon, 10 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2018-09-10-r2/</guid>
+      <description>&lt;p&gt;This is a practice in R for realization of Monte Carlo Simulation, Central Limit Theorem (CLT), normal approximation, and so on.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Connect to Elastic Cloud with R Client</title>
+      <link>https://binnz.github.io/post/2017-09-20-elasticsearch-r/</link>
+      <pubDate>Wed, 20 Sep 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-09-20-elasticsearch-r/</guid>
+      <description>&lt;p&gt;&lt;code&gt;Elastic&lt;/code&gt; (part of the &lt;a href=&#34;http://ropensci.org/&#34;&gt;rOpenSci project&lt;/a&gt;) is a general purpose R interface to Elasticsearch.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/ropensci/elastic&#34;&gt;Github Page&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://ropensci.org/tutorials/elastic_tutorial.html&#34;&gt;Tutorial&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,1488 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Code Example of a Neural Network for The Function XOR - California Dreaming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+  
+  <meta name="description" content="It is a well-known fact, and something we have already mentioned, that 1-layer neural networks cannot predict the function XOR. 1-layer neural nets can only classify linearly separable sets, however, as we have seen, the Universal Approximation Theorem states that a 2-layer network can approximate any function, given a complex enough architecture.
+We will now create a neural network with two neurons in the hidden layer and we will show how this can model the XOR function. However, we will write code that will allow the reader to simply modify it to allow for any number of layers and neurons in each layer, so that the reader can try simulating different scenarios. We are also going to use the hyperbolic tangent as the activity function for this network. To train the network, we will implement the back-propagation algorithm discussed earlier.
+In addition, if you are interested in the mathemetical derivation of this implementation, please see my another post .">
+  
+  <meta itemprop="name" content="Code Example of a Neural Network for The Function XOR - California Dreaming">
+  <meta itemprop="description" content="It is a well-known fact, and something we have already mentioned, that 1-layer neural networks cannot predict the function XOR. 1-layer neural nets can only classify linearly separable sets, however, as we have seen, the Universal Approximation Theorem states that a 2-layer network can approximate any function, given a complex enough architecture.
+We will now create a neural network with two neurons in the hidden layer and we will show how this can model the XOR function. However, we will write code that will allow the reader to simply modify it to allow for any number of layers and neurons in each layer, so that the reader can try simulating different scenarios. We are also going to use the hyperbolic tangent as the activity function for this network. To train the network, we will implement the back-propagation algorithm discussed earlier.
+In addition, if you are interested in the mathemetical derivation of this implementation, please see my another post .">
+  <meta itemprop="image" content="https://binnz.github.io/img/author.jpg">
+  
+  
+  <meta name="twitter:description" content="">
+  
+  <link rel="shortcut icon" href="https://binnz.github.io/img/favicon.ico"/>
+  <link rel="apple-touch-icon" href="https://binnz.github.io/apple-touch-icon.png" />
+  <link rel="apple-touch-icon-precomposed" href="https://binnz.github.io/apple-touch-icon.png" />
+  <link rel="stylesheet" href="https://binnz.github.io/highlight/styles/github.css">
+  <script src="https://binnz.github.io/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  
+  <link rel="stylesheet" href="https://binnz.github.io/font/hack/css/hack.min.css">
+  <link rel="stylesheet" href="https://binnz.github.io/css/style.css">
+</head>
+
+<body>
+  <header>
+    <div>
+  <div style="height:150px; width:100%; clear:both;"></div>
+  <div id="textlogo">
+    <h1 class="site-name"><a href="https://binnz.github.io/" title="California Dreaming">California Dreaming</a></h1>
+    <h2 class="blog-motto"></h2>
+  </div>
+  <div class="navbar"><a class="navbutton navmobile" href="#" title="menu"></a></div>
+			<div style="height:50px; width:100%; clear:both;"></div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="menu">
+			</a><div style="height:50px; width:100%; clear:both;"></div></div>
+  <nav class="animated">
+    <ul>
+      
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/post/">Archives</a></li>
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      <li>
+        <form class="search" method="get" action="https://www.google.com/search">
+          <div>
+            <input type="text" id="search" name="q" placeholder='Search'>
+          </div>
+        </form>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+  </header>
+  <div id="container">
+    <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+      <a href="https://binnz.github.io/post/2017-08-30-nn-xor/" title="Code Example of a Neural Network for The Function XOR" itemprop="url">Code Example of a Neural Network for The Function XOR</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="" title="">you</a>
+    
+  </p>
+  <p class="article-time">
+    <time datetime="2017-08-30 00:00:00 &#43;0000 UTC" itemprop="datePublished">2017-08-30</time>
+  </p>
+</header>
+
+	<div class="article-content">
+    
+    <p>It is a well-known fact, and something we have already mentioned, that 1-layer neural networks cannot predict the function XOR. 1-layer neural nets can only classify linearly separable sets, however, as we have seen, the Universal Approximation Theorem states that a 2-layer network can approximate any function, given a complex enough architecture.</p>
+<p>We will now create a neural network with two neurons in the hidden layer and we will show how this can model the XOR function. However, we will write code that will allow the reader to simply modify it to allow for any number of layers and neurons in each layer, so that the reader can try simulating different scenarios. We are also going to use the hyperbolic tangent as the activity function for this network. To train the network, we will implement the back-propagation algorithm discussed earlier.</p>
+<p>In addition, if you are interested in the mathemetical derivation of this implementation, please see my another post <a href="../../../2018/08/19/NN-XOR"></a>.</p>
+<h2 id="define-the-neural-network-class">Define the Neural Network Class</h2>
+<p>We will need to import some libraries first.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">matplotlib.colors</span> <span class="kn">import</span> <span class="n">ListedColormap</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="c1"># The following code is used for hiding the warnings and make this notebook clearer.</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Next we define our activity function and its derivative (we use <code>tanh(x)</code> in this example):</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">tanh</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="p">))</span><span class="o">/</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">tanh_derivative</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Next we define the <code>NeuralNetwork</code> class:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">NeuralNetwork</span><span class="p">:</span>
+    <span class="c1">#########</span>
+    <span class="c1"># parameters</span>
+    <span class="c1"># ----------</span>
+    <span class="c1"># self:      the class object itself</span>
+    <span class="c1"># net_arch:  consists of a list of integers, indicating</span>
+    <span class="c1">#            the number of neurons in each layer, i.e. the network architecture</span>
+    <span class="c1">#########</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">net_arch</span><span class="p">):</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        
+        <span class="c1"># Initialized the weights, making sure we also </span>
+        <span class="c1"># initialize the weights for the biases that we will add later</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activity</span> <span class="o">=</span> <span class="n">tanh</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activity_derivative</span> <span class="o">=</span> <span class="n">tanh_derivative</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">net_arch</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps_per_epoch</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arch</span> <span class="o">=</span> <span class="n">net_arch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Random initialization with range of weight values (-1,1)</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">net_arch</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">net_arch</span><span class="p">[</span><span class="n">layer</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">_forward_prop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">x</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">activation</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">activity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activity</span><span class="p">(</span><span class="n">activation</span><span class="p">)</span>
+
+            <span class="c1"># add the bias for the next layer</span>
+            <span class="n">activity</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">activity</span><span class="p">)))</span>
+            <span class="n">y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
+
+        <span class="c1"># last layer</span>
+        <span class="n">activation</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">activity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activity</span><span class="p">(</span><span class="n">activation</span><span class="p">)</span>
+        <span class="n">y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">y</span>
+    
+    <span class="k">def</span> <span class="nf">_back_prop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">):</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="n">target</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">delta_vec</span> <span class="o">=</span> <span class="p">[</span><span class="n">error</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">activity_derivative</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])]</span>
+
+        <span class="c1"># we need to begin from the back, from the next to last layer</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="n">delta_vec</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="n">error</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">activity_derivative</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="n">delta_vec</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+
+        <span class="c1"># Now we need to set the values from back to front</span>
+        <span class="n">delta_vec</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+        
+        <span class="c1"># Finally, we adjust the weights, using the backpropagation rules</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)):</span>
+            <span class="n">layer</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">arch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">delta</span> <span class="o">=</span> <span class="n">delta_vec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">arch</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">learning_rate</span><span class="o">*</span><span class="n">layer</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
+    
+    <span class="c1">#########</span>
+    <span class="c1"># parameters</span>
+    <span class="c1"># ----------</span>
+    <span class="c1"># self:    the class object itself</span>
+    <span class="c1"># data:    the set of all possible pairs of booleans True or False indicated by the integers 1 or 0</span>
+    <span class="c1"># labels:  the result of the logical operation &#39;xor&#39; on each of those input pairs</span>
+    <span class="c1">#########</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+        
+        <span class="c1"># Add bias units to the input layer - </span>
+        <span class="c1"># add a &#34;1&#34; to the input data (the always-on bias neuron)</span>
+        <span class="n">ones</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="n">Z</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">ones</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">data</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epochs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">10000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;epochs: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+        
+            <span class="n">sample</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="c1"># We will now go ahead and set up our feed-forward propagation:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">Z</span><span class="p">[</span><span class="n">sample</span><span class="p">]]</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forward_prop</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+            <span class="c1"># Now we do our back-propagation of the error to adjust the weights:</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">sample</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_back_prop</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">)</span>
+    
+    <span class="c1">#########</span>
+    <span class="c1"># the predict function is used to check the prediction result of</span>
+    <span class="c1"># this neural network.</span>
+    <span class="c1"># </span>
+    <span class="c1"># parameters</span>
+    <span class="c1"># ----------</span>
+    <span class="c1"># self:   the class object itself</span>
+    <span class="c1"># x:      single input data</span>
+    <span class="c1">#########</span>
+    <span class="k">def</span> <span class="nf">predict_single_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)):</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activity</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">val</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="c1">#########</span>
+    <span class="c1"># the predict function is used to check the prediction result of</span>
+    <span class="c1"># this neural network.</span>
+    <span class="c1"># </span>
+    <span class="c1"># parameters</span>
+    <span class="c1"># ----------</span>
+    <span class="c1"># self:   the class object itself</span>
+    <span class="c1"># X:      the input data array</span>
+    <span class="c1">#########</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">arch</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="bp">self</span><span class="o">.</span><span class="n">predict_single_data</span><span class="p">(</span><span class="n">x</span><span class="p">)]])</span>
+            <span class="n">Y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">Y</span><span class="p">,</span><span class="n">y</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">Y</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="check-the-performance-of-this-neural-network">Check the Performance of This Neural Network</h2>
+<p>Now we can check if this Neural Network can actually learn <code>XOR</code> rule, which is</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>y=0</th>
+<th>y=1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>x=0</strong></td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>x=1</strong></td>
+<td>1</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Initialize the NeuralNetwork with</span>
+<span class="c1"># 2 input neurons</span>
+<span class="c1"># 2 hidden neurons</span>
+<span class="c1"># 1 output neuron</span>
+<span class="n">nn</span> <span class="o">=</span> <span class="n">NeuralNetwork</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># Set the input data</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+
+<span class="c1"># Set the labels, the correct results for the xor operation</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> 
+                 <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+<span class="c1"># Call the fit function and train the network for a chosen number of epochs</span>
+<span class="n">nn</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>
+
+<span class="c1"># Show the prediction results</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&#34;Final prediction&#34;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">X</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">predict_single_data</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><pre><code>Final prediction
+[0 0] 0.0030321736925
+[0 1] 0.996386076136
+[1 0] 0.995903456394
+[1 1] 0.000638644921757
+</code></pre>
+<p>The reader can slightly modify the code we created in the <code>plot_decision_regions</code> function defined in the appendix of this article and see how different neural networks separate different regions depending on the architecture chosen.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">nn</span> <span class="o">=</span> <span class="n">NeuralNetwork</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">nn</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">plot_decision_regions</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">nn</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;x-axis&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;y-axis&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper left&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="http://i.imgur.com/oe0z0op.png" alt=""></p>
+<p>Different neural network architectures (for example, implementing a network with a different number of neurons in the hidden layer, or with more than just one hidden layer) may produce a different separating region.</p>
+<p>For example, <code>([2,4,3,1])</code> will represent a 3-layer neural network, with four neurons in the first hidden layer and three neurons in the second hidden layer, and choosing it will give the following figure:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">nn</span> <span class="o">=</span> <span class="n">NeuralNetwork</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">nn</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">plot_decision_regions</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">nn</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;x-axis&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;y-axis&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper left&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="http://i.imgur.com/2OKU3nx.png" alt=""></p>
+<p>While choosing <code>nn = NeuralNetwork([2,4,1])</code>, for example, would produce the following:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">nn</span> <span class="o">=</span> <span class="n">NeuralNetwork</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">nn</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">plot_decision_regions</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">nn</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;x-axis&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;y-axis&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper left&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="http://i.imgur.com/CCNCVj7.png" alt=""></p>
+<h2 id="code-review">Code Review</h2>
+<p>Let&rsquo;s review the code in details.</p>
+<h3 id="a-sigmoid-function">A. sigmoid function</h3>
+<p>In this implementation, actually sigmoid function can also used for activation.   According to Wikipedia, a sigmoid function is a mathematical function having a characteristic &ldquo;S&rdquo;-shaped curve or sigmoid curve.</p>
+<p><img src="https://i.imgur.com/35RHnQI.png" alt=""></p>
+<p>Often, sigmoid function refers to the special case of the logistic function shown in the figure above and defined by the formula</p>
+<p>$$
+g(x) = \frac{1}{1+e^{-x}} = \frac{e^x}{e^x+1}
+$$</p>
+<p>which can be written in python code with <code>numpy</code> library as follows</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">sigmoid</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">))</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Then, to take the derivative in the process of back propagation, we need to do differentiation of logistic function.</p>
+<p>Suppose the output of a neuron (after activation) is $y = g(x) = (1+e^{-x})^{-1}$ where $x$ is the net input to this neuron, then the differentiation of logistic function is</p>
+<p>$$
+g'(x) =-(1+\exp(-x))^{-2}\exp(-x)(-1)
+$$$$
+=g(x)\frac{\exp(-x)}{1+\exp(-x)}
+=g(x)\frac{1+\exp(-x)-1}{1+\exp(-x)}
+$$$$
+=g(x)(1-g(x))
+$$</p>
+<p>So when we take the partial derivative $\partial y / \partial x=y(1-y)$, we can use the following python function</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">sigmoid_derivative</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="b-neural-network">B. neural network</h3>
+<p>We devised a class named <code>NeuralNetwork</code> that is capable of training a &ldquo;XOR&rdquo; function.   The <code>NeuralNetwork</code> consists of the following 3 parts:</p>
+<ol>
+<li>initialization</li>
+<li>fit</li>
+<li>predict</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">NeuralNetwork</span><span class="p">:</span>
+
+    <span class="c1">#########</span>
+    <span class="c1"># parameters</span>
+    <span class="c1"># ----------</span>
+    <span class="c1"># self:      the class object itself</span>
+    <span class="c1"># net_arch:  consists of a list of integers, indicating</span>
+    <span class="c1">#            the number of neurons in each layer, </span>
+    <span class="c1">#            i.e. [2,2,1] (two neurons for the input layer, </span>
+    <span class="c1">#                          two neurons for the first and the only hidden layer, </span>
+    <span class="c1">#                          and one neuron for the output layer)</span>
+    <span class="c1">#########</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">net_arch</span><span class="p">):</span>
+        <span class="c1"># Initialized the weights, making sure we also initialize the weights</span>
+        <span class="c1"># for the biases that we will add later.</span>
+        <span class="c1"># Afterwards, we do random initialization with range of weight values (-1,1)</span>
+
+    <span class="k">def</span> <span class="nf">_forward_prop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="c1"># feed-forward</span>
+    
+    <span class="k">def</span> <span class="nf">_back_prop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">):</span>
+        <span class="c1"># adjust the weights using the backpropagation rules</span>
+
+    <span class="c1">#########</span>
+    <span class="c1"># parameters</span>
+    <span class="c1"># ----------</span>
+    <span class="c1"># self:    the class object itself</span>
+    <span class="c1"># data:    the set of all possible pairs of booleans True or False indicated by </span>
+    <span class="c1">#          the integers 1 or 0</span>
+    <span class="c1"># labels:  the result of the logical operation &#39;xor&#39; on each of those input pairs</span>
+    <span class="c1">#########</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+        <span class="c1"># Add bias units to the input layer</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epochs</span><span class="p">):</span>
+            <span class="c1"># Set up our feed-forward propagation</span>
+            <span class="c1"># And then do our back-propagation of the error to adjust the weights</span>
+
+    <span class="c1">#########</span>
+    <span class="c1"># parameters</span>
+    <span class="c1"># ----------</span>
+    <span class="c1"># self:   the class object itself</span>
+    <span class="c1"># X:      the input data array</span>
+    <span class="c1">#########</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="c1"># Do prediction with the given data X and the pre-trained weights</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>In the initialization part, we create a <strong>list of arrays</strong> for the weights.   That is, given $k$ layers (the $1^{th}$ layer is the input layer and the $k^{th}$ layer is the output layer) and $n_k$ units in the $k^{th}$ layer, we have</p>
+<p>$$
+self.weights = [\Theta^{(1)}~\Theta^{(3)}~&hellip;~\Theta^{(k-1)}]
+$$</p>
+<p>$$
+where~\Theta^{(j)}=\begin{bmatrix}
+\Theta_{1,1}^{(j)} &amp; \Theta_{1,2}^{(j)} &amp; \Theta_{1,3}^{(j)} &amp; \dots  &amp; \Theta_{1,n_{j+1}}^{(j)} \<br>
+\Theta_{2,1}^{(j)} &amp; \Theta_{2,2}^{(j)} &amp; \Theta_{2,3}^{(j)} &amp; \dots  &amp; \Theta_{2,n_{j+1}}^{(j)} \<br>
+\vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots \<br>
+\Theta_{(n_j+1),1}^{(j)} &amp; \Theta_{(n_j+1),2}^{(j)} &amp; \Theta_{(n_j+1),3}^{(j)} &amp; \dots  &amp; \Theta_{(n_j+1),n_{j+1}}^{(j)}
+\end{bmatrix}
+$$</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Random initialization with range of weight values (-1,1)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">net_arch</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">net_arch</span><span class="p">[</span><span class="n">layer</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Note that a bias unit is added to each hidden layer and a &ldquo;1&rdquo; will be added to the input layer.   That&rsquo;s why the dimension of weight matrix is $(n_j+1) \times n_{j+1}$ instead of $n_j \times n_{j+1}$.</p>
+<p>The fit part will train our network.   For each epoch, we sample a training data and then do <strong>forward propagation</strong> and <strong>back propagation</strong> with this input.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epochs</span><span class="p">):</span>
+    <span class="n">sample</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="c1"># We will now go ahead and set up our feed-forward propagation:</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">Z</span><span class="p">[</span><span class="n">sample</span><span class="p">]]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forward_prop</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="c1"># Now we do our back-propagation of the error to adjust the weights:</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">sample</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_back_prop</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Forward propagation propagates the sampled input data forward through the network to generate the output value.</p>
+<p>According to the generated output value, back propagation calculates the cost (error term) and do the propagation of the output activations back through the network using the training pattern target in order to generate the deltas (the difference between the targeted and actual output values) of all output and hidden neurons.   With these deltas, we can get the gradients of the weights and use these gradients to update the original weights.</p>
+<h3 id="c-backpropagation">C. backpropagation</h3>
+<p>Use the neural network shown in <strong>Figure 1</strong> as an example, the final output of the model would be</p>
+<p>$$
+h_{\Theta}(x) = a_1^{(3)} = g(z_1^{(3)}) = g(\Theta_{0,1}^{(2)}a_0^{(2)}+\Theta_{1,1}^{(2)}a_1^{(2)}+\Theta_{2,1}^{(2)}a_2^{(2)})
+$$</p>
+<ul>
+<li>$\Theta^{(j)}$ is the matrix of weights mapping from layer $j$ to layer $(j+1)$</li>
+<li>$a_i^{(j)}$ is the activation of unit $i$ in layer $j$</li>
+<li>$z_i^{(j)}$ is the net input to the unit $i$ in layer $j$</li>
+<li>$g$ is sigmoid function that refers to the special case of the logistic function</li>
+<li>$x$ is the input vector $[x_0~x_1~x_2]^T$.</li>
+</ul>
+<p>To update the weights with <em>gradient descent</em> method, we need to calculate the gradients.   Ultimately, this means computing the partial derivatives $\partial err / \partial a_1^{(3)}$ given the error term $E_{total}$ defined as $E_{total} = (1/2)(y - a_1^{(3)})^2$, which is the loss between the actual label $y$ and the prediction $a_1^{(3)}$.</p>
+<p>Note that with chain rule, the partial derivative of $E_{total}$ with respect to $\Theta_{2,1}^{(2)}$ is only related to the error term and the output values $a_2^{(2)}$ and $a_1^{(3)}$.</p>
+<p>$$
+\frac{\partial~E_{total}}{\partial~\Theta_{2,1}^{(2)}} = \frac{\partial~E_{total}}{\partial~a_1^{(3)}} \times \frac{\partial~a_1^{(3)}}{\partial~\Theta_{2,1}^{(2)}}
+= \frac{\partial~E_{total}}{\partial~a_1^{(3)}} \times \Bigg(\frac{\partial~g(z_1^{(3)})}{\partial~z_1^{(3)}} \times \frac{\partial~z_1^{(3)}}{\partial~\Theta_{2,1}^{(2)}}\Bigg)
+$$</p>
+<p>$$
+= \Bigg(-(y - a_1^{(3)})\Bigg) \times \Bigg(\Big(a_1^{(3)} * (1-a_1^{(3)})\Big) \times a_2^{(2)}\Bigg)
+$$</p>
+<p>Furthermore, the partial derivative of $E_{total}$ with respect to $\Theta_{2,1}^{(1)}$ can be calculated with the same regards as follows.</p>
+<p>$$
+\frac{\partial~E_{total}}{\partial~\Theta_{2,1}^{(1)}} = \frac{\partial~E_{total}}{\partial~a_2^{(2)}} \times \frac{\partial~a_2^{(2)}}{\partial~\Theta_{2,1}^{(1)}}
+= \frac{\partial~E_{total}}{\partial~a_2^{(2)}} \times \Bigg(\frac{\partial~g(z_2^{(2)})}{\partial~z_2^{(2)}} \times \frac{\partial~z_2^{(2)}}{\partial~\Theta_{2,1}^{(1)}}\Bigg)
+$$</p>
+<p>$$
+where~\frac{\partial~E_{total}}{\partial~a_i^{(j)}}=\sum_{k}\frac{\partial~E_{a_{k}^{(j+1)}}}{\partial~a_i^{(j)}}=\sum_{k} \frac{\partial~E_{a_{k}^{(j+1)}}}{\partial~z_k^{(j+1)}} \times \Theta_{k,i}^{(j)}
+$$</p>
+<p>In conclusion, the back propagation process can be divided into 2 steps:</p>
+<p><strong><u>Step 1.</u> Generate the deltas (the difference between the targeted and actual output values) of all output and hidden neurons</strong></p>
+<p>First, we need to calculate the partial derivative of the total error with respect to the net input values of the neuron(s) in the output layer.</p>
+<p>Recall that we have calculated the partial derivative of the total error $E_{total}$ with respect to $z_1^{(3)}$, which is the net input to the neuron in the output layer in the case we discuss above.</p>
+<p>$$
+E_{z_1^{(3)}} = \frac{\partial~E_{total}}{\partial~z_1^{(3)}} = \frac{\partial~E_{total}}{\partial~a_1^{(3)}} \times \frac{\partial~g(z_1^{(3)})}{\partial~z_1^{(3)}}
+= \Bigg(-(target - a_1^{(3)})\Bigg) \times \Bigg(a_1^{(3)} * (1-a_1^{(3)})\Bigg)
+$$</p>
+<p>This can be written in a general form as</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">delta_vec</span> <span class="o">=</span> <span class="p">[(</span><span class="n">target</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">activity_derivative</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])]</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>where $y[j] = [a_{0}^{(j)}~a_{1}^{(j)}~&hellip;]$ is a vector representing the output values of layer $j$ and the <code>delta</code> we compute here is actually the **negative** gradient.</p>
+<p>Afterwards, we calculate the deltas for neurons in the remaining layers.</p>
+<p>For the remaining layers, given $\Theta_{pq}^{(j)}$ as the weight maps from the $p^{th}$ unit of layer $j$ to the $q^{th}$ unit of layer $(j+1)$, we have</p>
+<p>$$
+E_{z_i^{(j)}} = \frac{\partial~E_{total}}{\partial~z_{i}^{(j)}} = \frac{\partial~E_{total}}{\partial~a_{i}^{(j)}} \times \frac{\partial~a_{i}^{(j)}}{\partial~z_{i}^{(j)}}
+= \Bigg(\sum_{k}\frac{\partial~E_{a_{k}^{(j+1)}}}{\partial~a_i^{(j)}} \Bigg) \times \frac{\partial~a_{i}^{(j)}}{\partial~z_{i}^{(j)}}
+$$</p>
+<p>$$
+=\Bigg(\sum_{k} \frac{\partial~E_{a_{k}^{(j+1)}}}{\partial~z_k^{(j+1)}} \times \frac{\partial~z_k^{(j+1)}}{\partial~a_{i}^{(j)}} \Bigg) \times \frac{\partial~a_{i}^{(j)}}{\partial~z_{i}^{(j)}}
+=\Bigg(\sum_{k} E_{z_k^{(j+1)}} \times \Theta_{i,k}^{(j)} \Bigg) \times \frac{\partial~a_{i}^{(j)}}{\partial~z_{i}^{(j)}}
+$$</p>
+<p>As a result, when we consider the matrix representation of weights,</p>
+<p>$$
+self.weights[j]=\Theta^{(j)}=\begin{bmatrix}
+\Theta_{1,1}^{(j)} &amp; \Theta_{1,2}^{(j)} &amp; \Theta_{1,3}^{(j)} &amp; \dots  &amp; \Theta_{1,n_{j+1}}^{(j)} \<br>
+\Theta_{2,1}^{(j)} &amp; \Theta_{2,2}^{(j)} &amp; \Theta_{2,3}^{(j)} &amp; \dots  &amp; \Theta_{2,n_{j+1}}^{(j)} \<br>
+\vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots \<br>
+\Theta_{(n_j+1),1}^{(j)} &amp; \Theta_{(n_j+1),2}^{(j)} &amp; \Theta_{(n_j+1),3}^{(j)} &amp; \dots  &amp; \Theta_{(n_j+1),n_{j+1}}^{(j)}
+\end{bmatrix}
+$$</p>
+<p>we can calculate the gradient of weights layer-by-layer from the last hidden layer to the input layer with the code below.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># we need to begin from the back, from the next to last layer</span>
+<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="n">delta_vec</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>   <span class="c1"># Line 3</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="n">error</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">activity_derivative</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">:])</span>   <span class="c1"># Line 4</span>
+    <span class="n">delta_vec</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+
+<span class="c1"># Now we need to set the values from back to front</span>
+<span class="n">delta_vec</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Note that for a certain layer $j$, the inner product generated by Line 3 of the code above represents</p>
+<p>$$
+\bigg[\frac{\partial~E_{total}}{\partial~z_{2}^{(j)}}~\frac{\partial~E_{total}}{\partial~z_{3}^{(j)}}~\frac{\partial~E_{total}}{\partial~z_{4}^{(j)}}~&hellip;\frac{\partial~E_{total}}{\partial~z_{(n_j+1)}^{(j)}}\bigg]
+$$</p>
+<p>$$
+=[E_{z_2^{(j+1)}}~E_{z_2^{(j+1)}}~E_{z_3^{(j+1)}}~&hellip;~E_{z_{(n_j+1)}^{(j+1)}}] \cdot \begin{bmatrix}
+\Theta_{2,1}^{(j)} &amp; \Theta_{2,2}^{(j)} &amp; \Theta_{2,3}^{(j)} &amp; \dots  &amp; \Theta_{2,n_{j+1}}^{(j)} \<br>
+\Theta_{3,1}^{(j)} &amp; \Theta_{3,2}^{(j)} &amp; \Theta_{3,3}^{(j)} &amp; \dots  &amp; \Theta_{3,n_{j+1}}^{(j)} \<br>
+\vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots \<br>
+\Theta_{(n_j+1),1}^{(j)} &amp; \Theta_{(n_j+1),2}^{(j)} &amp; \Theta_{(n_j+1),3}^{(j)} &amp; \dots  &amp; \Theta_{(n_j+1),n_{j+1}}^{(j)}
+\end{bmatrix}
+$$</p>
+<p>And in Line 4 we generate <code>delta_vec[j]</code> with</p>
+<p>$$
+delta_vec[j]
+=\bigg[E_{z_2^{(j)}}~E_{z_3^{(j)}}~E_{z_4^{(j)}}~&hellip;~E_{z_{n_j+1}^{(j)}}\bigg]
+$$</p>
+<p>$$
+= \bigg[\frac{\partial~E_{total}}{\partial~z_{2}^{(j)}}~\frac{\partial~E_{total}}{\partial~z_{3}^{(j)}}~\frac{\partial~E_{total}}{\partial~z_{4}^{(j)}}~&hellip;\frac{\partial~E_{total}}{\partial~z_{(n_j+1)}^{(j)}}\bigg] *
+\bigg[\frac{\partial~a_{2}^{(j)}}{\partial~z_{2}^{(j)}}~\frac{\partial~a_{3}^{(j)}}{\partial~z_{3}^{(j)}}~\frac{\partial~a_{4}^{(j)}}{\partial~z_{4}^{(j)}}~&hellip;\frac{\partial~a_{n_j+1}^{(j)}}{\partial~z_{n_j+1}^{(j)}}\bigg]
+$$</p>
+<p><strong><u>Step 2.</u> Adjust the weights using gradient descent</strong></p>
+<p>Given $\Theta_{pq}^{(j)}$ as the weight maps from the $p^{th}$ unit of layer $j$ to the $q^{th}$ unit of layer $(j+1)$, the gradient $g$ of weight $\Theta_{pq}^{(j)}$ can be written as</p>
+<p>$$
+g_{\Theta_{pq}^{(j)}} = \frac{\partial~E_{total}}{\partial~\Theta_{pq}^{(j)}} = \frac{\partial~E_{total}}{\partial~z_{q}^{(j)}} \times \frac{\partial~z_{q}^{(j+1)}}{\partial~\Theta_{pq}^{(j)}}
+= E_{z_q^{(j+1)}} \times a_{p}^{(j)}
+$$</p>
+<p>with the fact that $E_{z_q^{(j+1)}}$ for all units have been calculated in the previous step.   Next, the weights would be updated according to the following rule</p>
+<p>$$
+w \leftarrow w - \eta * \frac{\partial~E_{total}}{\partial~w}
+$$</p>
+<p>($w$: weight; $\eta$: learning rate)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Finally, we adjust the weights, using the backpropagation rules</span>
+<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)):</span>
+    <span class="n">layer</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">arch</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">delta_vec</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">arch</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="n">learning_rate</span><span class="o">*</span><span class="n">layer</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>For a certain layer $j$, the <code>layer.T.dot(delta)</code> representation in the last line of the code above can be illustrated as</p>
+<p>$$
+\begin{bmatrix}
+a_1^{(j)} \<br>
+a_2^{(j)} \<br>
+a_3^{(j)} \<br>
+\vdots \<br>
+a_{(n_j+1)}^{(j)}
+\end{bmatrix}
+\cdot
+\begin{bmatrix}
+E_{z_2^{(j)}} &amp; E_{z_3^{(j)}} &amp; E_{z_4^{(j)}} &amp; \dots  &amp; E_{z_{n_{j+1}}^{(j)}}
+\end{bmatrix}
+$$</p>
+<h2 id="appendix">Appendix</h2>
+<p>The self-defined plot functions are written here.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="k">def</span> <span class="nf">plot_decision_regions</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">classifier</span><span class="p">,</span> <span class="n">test_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mf">0.02</span><span class="p">):</span>
+
+    <span class="c1"># setup marker generator and color map</span>
+    <span class="n">markers</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="s1">&#39;^&#39;</span><span class="p">,</span> <span class="s1">&#39;v&#39;</span><span class="p">)</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="s1">&#39;lightgreen&#39;</span><span class="p">,</span> <span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="s1">&#39;cyan&#39;</span><span class="p">)</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">ListedColormap</span><span class="p">(</span><span class="n">colors</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">))])</span>
+
+    <span class="c1"># plot the decision surface</span>
+    <span class="n">x1_min</span><span class="p">,</span> <span class="n">x1_max</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">x2_min</span><span class="p">,</span> <span class="n">x2_max</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">xx1</span><span class="p">,</span> <span class="n">xx2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">x1_min</span><span class="p">,</span> <span class="n">x1_max</span><span class="p">,</span> <span class="n">resolution</span><span class="p">),</span>
+                           <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">x2_min</span><span class="p">,</span> <span class="n">x2_max</span><span class="p">,</span> <span class="n">resolution</span><span class="p">))</span>
+    <span class="n">Z</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">xx1</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">xx2</span><span class="o">.</span><span class="n">ravel</span><span class="p">()])</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">Z</span> <span class="o">=</span> <span class="n">Z</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">xx1</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">xx1</span><span class="p">,</span> <span class="n">xx2</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">xx1</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">xx1</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">xx2</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">xx2</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+
+    <span class="c1"># plot class samples</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">cl</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">)):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">X</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="n">cl</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">X</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="n">cl</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">cmap</span><span class="p">(</span><span class="n">idx</span><span class="p">),</span>
+                    <span class="n">marker</span><span class="o">=</span><span class="n">markers</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">cl</span><span class="p">)</span>
+
+    <span class="c1"># highlight test samples</span>
+    <span class="k">if</span> <span class="n">test_idx</span><span class="p">:</span>
+        <span class="c1"># plot all samples</span>
+        <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">test_idx</span><span class="p">,</span> <span class="p">:],</span> <span class="n">y</span><span class="p">[</span><span class="n">test_idx</span><span class="p">]</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X_test</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="n">X_test</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
+                    <span class="n">c</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                    <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                    <span class="n">linewidths</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
+                    <span class="n">s</span><span class="o">=</span><span class="mi">55</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;test set&#39;</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="references">References</h2>
+<ul>
+<li><a href="https://www.amazon.com/Python-Deep-Learning-Valentino-Zocca/dp/1786464454">“Python Deep Learning,” by Valentino Zocca, Gianmario Spacagna, Daniel Slater, Peter Roelants.</a></li>
+</ul>
+    
+	</div>
+  <footer class="article-footer clearfix">
+  
+
+<div class="article-tags">
+  <span></span>
+  
+  <a href="https://binnz.github.io/tags/python">Python</a>
+  
+  <a href="https://binnz.github.io/tags/neural-network">Neural-Network</a>
+  
+  <a href="https://binnz.github.io/tags/data-mining">Data-Mining</a>
+  
+</div>
+
+
+
+
+
+<div class="article-categories">
+  <span></span>
+  
+  <a class="article-category-link" href="https://binnz.github.io/categories/programming">Programming</a>
+  
+</div>
+
+
+
+  <div class="article-share" id="share">
+    <div data-url="https://binnz.github.io/post/2017-08-30-nn-xor/" data-title="Code Example of a Neural Network for The Function XOR" data-tsina="" class="share clearfix">
+    </div>
+  </div>
+</footer>
+
+	</article>
+  
+
+
+<section class="comment">
+<div id="disqus_thread"></div>
+</section>
+<script>
+  <!-- detect whether Disuqs can load -->
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', '//disqus.com/next/config.json?' + new Date().getTime(), true);
+  xhr.timeout = 3000; 
+
+  xhr.onload = function() { 
+
+
+var disqus_config = function () {
+this.page.url = "https://binnz.github.io/post/2017-08-30-nn-xor/";
+this.page.identifier = "https://binnz.github.io/post/2017-08-30-nn-xor/";
+};
+(function() { 
+var d = document, s = d.createElement('script');
+
+s.src = '//disc.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+}
+  xhr.ontimeout = function() {
+  <!-- cannot load Disqus, skip it. -->
+  return;
+}
+xhr.send(null);
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+    <div class="openaside"><a class="navbutton" href="#" title="Show SideBar"></a></div>
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide SideBar"></a></div>
+<aside class="clearfix">
+  
+
+<div class="categorieslist">
+  <p class="asidetitle">Categories</p>
+  <ul>
+    
+    <li><a href="https://binnz.github.io/categories/install" title="install">install<sup>2</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/life" title="life">life<sup>1</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/notes" title="notes">notes<sup>50</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/programming" title="programming">programming<sup>25</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/projects" title="projects">projects<sup>2</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/publications" title="publications">publications<sup>1</sup></a></li>
+    
+  </ul>
+</div>
+
+
+
+  
+
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+      
+			<li><a href="https://binnz.github.io/tags/ANDROID" title="android">android<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/APACHE-PIG" title="apache-pig">apache-pig<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/ASSOCIATION-ANALYSIS" title="association-analysis">association-analysis<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/BEER" title="beer">beer<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CLASSIFICATION" title="classification">classification<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CLUSTERING" title="clustering">clustering<sup>19</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CONFERENCE" title="conference">conference<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATA-MINING" title="data-mining">data-mining<sup>64</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATA-SCIENCE" title="data-science">data-science<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATABASE" title="database">database<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DEEP-LEARNING" title="deep-learning">deep-learning<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/ELASTICSEARCH" title="elasticsearch">elasticsearch<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/GRAPH" title="graph">graph<sup>12</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/HADOOP" title="hadoop">hadoop<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/INFORMATION-RETRIEVAL" title="information-retrieval">information-retrieval<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/JAVA" title="java">java<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/MACHINE-LEARNING" title="machine-learning">machine-learning<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NEURAL-NETWORK" title="neural-network">neural-network<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NLP" title="nlp">nlp<sup>4</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NLTK" title="nltk">nltk<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/PYTHON" title="python">python<sup>15</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/R" title="r">r<sup>4</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/RELATION-ALGEBRA" title="relation-algebra">relation-algebra<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SCIKIT-LEARN" title="scikit-learn">scikit-learn<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SPARK" title="spark">spark<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SQL" title="sql">sql<sup>3</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/STATISTICS" title="statistics">statistics<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/STREAMING" title="streaming">streaming<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/TIME-SERIES" title="time-series">time-series<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/TRAVEL" title="travel">travel<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/UNIT-TEST" title="unit-test">unit-test<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/VBA" title="vba">vba<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/WINDOWS" title="windows">windows<sup>1</sup></a></li>
+      
+		</ul>
+</div>
+
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle">Archives</p>
+    <ul class="archive-list">
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2021-06">2021年06月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2020-05">2020年05月</a><span class="archive-list-count">12</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2019-09">2019年09月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-09">2018年09月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-08">2018年08月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-06">2018年06月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-05">2018年05月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-04">2018年04月</a><span class="archive-list-count">5</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-03">2018年03月</a><span class="archive-list-count">5</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-01">2018年01月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-12">2017年12月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-11">2017年11月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-10">2017年10月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-09">2017年09月</a><span class="archive-list-count">10</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-08">2017年08月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-07">2017年07月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-05">2017年05月</a><span class="archive-list-count">3</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-04">2017年04月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-03">2017年03月</a><span class="archive-list-count">20</span>
+      </li>
+      
+    </ul>
+
+  </div>
+
+
+  
+
+<div class="tagcloudlist">
+  <p class="asidetitle">Tags Cloud</p>
+  <div class="tagcloudlist clearfix">
+    
+    <a href="https://binnz.github.io/tags/android" style="font-size: 12px;">android</a>
+    
+    <a href="https://binnz.github.io/tags/apache-pig" style="font-size: 12px;">apache-pig</a>
+    
+    <a href="https://binnz.github.io/tags/association-analysis" style="font-size: 12px;">association-analysis</a>
+    
+    <a href="https://binnz.github.io/tags/beer" style="font-size: 12px;">beer</a>
+    
+    <a href="https://binnz.github.io/tags/classification" style="font-size: 12px;">classification</a>
+    
+    <a href="https://binnz.github.io/tags/clustering" style="font-size: 12px;">clustering</a>
+    
+    <a href="https://binnz.github.io/tags/conference" style="font-size: 12px;">conference</a>
+    
+    <a href="https://binnz.github.io/tags/data-mining" style="font-size: 12px;">data-mining</a>
+    
+    <a href="https://binnz.github.io/tags/data-science" style="font-size: 12px;">data-science</a>
+    
+    <a href="https://binnz.github.io/tags/database" style="font-size: 12px;">database</a>
+    
+    <a href="https://binnz.github.io/tags/deep-learning" style="font-size: 12px;">deep-learning</a>
+    
+    <a href="https://binnz.github.io/tags/elasticsearch" style="font-size: 12px;">elasticsearch</a>
+    
+    <a href="https://binnz.github.io/tags/graph" style="font-size: 12px;">graph</a>
+    
+    <a href="https://binnz.github.io/tags/hadoop" style="font-size: 12px;">hadoop</a>
+    
+    <a href="https://binnz.github.io/tags/information-retrieval" style="font-size: 12px;">information-retrieval</a>
+    
+    <a href="https://binnz.github.io/tags/java" style="font-size: 12px;">java</a>
+    
+    <a href="https://binnz.github.io/tags/machine-learning" style="font-size: 12px;">machine-learning</a>
+    
+    <a href="https://binnz.github.io/tags/neural-network" style="font-size: 12px;">neural-network</a>
+    
+    <a href="https://binnz.github.io/tags/nlp" style="font-size: 12px;">nlp</a>
+    
+    <a href="https://binnz.github.io/tags/nltk" style="font-size: 12px;">nltk</a>
+    
+    <a href="https://binnz.github.io/tags/python" style="font-size: 12px;">python</a>
+    
+    <a href="https://binnz.github.io/tags/r" style="font-size: 12px;">r</a>
+    
+    <a href="https://binnz.github.io/tags/relation-algebra" style="font-size: 12px;">relation-algebra</a>
+    
+    <a href="https://binnz.github.io/tags/scikit-learn" style="font-size: 12px;">scikit-learn</a>
+    
+    <a href="https://binnz.github.io/tags/spark" style="font-size: 12px;">spark</a>
+    
+    <a href="https://binnz.github.io/tags/sql" style="font-size: 12px;">sql</a>
+    
+    <a href="https://binnz.github.io/tags/statistics" style="font-size: 12px;">statistics</a>
+    
+    <a href="https://binnz.github.io/tags/streaming" style="font-size: 12px;">streaming</a>
+    
+    <a href="https://binnz.github.io/tags/time-series" style="font-size: 12px;">time-series</a>
+    
+    <a href="https://binnz.github.io/tags/travel" style="font-size: 12px;">travel</a>
+    
+    <a href="https://binnz.github.io/tags/unit-test" style="font-size: 12px;">unit-test</a>
+    
+    <a href="https://binnz.github.io/tags/vba" style="font-size: 12px;">vba</a>
+    
+    <a href="https://binnz.github.io/tags/windows" style="font-size: 12px;">windows</a>
+    
+  </div>
+</div>
+
+
+
+  
+
+</aside>
+</div>
+
+  </div>
+  <footer><div id="footer" >
+  <div class="line">
+    <span></span>
+    
+    <div style='background:no-repeat url("https://binnz.github.io/img/US-MT-EPS-02-6001.png") left top;-webkit-background-size:6.875em 6.875em;-moz-background-size:6.875em 6.875em;background-size:6.875em 6.875em;' class="author" ></div>
+  </div>
+  <section class="info">
+    <p>hehe</p>
+  </section>
+  <div class="social-font clearfix">
+    <a href='http://weibo.com/coderzh' target="_blank" title="weibo"></a>
+    <a href='https://twitter.com/coderzh' target="_blank" title="twitter"></a>
+    <a href='https://github.com/binnz' target="_blank" class="icon-github" title="github"></a>
+    <a href='https://www.facebook.com/coderzh' target="_blank" title="facebook"></a>
+    <a href='https://www.linkedin.com/coderzh' target="_blank" title="linkedin"></a>
+  </div>
+  <p class="copyright">Powered by <a href="http://gohugo.io" target="_blank" title="hugo">hugo</a> and Theme by <a href="https://github.com/coderzh/hugo-pacman-theme" target="_blank" title="hugo-pacman-theme">hugo-pacman-theme</a> © 2021
+    
+    <a href="https://binnz.github.io/" title="California Dreaming">California Dreaming</a>
+    
+  </p>
+</div>
+</footer>
+  <script src="https://binnz.github.io/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+done = false;
+$(document).ready(function(){
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize();
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  $('form.search').on('submit', function (event) {
+    if (false === done) {
+      event.preventDefault();
+      var orgVal = $(this).find('#search').val();
+      $(this).find('#search').val('site:https:\/\/binnz.github.io\/ ' + orgVal);
+      done = true;
+      $(this).submit();
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://b.bshare.cn/barCode?site=weixin&url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});
+</script>
+
+
+
+
+
+</body>
+</html>

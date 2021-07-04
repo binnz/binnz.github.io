@@ -1,0 +1,1281 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Spark Machine Learning Modules - California Dreaming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+  
+  <meta name="description" content="This project is aiming for simple access and usage of machine learning on Spark.">
+  
+  <meta itemprop="name" content="Spark Machine Learning Modules - California Dreaming">
+  <meta itemprop="description" content="This project is aiming for simple access and usage of machine learning on Spark.">
+  <meta itemprop="image" content="https://binnz.github.io/img/author.jpg">
+  
+  
+  <meta name="twitter:description" content="">
+  
+  <link rel="shortcut icon" href="https://binnz.github.io/img/favicon.ico"/>
+  <link rel="apple-touch-icon" href="https://binnz.github.io/apple-touch-icon.png" />
+  <link rel="apple-touch-icon-precomposed" href="https://binnz.github.io/apple-touch-icon.png" />
+  <link rel="stylesheet" href="https://binnz.github.io/highlight/styles/github.css">
+  <script src="https://binnz.github.io/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  
+  <link rel="stylesheet" href="https://binnz.github.io/font/hack/css/hack.min.css">
+  <link rel="stylesheet" href="https://binnz.github.io/css/style.css">
+</head>
+
+<body>
+  <header>
+    <div>
+  <div style="height:150px; width:100%; clear:both;"></div>
+  <div id="textlogo">
+    <h1 class="site-name"><a href="https://binnz.github.io/" title="California Dreaming">California Dreaming</a></h1>
+    <h2 class="blog-motto"></h2>
+  </div>
+  <div class="navbar"><a class="navbutton navmobile" href="#" title="menu"></a></div>
+			<div style="height:50px; width:100%; clear:both;"></div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="menu">
+			</a><div style="height:50px; width:100%; clear:both;"></div></div>
+  <nav class="animated">
+    <ul>
+      
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/post/">Archives</a></li>
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      <li>
+        <form class="search" method="get" action="https://www.google.com/search">
+          <div>
+            <input type="text" id="search" name="q" placeholder='Search'>
+          </div>
+        </form>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+  </header>
+  <div id="container">
+    <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+      <a href="https://binnz.github.io/post/2017-04-11-spark-machine-learning-modules/" title="Spark Machine Learning Modules" itemprop="url">Spark Machine Learning Modules</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="" title="">you</a>
+    
+  </p>
+  <p class="article-time">
+    <time datetime="2017-04-11 00:00:00 &#43;0000 UTC" itemprop="datePublished">2017-04-11</time>
+  </p>
+</header>
+
+	<div class="article-content">
+    
+    <p>This project is aiming for simple access and usage of machine learning on Spark.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<ul>
+<li>Spark version: 1.5.0</li>
+<li>Java version: 1.8</li>
+</ul>
+<h2 id="classification-models-supported">Classification Models Supported</h2>
+<ul>
+<li>Logistic Regression Model
+<ul>
+<li>SGD</li>
+<li>LBFGS</li>
+</ul>
+</li>
+<li>SVM Model
+<ul>
+<li>SGD</li>
+</ul>
+</li>
+<li>Naive Bayes Model</li>
+</ul>
+<h2 id="how-to-use">How to Use</h2>
+<ol>
+<li><strong>Download this project</strong></li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">git clone https://github.com/Chih-Ling-Hsu/Spark-Machine-Learning-Modules.git
+</code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li><strong><a href="#prepare-input-data">Prepare input data</a></strong> - There are some restrictions on the input format of the module.</li>
+<li><strong>Packge the module</strong> - if module <code>Classification</code> is going to be used, then you should package it first.</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">$ <span class="nb">cd</span> Classification
+$ mvn clean package
+</code></pre></td></tr></table>
+</div>
+</div><ol start="4">
+<li><strong><a href="#use-the-predefined-shell-script">Run the module using predefined shell script</a></strong> - Using predefined shell script allows you to depoly the module simply by setting a <code>config.json</code> file.</li>
+<li><strong><a href="#execution-output">Check training/testing result</a></strong> - After training, the trained model is saved to the location you specified in <code>config.json</code>. After testing, the prediction result is saved to the location you specified in <code>config.json</code>.</li>
+</ol>
+<h2 id="prepare-input-data">Prepare Input Data</h2>
+<p>This section explains the restrictions and limitations on the format and content of the input data.</p>
+<h3 id="training-input">Training Input</h3>
+<ul>
+<li><strong>Notice 1.</strong> the header column should be removed from the input dataset.</li>
+<li><strong>Notice 2.</strong> null values are not allowed.</li>
+<li><strong>Notice 3.</strong> <em>Naive Bayes Classification</em> requires <em>nonnegative</em> feature values.</li>
+</ul>
+<p><a href="https://hackmd.io/s/SkEYWCnjg">Here</a> is an example (written in Python) to prepare the input data for Classification using <a href="http://stat-computing.org/dataexpo/2009/the-data.html">Airline Data</a>.</p>
+<h3 id="testing-input">Testing Input</h3>
+<p>The format of testing input is the same as that of the training input, except that it has no target class. That is, it has one less column than the training input.</p>
+<h2 id="use-the-predefined-shell-script">Use The Predefined Shell Script</h2>
+<p>For convenience, I have written a shell script to make you deploy the module in a simple way.</p>
+<h3 id="step-1-set-variables-in-configjson">Step 1. Set Variables in <code>config.json</code></h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">{
+  &#34;Packaged JAR&#34;: &#34;Classification/target/spark-sample-0.0.1.jar&#34;,
+  &#34;Operation&#34;: &#34;train&#34;,  
+  &#34;Target Column Index&#34;: &#34;-1&#34;,
+  &#34;Classification Model&#34;: {
+    &#34;model name&#34;: &#34;SVMModel&#34;,
+    &#34;training method&#34;: &#34;SGD&#34;,
+    &#34;number of classes&#34;: &#34;2&#34;,
+    &#34;threshold&#34;: &#34;0.5&#34;
+  },
+  &#34;Training Parameters&#34;: {
+    &#34;number of iterations&#34;: &#34;100&#34;
+  },
+  &#34;Input Paths&#34;: {
+    &#34;training data path in local machine&#34;: &#34;./data/classification_train_input&#34;,
+    &#34;validation data path in local machine&#34;: &#34;./data/classification_valid_input&#34;,
+    &#34;testing data path in local machine&#34;: &#34;./data/classification_test_input&#34;,
+    &#34;trained model path in local machine&#34;: &#34;./model&#34;
+  },
+  &#34;Output Paths&#34;: {
+    &#34;path to save the trained model in local machine&#34;: &#34;./model&#34;,
+    &#34;path to save the prediction result in local machine&#34;: &#34;./output&#34;
+  }
+}
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>In line <strong>1</strong>, <code>&quot;Packaged JAR&quot;</code> is the path from the current directory to your packaged jar file.</li>
+<li>In line <strong>2</strong>, <code>&quot;Operation&quot;</code> should be set as either &ldquo;train&rdquo; or &ldquo;predict&rdquo;.</li>
+<li>In line <strong>3</strong>, <code>&quot;Target Column Index&quot;</code> marks the column index of the target class. Note that the first column shuld be marked as <code>0</code>, the second column should be marked as <code>1</code>, &hellip;, and so on.</li>
+<li>In line <strong>6</strong>, <code>&quot;model name&quot;</code> can be set as &ldquo;LogisticRegressionModel&rdquo;, &ldquo;NaiveBayesModel&rdquo;, or &ldquo;SVMModel&rdquo;</li>
+<li>In line <strong>7</strong>, <code>&quot;training method&quot;</code> can be set as
+<ul>
+<li><code>SGD</code> or <code>LBFGS</code> if &ldquo;model name&rdquo; is &ldquo;LogisticRegressionModel&rdquo;.</li>
+<li><code>SGD</code> if &ldquo;model name&rdquo; is &ldquo;SVMModel&rdquo;.</li>
+<li><code>Bayes</code> if &ldquo;model name&rdquo; is &ldquo;NaiveBayesModel&rdquo;.</li>
+</ul>
+</li>
+<li>If &ldquo;training method&rdquo; is set as <code>SGD</code>, then user can specify &ldquo;number of iterations&rdquo; needed, where default iteration number is 100.</li>
+<li>If &ldquo;Operation&rdquo; is set as <code>predict</code>, then user can specify &ldquo;threshold&rdquo; of the trained model, where default threshold is 0.5.</li>
+</ul>
+<p>For more examples of <code>config.json</code>, please refer to <a href="#settings-in-configjson">examples of configuration file</a>.</p>
+<h3 id="step-2-execute-the-shell-script">Step 2. Execute the shell script</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">$ sh lr_json.sh
+</code></pre></td></tr></table>
+</div>
+</div><p>Note that <code>config.json</code> should be saved in the same directory as <code>lr_json.sh</code></p>
+<h2 id="exexcution-output">Exexcution Output</h2>
+<p>After training, the trained model is saved to the location you specified in <code>config.json</code>. After testing, the prediction result is saved to the location you specified in <code>config.json</code>.</p>
+<h3 id="during-training-process">During Training Process</h3>
+<p>During Training Process, the evaluation of the trained model would show on screen.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">...
+...
+--------------------------------------
+ INFO Confusion matrix:
+1181.0  453.0
+288.0   2078.0
+--------------------------------------
+...
+...
+--------------------------------------
+ INFO <span class="nv">Precision</span> <span class="o">=</span> 0.81475
+ INFO <span class="nv">Recall</span> <span class="o">=</span> 0.81475
+ INFO F1 <span class="nv">Score</span> <span class="o">=</span> 0.81475
+--------------------------------------
+...
+...
+--------------------------------------
+ INFO Class 0.000000 <span class="nv">precision</span> <span class="o">=</span> 0.803948
+ INFO Class 0.000000 <span class="nv">recall</span> <span class="o">=</span> 0.722766
+ INFO Class 0.000000 F1 <span class="nv">score</span> <span class="o">=</span> 0.761199
+--------------------------------------
+
+
+--------------------------------------
+ INFO Class 1.000000 <span class="nv">precision</span> <span class="o">=</span> 0.821019
+ INFO Class 1.000000 <span class="nv">recall</span> <span class="o">=</span> 0.878276
+ INFO Class 1.000000 F1 <span class="nv">score</span> <span class="o">=</span> 0.848683
+--------------------------------------
+
+
+--------------------------------------
+ INFO Weighted <span class="nv">precision</span> <span class="o">=</span> 0.814046
+ INFO Weighted <span class="nv">recall</span> <span class="o">=</span> 0.814750
+ INFO Weighted F1 <span class="nv">score</span> <span class="o">=</span> 0.812946
+ INFO Weighted <span class="nb">false</span> positive <span class="nv">rate</span> <span class="o">=</span> 0.213708
+--------------------------------------
+...
+...
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="after-training-process">After Training Process</h3>
+<p>After training, the trained model is saved to the location you specified in <code>config.json</code>.</p>
+<h3 id="after-testing-process">After Testing Process</h3>
+<p>After testing, the prediction result is saved to the location you specified in <code>config.json</code>.   The format of the prediction result would be <strong>one tuple per line</strong>.</p>
+<p>For example, if you require the prediction output of a point with features</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-java" data-lang="java"><span class="o">[</span><span class="n">0</span><span class="o">.</span><span class="na">0</span><span class="o">,</span> <span class="n">1</span><span class="o">.</span><span class="na">2</span><span class="o">,</span> <span class="n">0</span><span class="o">.</span><span class="na">1</span><span class="o">]</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Then you can retreive the prediction output by</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">$ cat part-0000 <span class="p">|</span> grep <span class="s2">&#34;[0.0, 1.2, 0.1]&#34;</span>
+<span class="o">([</span>0.0, 1.2, 0.1<span class="o">]</span>, 1.0<span class="o">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>where <code>part-0000</code> is the output file name and <code>1.0</code> is the prediction output.</p>
+<h2 id="settings-in-configjson">Settings in <code>config.json</code></h2>
+<p>You can set your training parameters and input/output paths in a json file, which is read for executing the spark module.</p>
+<h3 id="overview">Overview</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">{
+  &#34;Packaged JAR&#34;: &#34;Classification/target/spark-sample-0.0.1.jar&#34;,
+  &#34;Operation&#34;: &#34;train&#34;,  
+  &#34;Classification Model&#34;: {
+    &#34;model name&#34;: &#34;SVMModel&#34;,
+    &#34;training method&#34;: &#34;SGD&#34;,
+    &#34;number of classes&#34;: &#34;2&#34;
+  },
+  &#34;Training Parameters&#34;: {
+    &#34;number of iterations&#34;: &#34;100&#34;,
+    &#34;step size&#34;: &#34;0.001&#34;
+  },
+  &#34;Input Paths&#34;: {
+    &#34;training data path in local machine&#34;: &#34;./data/classification_train_input&#34;,
+    &#34;validation data path in local machine&#34;: &#34;./data/classification_valid_input&#34;,
+    &#34;testing data path in local machine&#34;: &#34;./data/classification_test_input&#34;,
+    &#34;trained model path in local machine&#34;: &#34;./model&#34;
+  },
+  &#34;Output Paths&#34;: {
+    &#34;path to save the trained model in local machine&#34;: &#34;./model&#34;,
+    &#34;path to save the prediction result in local machine&#34;: &#34;./output&#34;
+  }
+}
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>In line <strong>1</strong>, <code>&quot;Packaged JAR&quot;</code> is the path from the current directory to your packaged jar file.</li>
+<li>In line <strong>2</strong>, <code>&quot;Operation&quot;</code> should be set as either &ldquo;train&rdquo; or &ldquo;predict&rdquo;.</li>
+<li>In line <strong>5</strong>, <code>&quot;model name&quot;</code> can be set as &ldquo;LogisticRegressionModel&rdquo;, &ldquo;NaiveBayesModel&rdquo;, or &ldquo;SVMModel&rdquo;</li>
+<li>In line <strong>6</strong>, <code>&quot;training method&quot;</code> can be set as
+<ul>
+<li>if &ldquo;model name&rdquo; is &ldquo;LogisticRegressionModel&rdquo;
+<ul>
+<li>&ldquo;SGD&rdquo;</li>
+<li>&ldquo;LBFGS&rdquo;</li>
+</ul>
+</li>
+<li>if &ldquo;model name&rdquo; is &ldquo;SVMModel&rdquo;
+<ul>
+<li>&ldquo;SGD&rdquo;</li>
+</ul>
+</li>
+<li>if &ldquo;model name&rdquo; is &ldquo;NaiveBayesModel&rdquo;
+<ul>
+<li>&ldquo;Bayes&rdquo;</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="example-for-logistic-regression-with-lbfgs">Example for Logistic Regression with LBFGS</h3>
+<ul>
+<li>Train Model</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&#34;Packaged JAR&#34;</span><span class="p">:</span> <span class="s2">&#34;Classification/target/spark-sample-0.0.1.jar&#34;</span><span class="p">,</span>
+  <span class="nt">&#34;Operation&#34;</span><span class="p">:</span> <span class="s2">&#34;train&#34;</span><span class="p">,</span>  
+  <span class="nt">&#34;Target Column Index&#34;</span><span class="p">:</span> <span class="s2">&#34;-1&#34;</span><span class="p">,</span>
+  <span class="nt">&#34;Classification Model&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;model name&#34;</span><span class="p">:</span> <span class="s2">&#34;LogisticRegressionModel&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;training method&#34;</span><span class="p">:</span> <span class="s2">&#34;LBFGS&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;number of classes&#34;</span><span class="p">:</span> <span class="s2">&#34;2&#34;</span><span class="p">,</span>    
+  <span class="p">},</span>
+  <span class="nt">&#34;Input Paths&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;training data path in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./data/classification_train_input&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;validation data path in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./data/classification_valid_input&#34;</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;Output Paths&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;path to save the trained model in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./model&#34;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>Predict with Model</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&#34;Packaged JAR&#34;</span><span class="p">:</span> <span class="s2">&#34;Classification/target/spark-sample-0.0.1.jar&#34;</span><span class="p">,</span>
+  <span class="nt">&#34;Operation&#34;</span><span class="p">:</span> <span class="s2">&#34;predict&#34;</span><span class="p">,</span>  
+  <span class="nt">&#34;Classification Model&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;model name&#34;</span><span class="p">:</span> <span class="s2">&#34;LogisticRegressionModel&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;number of classes&#34;</span><span class="p">:</span> <span class="s2">&#34;2&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;threshold&#34;</span><span class="p">:</span> <span class="s2">&#34;0.5&#34;</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;Input Paths&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;testing data path in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./data/classification_test_input&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;trained model path in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./model&#34;</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;Output Paths&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;path to save the prediction result in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./output&#34;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="example-for-logistic-regression-with-sgd">Example for Logistic Regression with SGD</h3>
+<ul>
+<li>Train Model</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&#34;Packaged JAR&#34;</span><span class="p">:</span> <span class="s2">&#34;Classification/target/spark-sample-0.0.1.jar&#34;</span><span class="p">,</span>
+  <span class="nt">&#34;Operation&#34;</span><span class="p">:</span> <span class="s2">&#34;train&#34;</span><span class="p">,</span>  
+  <span class="nt">&#34;Target Column Index&#34;</span><span class="p">:</span> <span class="s2">&#34;-1&#34;</span><span class="p">,</span>
+  <span class="nt">&#34;Classification Model&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;model name&#34;</span><span class="p">:</span> <span class="s2">&#34;LogisticRegressionModel&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;training method&#34;</span><span class="p">:</span> <span class="s2">&#34;SGD&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;number of classes&#34;</span><span class="p">:</span> <span class="s2">&#34;2&#34;</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;Training Parameters&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;number of iterations&#34;</span><span class="p">:</span> <span class="s2">&#34;100&#34;</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;Input Paths&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;training data path in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./data/classification_train_input&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;validation data path in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./data/classification_valid_input&#34;</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;Output Paths&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;path to save the trained model in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./model&#34;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>Predict with Model</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&#34;Packaged JAR&#34;</span><span class="p">:</span> <span class="s2">&#34;Classification/target/spark-sample-0.0.1.jar&#34;</span><span class="p">,</span>
+  <span class="nt">&#34;Operation&#34;</span><span class="p">:</span> <span class="s2">&#34;predict&#34;</span><span class="p">,</span>  
+  <span class="nt">&#34;Classification Model&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;model name&#34;</span><span class="p">:</span> <span class="s2">&#34;LogisticRegressionModel&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;number of classes&#34;</span><span class="p">:</span> <span class="s2">&#34;2&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;threshold&#34;</span><span class="p">:</span> <span class="s2">&#34;0.5&#34;</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;Input Paths&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;testing data path in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./data/classification_test_input&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;trained model path in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./model&#34;</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;Output Paths&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;path to save the prediction result in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./output&#34;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="example-for-svm-with-sgd">Example for SVM with SGD</h3>
+<ul>
+<li>Train Model</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&#34;Packaged JAR&#34;</span><span class="p">:</span> <span class="s2">&#34;Classification/target/spark-sample-0.0.1.jar&#34;</span><span class="p">,</span>
+  <span class="nt">&#34;Operation&#34;</span><span class="p">:</span> <span class="s2">&#34;train&#34;</span><span class="p">,</span>  
+  <span class="nt">&#34;Target Column Index&#34;</span><span class="p">:</span> <span class="s2">&#34;-1&#34;</span><span class="p">,</span>
+  <span class="nt">&#34;Classification Model&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;model name&#34;</span><span class="p">:</span> <span class="s2">&#34;SVMModel&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;training method&#34;</span><span class="p">:</span> <span class="s2">&#34;SGD&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;number of classes&#34;</span><span class="p">:</span> <span class="s2">&#34;2&#34;</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;Training Parameters&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;number of iterations&#34;</span><span class="p">:</span> <span class="s2">&#34;100&#34;</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;Input Paths&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;training data path in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./data/classification_nonnegative_train_input&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;validation data path in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./data/classification_valid_input&#34;</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;Output Paths&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;path to save the trained model in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./model&#34;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>Predict with Model</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&#34;Packaged JAR&#34;</span><span class="p">:</span> <span class="s2">&#34;Classification/target/spark-sample-0.0.1.jar&#34;</span><span class="p">,</span>
+  <span class="nt">&#34;Operation&#34;</span><span class="p">:</span> <span class="s2">&#34;predict&#34;</span><span class="p">,</span>  
+  <span class="nt">&#34;Classification Model&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;model name&#34;</span><span class="p">:</span> <span class="s2">&#34;SVMModel&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;number of classes&#34;</span><span class="p">:</span> <span class="s2">&#34;2&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;threshold&#34;</span><span class="p">:</span> <span class="s2">&#34;0.5&#34;</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;Input Paths&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;testing data path in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./data/classification_test_input&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;trained model path in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./model&#34;</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;Output Paths&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;path to save the prediction result in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./output&#34;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="example-for-naivebayes">Example for NaiveBayes</h3>
+<ul>
+<li>Train Model</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&#34;Packaged JAR&#34;</span><span class="p">:</span> <span class="s2">&#34;Classification/target/spark-sample-0.0.1.jar&#34;</span><span class="p">,</span>
+  <span class="nt">&#34;Operation&#34;</span><span class="p">:</span> <span class="s2">&#34;train&#34;</span><span class="p">,</span>  
+  <span class="nt">&#34;Target Column Index&#34;</span><span class="p">:</span> <span class="s2">&#34;-1&#34;</span><span class="p">,</span>
+  <span class="nt">&#34;Classification Model&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;model name&#34;</span><span class="p">:</span> <span class="s2">&#34;NaiveBayesModel&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;training method&#34;</span><span class="p">:</span> <span class="s2">&#34;Bayes&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;number of classes&#34;</span><span class="p">:</span> <span class="s2">&#34;2&#34;</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;Input Paths&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;training data path in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./data/classification_nonnegative_train_input&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;validation data path in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./data/classification_nonnegative_valid_input&#34;</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;Output Paths&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;path to save the trained model in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./model&#34;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>Predict with Model</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&#34;Packaged JAR&#34;</span><span class="p">:</span> <span class="s2">&#34;Classification/target/spark-sample-0.0.1.jar&#34;</span><span class="p">,</span>
+  <span class="nt">&#34;Operation&#34;</span><span class="p">:</span> <span class="s2">&#34;predict&#34;</span><span class="p">,</span>  
+  <span class="nt">&#34;Classification Model&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;model name&#34;</span><span class="p">:</span> <span class="s2">&#34;NaiveBayesModel&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;number of classes&#34;</span><span class="p">:</span> <span class="s2">&#34;2&#34;</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;Input Paths&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;testing data path in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./data/classification_nonnegative_test_input&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;trained model path in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./model&#34;</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;Output Paths&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;path to save the prediction result in local machine&#34;</span><span class="p">:</span> <span class="s2">&#34;./output&#34;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div>
+    
+	</div>
+  <footer class="article-footer clearfix">
+  
+
+<div class="article-tags">
+  <span></span>
+  
+  <a href="https://binnz.github.io/tags/spark">Spark</a>
+  
+  <a href="https://binnz.github.io/tags/java">Java</a>
+  
+  <a href="https://binnz.github.io/tags/machine-learning">Machine-Learning</a>
+  
+  <a href="https://binnz.github.io/tags/data-mining">Data-Mining</a>
+  
+</div>
+
+
+
+
+
+<div class="article-categories">
+  <span></span>
+  
+  <a class="article-category-link" href="https://binnz.github.io/categories/projects">Projects</a>
+  
+</div>
+
+
+
+  <div class="article-share" id="share">
+    <div data-url="https://binnz.github.io/post/2017-04-11-spark-machine-learning-modules/" data-title="Spark Machine Learning Modules" data-tsina="" class="share clearfix">
+    </div>
+  </div>
+</footer>
+
+	</article>
+  
+
+
+<section class="comment">
+<div id="disqus_thread"></div>
+</section>
+<script>
+  <!-- detect whether Disuqs can load -->
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', '//disqus.com/next/config.json?' + new Date().getTime(), true);
+  xhr.timeout = 3000; 
+
+  xhr.onload = function() { 
+
+
+var disqus_config = function () {
+this.page.url = "https://binnz.github.io/post/2017-04-11-spark-machine-learning-modules/";
+this.page.identifier = "https://binnz.github.io/post/2017-04-11-spark-machine-learning-modules/";
+};
+(function() { 
+var d = document, s = d.createElement('script');
+
+s.src = '//disc.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+}
+  xhr.ontimeout = function() {
+  <!-- cannot load Disqus, skip it. -->
+  return;
+}
+xhr.send(null);
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+    <div class="openaside"><a class="navbutton" href="#" title="Show SideBar"></a></div>
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide SideBar"></a></div>
+<aside class="clearfix">
+  
+
+<div class="categorieslist">
+  <p class="asidetitle">Categories</p>
+  <ul>
+    
+    <li><a href="https://binnz.github.io/categories/install" title="install">install<sup>2</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/life" title="life">life<sup>1</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/notes" title="notes">notes<sup>50</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/programming" title="programming">programming<sup>25</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/projects" title="projects">projects<sup>2</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/publications" title="publications">publications<sup>1</sup></a></li>
+    
+  </ul>
+</div>
+
+
+
+  
+
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+      
+			<li><a href="https://binnz.github.io/tags/ANDROID" title="android">android<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/APACHE-PIG" title="apache-pig">apache-pig<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/ASSOCIATION-ANALYSIS" title="association-analysis">association-analysis<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/BEER" title="beer">beer<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CLASSIFICATION" title="classification">classification<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CLUSTERING" title="clustering">clustering<sup>19</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CONFERENCE" title="conference">conference<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATA-MINING" title="data-mining">data-mining<sup>64</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATA-SCIENCE" title="data-science">data-science<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATABASE" title="database">database<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DEEP-LEARNING" title="deep-learning">deep-learning<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/ELASTICSEARCH" title="elasticsearch">elasticsearch<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/GRAPH" title="graph">graph<sup>12</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/HADOOP" title="hadoop">hadoop<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/INFORMATION-RETRIEVAL" title="information-retrieval">information-retrieval<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/JAVA" title="java">java<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/MACHINE-LEARNING" title="machine-learning">machine-learning<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NEURAL-NETWORK" title="neural-network">neural-network<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NLP" title="nlp">nlp<sup>4</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NLTK" title="nltk">nltk<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/PYTHON" title="python">python<sup>15</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/R" title="r">r<sup>4</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/RELATION-ALGEBRA" title="relation-algebra">relation-algebra<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SCIKIT-LEARN" title="scikit-learn">scikit-learn<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SPARK" title="spark">spark<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SQL" title="sql">sql<sup>3</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/STATISTICS" title="statistics">statistics<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/STREAMING" title="streaming">streaming<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/TIME-SERIES" title="time-series">time-series<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/TRAVEL" title="travel">travel<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/UNIT-TEST" title="unit-test">unit-test<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/VBA" title="vba">vba<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/WINDOWS" title="windows">windows<sup>1</sup></a></li>
+      
+		</ul>
+</div>
+
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle">Archives</p>
+    <ul class="archive-list">
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2021-06">2021年06月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2020-05">2020年05月</a><span class="archive-list-count">12</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2019-09">2019年09月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-09">2018年09月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-08">2018年08月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-06">2018年06月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-05">2018年05月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-04">2018年04月</a><span class="archive-list-count">5</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-03">2018年03月</a><span class="archive-list-count">5</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-01">2018年01月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-12">2017年12月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-11">2017年11月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-10">2017年10月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-09">2017年09月</a><span class="archive-list-count">10</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-08">2017年08月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-07">2017年07月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-05">2017年05月</a><span class="archive-list-count">3</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-04">2017年04月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-03">2017年03月</a><span class="archive-list-count">20</span>
+      </li>
+      
+    </ul>
+
+  </div>
+
+
+  
+
+<div class="tagcloudlist">
+  <p class="asidetitle">Tags Cloud</p>
+  <div class="tagcloudlist clearfix">
+    
+    <a href="https://binnz.github.io/tags/android" style="font-size: 12px;">android</a>
+    
+    <a href="https://binnz.github.io/tags/apache-pig" style="font-size: 12px;">apache-pig</a>
+    
+    <a href="https://binnz.github.io/tags/association-analysis" style="font-size: 12px;">association-analysis</a>
+    
+    <a href="https://binnz.github.io/tags/beer" style="font-size: 12px;">beer</a>
+    
+    <a href="https://binnz.github.io/tags/classification" style="font-size: 12px;">classification</a>
+    
+    <a href="https://binnz.github.io/tags/clustering" style="font-size: 12px;">clustering</a>
+    
+    <a href="https://binnz.github.io/tags/conference" style="font-size: 12px;">conference</a>
+    
+    <a href="https://binnz.github.io/tags/data-mining" style="font-size: 12px;">data-mining</a>
+    
+    <a href="https://binnz.github.io/tags/data-science" style="font-size: 12px;">data-science</a>
+    
+    <a href="https://binnz.github.io/tags/database" style="font-size: 12px;">database</a>
+    
+    <a href="https://binnz.github.io/tags/deep-learning" style="font-size: 12px;">deep-learning</a>
+    
+    <a href="https://binnz.github.io/tags/elasticsearch" style="font-size: 12px;">elasticsearch</a>
+    
+    <a href="https://binnz.github.io/tags/graph" style="font-size: 12px;">graph</a>
+    
+    <a href="https://binnz.github.io/tags/hadoop" style="font-size: 12px;">hadoop</a>
+    
+    <a href="https://binnz.github.io/tags/information-retrieval" style="font-size: 12px;">information-retrieval</a>
+    
+    <a href="https://binnz.github.io/tags/java" style="font-size: 12px;">java</a>
+    
+    <a href="https://binnz.github.io/tags/machine-learning" style="font-size: 12px;">machine-learning</a>
+    
+    <a href="https://binnz.github.io/tags/neural-network" style="font-size: 12px;">neural-network</a>
+    
+    <a href="https://binnz.github.io/tags/nlp" style="font-size: 12px;">nlp</a>
+    
+    <a href="https://binnz.github.io/tags/nltk" style="font-size: 12px;">nltk</a>
+    
+    <a href="https://binnz.github.io/tags/python" style="font-size: 12px;">python</a>
+    
+    <a href="https://binnz.github.io/tags/r" style="font-size: 12px;">r</a>
+    
+    <a href="https://binnz.github.io/tags/relation-algebra" style="font-size: 12px;">relation-algebra</a>
+    
+    <a href="https://binnz.github.io/tags/scikit-learn" style="font-size: 12px;">scikit-learn</a>
+    
+    <a href="https://binnz.github.io/tags/spark" style="font-size: 12px;">spark</a>
+    
+    <a href="https://binnz.github.io/tags/sql" style="font-size: 12px;">sql</a>
+    
+    <a href="https://binnz.github.io/tags/statistics" style="font-size: 12px;">statistics</a>
+    
+    <a href="https://binnz.github.io/tags/streaming" style="font-size: 12px;">streaming</a>
+    
+    <a href="https://binnz.github.io/tags/time-series" style="font-size: 12px;">time-series</a>
+    
+    <a href="https://binnz.github.io/tags/travel" style="font-size: 12px;">travel</a>
+    
+    <a href="https://binnz.github.io/tags/unit-test" style="font-size: 12px;">unit-test</a>
+    
+    <a href="https://binnz.github.io/tags/vba" style="font-size: 12px;">vba</a>
+    
+    <a href="https://binnz.github.io/tags/windows" style="font-size: 12px;">windows</a>
+    
+  </div>
+</div>
+
+
+
+  
+
+</aside>
+</div>
+
+  </div>
+  <footer><div id="footer" >
+  <div class="line">
+    <span></span>
+    
+    <div style='background:no-repeat url("https://binnz.github.io/img/US-MT-EPS-02-6001.png") left top;-webkit-background-size:6.875em 6.875em;-moz-background-size:6.875em 6.875em;background-size:6.875em 6.875em;' class="author" ></div>
+  </div>
+  <section class="info">
+    <p>hehe</p>
+  </section>
+  <div class="social-font clearfix">
+    <a href='http://weibo.com/coderzh' target="_blank" title="weibo"></a>
+    <a href='https://twitter.com/coderzh' target="_blank" title="twitter"></a>
+    <a href='https://github.com/binnz' target="_blank" class="icon-github" title="github"></a>
+    <a href='https://www.facebook.com/coderzh' target="_blank" title="facebook"></a>
+    <a href='https://www.linkedin.com/coderzh' target="_blank" title="linkedin"></a>
+  </div>
+  <p class="copyright">Powered by <a href="http://gohugo.io" target="_blank" title="hugo">hugo</a> and Theme by <a href="https://github.com/coderzh/hugo-pacman-theme" target="_blank" title="hugo-pacman-theme">hugo-pacman-theme</a> © 2021
+    
+    <a href="https://binnz.github.io/" title="California Dreaming">California Dreaming</a>
+    
+  </p>
+</div>
+</footer>
+  <script src="https://binnz.github.io/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+done = false;
+$(document).ready(function(){
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize();
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  $('form.search').on('submit', function (event) {
+    if (false === done) {
+      event.preventDefault();
+      var orgVal = $(this).find('#search').val();
+      $(this).find('#search').val('site:https:\/\/binnz.github.io\/ ' + orgVal);
+      done = true;
+      $(this).submit();
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://b.bshare.cn/barCode?site=weixin&url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});
+</script>
+
+
+
+
+
+</body>
+</html>

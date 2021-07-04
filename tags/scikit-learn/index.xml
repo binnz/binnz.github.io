@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Scikit-Learn on California Dreaming</title>
+    <link>https://binnz.github.io/tags/scikit-learn/</link>
+    <description>Recent content in Scikit-Learn on California Dreaming</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 23 Sep 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://binnz.github.io/tags/scikit-learn/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Classification Models in Machine Learning</title>
+      <link>https://binnz.github.io/post/2019-09-23-classification-models-in-machine-learning/</link>
+      <pubDate>Mon, 23 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2019-09-23-classification-models-in-machine-learning/</guid>
+      <description>&lt;p&gt;Classification is well so common in the area of machine learning and &lt;a href=&#34;https://scikit-learn.org/stable/&#34;&gt;scikit-learn&lt;/a&gt; provides a comprehensive toolkit that can be easily used.
+Here I will share some common classification models and how to apply them on a dataset using this good toolkit, while the classification process will cover&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;training and testing&lt;/li&gt;
+&lt;li&gt;cross validation and grid serach process&lt;/li&gt;
+&lt;li&gt;classification performace display&lt;/li&gt;
+&lt;li&gt;plots of area under curves&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+    <item>
+      <title>Clustering on New York City Bike Dataset</title>
+      <link>https://binnz.github.io/post/2018-01-02-clustering-python/</link>
+      <pubDate>Tue, 02 Jan 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2018-01-02-clustering-python/</guid>
+      <description>&lt;p&gt;Our   major   task  here  is   turn   data   into   different   clusters and   explain   what
+the   cluster   means.    We will try spatial   clustering, temporal   clustering and the combination of both.&lt;/p&gt;
+&lt;p&gt;For each method of clustering, we will&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;try   &lt;strong&gt;at   least   2   values for   each parameter&lt;/strong&gt; in every algorithm.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;explain&lt;/strong&gt; the clustering result.&lt;/li&gt;
+&lt;li&gt;make   some &lt;strong&gt;observation&lt;/strong&gt; ,    &lt;strong&gt;compare&lt;/strong&gt;    different   method   and   parameters.&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+    <item>
+      <title>Brief Introduction to Popular Data Mining Algorithms</title>
+      <link>https://binnz.github.io/post/2017-08-30-python-datamining/</link>
+      <pubDate>Wed, 30 Aug 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-08-30-python-datamining/</guid>
+      <description>&lt;p&gt;In this article, I will introduce a regression algorithm, linear regression, classical classifiers such as decision trees, naïve Bayes, and support vector machine, and unsupervised clustering algorithms such as k-means, and reinforcement learning techniques, the cross-entropy method, to give only a small glimpse of the variety of machine learning techniques that exist, and we will end this list by introducing neural networks.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Data Preprocessing on Airline Data</title>
+      <link>https://binnz.github.io/post/2017-03-21-data-preprocessing-on-airline-data/</link>
+      <pubDate>Tue, 21 Mar 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-03-21-data-preprocessing-on-airline-data/</guid>
+      <description>&lt;p&gt;&lt;strong&gt;Data Source and Variable Definition:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://stat-computing.org/dataexpo/2009/the-data.html&#34;&gt;Statistical Computing Statistical Graphics&lt;/a&gt;
+We are going to use flight information for &lt;em&gt;2000&lt;/em&gt;.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Problems Solving For Installing Scikit-Learn on Windows</title>
+      <link>https://binnz.github.io/post/2017-03-20-install-sklearn/</link>
+      <pubDate>Mon, 20 Mar 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-03-20-install-sklearn/</guid>
+      <description>&lt;p&gt;Sklearn is an &lt;strong&gt;open source Python library&lt;/strong&gt; that implements a range of &lt;strong&gt;machine learning&lt;/strong&gt;, preprocessing, cross-validation and visualization algorithms.   To analyze data with machine learning, sklearn is often used to approach.   Although I already have experience installing sklearn library on Windows, this time I encountered problems installing on my new computer.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

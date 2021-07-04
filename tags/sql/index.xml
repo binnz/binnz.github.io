@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>SQL on California Dreaming</title>
+    <link>https://binnz.github.io/tags/sql/</link>
+    <description>Recent content in SQL on California Dreaming</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Tue, 02 May 2017 00:00:00 +0000</lastBuildDate><atom:link href="https://binnz.github.io/tags/sql/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Simple Examples with Spark Streaming</title>
+      <link>https://binnz.github.io/post/2017-05-02-spark-streaming/</link>
+      <pubDate>Tue, 02 May 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-05-02-spark-streaming/</guid>
+      <description>&lt;p&gt;Types of queries one wants on answer on a data stream:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Sampling data from a stream - Construct a random sample&lt;/li&gt;
+&lt;li&gt;Queries over sliding windows - Number of items of type x in the last k elements of the stream&lt;/li&gt;
+&lt;li&gt;Filtering a data stream - Select elements with property x from the stream&lt;/li&gt;
+&lt;li&gt;Counting distinct elements - Number of distinct elements in the last k elements of the stream&lt;/li&gt;
+&lt;li&gt;Estimating moments - Estimate average/std deviation of last k elements&lt;/li&gt;
+&lt;li&gt;Finding frequent elements&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+    <item>
+      <title>How to Change Schema of a Spark SQL DataFrame?</title>
+      <link>https://binnz.github.io/post/2017-03-28-how-to-change-schema-of-a-spark-sql-dataframe/</link>
+      <pubDate>Tue, 28 Mar 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-03-28-how-to-change-schema-of-a-spark-sql-dataframe/</guid>
+      <description>&lt;p&gt;For the reason that I want to insert &lt;code&gt;rows selected from a table&lt;/code&gt; (&lt;em&gt;df_rows&lt;/em&gt;) to another table, I need to make sure that&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;The schema of the rows selected are the same as the schema of the table
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;Since the function &lt;code&gt;pyspark.sql.DataFrameWriter.insertInto&lt;/code&gt;, which inserts the content of the DataFrame to the specified table, requires that the schema of the class:DataFrame is the same as the schema of the table.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Spark SQL Using Python</title>
+      <link>https://binnz.github.io/post/2017-03-28-spark-sql-using-python/</link>
+      <pubDate>Tue, 28 Mar 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-03-28-spark-sql-using-python/</guid>
+      <description>&lt;p&gt;For SQL users, Spark SQL provides state-of-the-art SQL performance and maintains compatibility with Shark/Hive. In particular, like Shark, Spark SQL supports all existing Hive data formats, user-defined functions (UDF), and the Hive metastore. With features that will be introduced in Apache Spark 1.1.0, Spark SQL beats Shark in TPC-DS performance by almost an order of magnitude.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

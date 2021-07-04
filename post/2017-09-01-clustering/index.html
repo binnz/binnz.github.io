@@ -1,0 +1,1056 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Data Mining - Basic Cluster Analysis - California Dreaming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+  
+  <meta name="description" content="
+“The validation of clustering structures is the most difficult and frustrating part of cluster analysis.
+Without a strong effort in this direction, cluster analysis will remain a black art accessible only to those true believers who have experience and great courage.”
+&ndash; Algorithms for Clustering Data, Jain and Dubes
+
+Clustering Analysis is finding groups of objects such that the objects in a group will be similar (or related) to one another and different from (or unrelated to) the objects in other groups such that
+
+Intra-cluster distances are minimized
+Inter-cluster distances are maximized
+">
+  
+  <meta itemprop="name" content="Data Mining - Basic Cluster Analysis - California Dreaming">
+  <meta itemprop="description" content="
+“The validation of clustering structures is the most difficult and frustrating part of cluster analysis.
+Without a strong effort in this direction, cluster analysis will remain a black art accessible only to those true believers who have experience and great courage.”
+&ndash; Algorithms for Clustering Data, Jain and Dubes
+
+Clustering Analysis is finding groups of objects such that the objects in a group will be similar (or related) to one another and different from (or unrelated to) the objects in other groups such that
+
+Intra-cluster distances are minimized
+Inter-cluster distances are maximized
+">
+  <meta itemprop="image" content="https://binnz.github.io/img/author.jpg">
+  
+  
+  <meta name="twitter:description" content="">
+  
+  <link rel="shortcut icon" href="https://binnz.github.io/img/favicon.ico"/>
+  <link rel="apple-touch-icon" href="https://binnz.github.io/apple-touch-icon.png" />
+  <link rel="apple-touch-icon-precomposed" href="https://binnz.github.io/apple-touch-icon.png" />
+  <link rel="stylesheet" href="https://binnz.github.io/highlight/styles/github.css">
+  <script src="https://binnz.github.io/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  
+  <link rel="stylesheet" href="https://binnz.github.io/font/hack/css/hack.min.css">
+  <link rel="stylesheet" href="https://binnz.github.io/css/style.css">
+</head>
+
+<body>
+  <header>
+    <div>
+  <div style="height:150px; width:100%; clear:both;"></div>
+  <div id="textlogo">
+    <h1 class="site-name"><a href="https://binnz.github.io/" title="California Dreaming">California Dreaming</a></h1>
+    <h2 class="blog-motto"></h2>
+  </div>
+  <div class="navbar"><a class="navbutton navmobile" href="#" title="menu"></a></div>
+			<div style="height:50px; width:100%; clear:both;"></div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="menu">
+			</a><div style="height:50px; width:100%; clear:both;"></div></div>
+  <nav class="animated">
+    <ul>
+      
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/post/">Archives</a></li>
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      <li>
+        <form class="search" method="get" action="https://www.google.com/search">
+          <div>
+            <input type="text" id="search" name="q" placeholder='Search'>
+          </div>
+        </form>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+  </header>
+  <div id="container">
+    <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+      <a href="https://binnz.github.io/post/2017-09-01-clustering/" title="Data Mining - Basic Cluster Analysis" itemprop="url">Data Mining - Basic Cluster Analysis</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="" title="">you</a>
+    
+  </p>
+  <p class="article-time">
+    <time datetime="2017-09-01 00:00:00 &#43;0000 UTC" itemprop="datePublished">2017-09-01</time>
+  </p>
+</header>
+
+	<div class="article-content">
+    
+    <blockquote>
+<p>“The validation of clustering structures is the most difficult and frustrating part of cluster analysis.
+Without a strong effort in this direction, cluster analysis will remain a black art accessible only to those true believers who have experience and great courage.”</p>
+<p>&ndash; <em>Algorithms for Clustering Data</em>, Jain and Dubes</p>
+</blockquote>
+<p>Clustering Analysis is finding groups of objects such that the objects in a group will be similar (or related) to one another and different from (or unrelated to) the objects in other groups such that</p>
+<ul>
+<li>Intra-cluster distances are minimized</li>
+<li>Inter-cluster distances are maximized</li>
+</ul>
+<p>Clustering can be classified to <strong>partitional clustering</strong> and <strong>hierarchical clustering</strong>.   Partitional clustering creates a division data objects into non-overlapping subsets (clusters) such that each data object is in exactly one subset; Hierarchical clustering creates a set of nested clusters organized as a hierarchical tree.</p>
+<h2 id="types-of-clusters">Types of Clusters</h2>
+<ul>
+<li>
+<p><strong>Well-separated clusters</strong>: A cluster is a set of points such that any point in a cluster is closer (or more similar) to <strong>every</strong> other point in the cluster than to any point not in the cluster.</p>
+</li>
+<li>
+<p><strong>Center-based clusters</strong>: A cluster is a set of objects such that an object in a cluster is closer (more similar) to the “center” of a cluster, than to the center of any other cluster</p>
+</li>
+<li>
+<p><strong>Contiguous clusters</strong> (Nearest neighbor or Transitive): A cluster is a set of points such that a point in a cluster is closer (or more similar) to <strong>one or more</strong> other points in the cluster than to any point not in the cluster.</p>
+</li>
+<li>
+<p><strong>Density-based clusters</strong>: A cluster is a dense region of points, which is separated by low-density regions, from other regions of high density. Used when the clusters are irregular or intertwined, and when noise and outliers are present.</p>
+</li>
+<li>
+<p><strong>Property or Conceptual</strong>: Finds clusters that share some common property or represent a particular concept.</p>
+</li>
+<li>
+<p><strong>Described by an Objective Function</strong>: Finds clusters that minimize or maximize an objective function. It maps the clustering problem to a different domain and solve a related problem in that domain. Therefore <strong>clustering is equivalent to breaking the graph into connected components, one for each cluster</strong>, and we want to minimize the edge weight between clusters and maximize the edge weight within clusters</p>
+</li>
+</ul>
+<h2 id="k-means-and-its-variants">K-means and its variants</h2>
+<p>K-means is a partitional clustering approach where number of clusters, $K$, must be specified.   Each cluster is associated with a centroid (center point) and each point is assigned to the cluster with the closest centroid.</p>
+<p>The basic algorithm is decribed as follows:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">Choose</span> <span class="n">initial</span> <span class="n">K</span><span class="o">-</span><span class="n">points</span><span class="p">,</span> <span class="n">called</span> <span class="n">the</span> <span class="n">centroids</span><span class="o">.</span>
+<span class="n">repeat</span>
+    <span class="n">Form</span> <span class="n">K</span> <span class="n">clusters</span> <span class="n">by</span> <span class="n">assigning</span> <span class="nb">all</span> <span class="n">points</span> <span class="n">to</span> <span class="n">the</span> <span class="n">closest</span> <span class="n">centroids</span><span class="o">.</span>
+    <span class="n">Recompute</span> <span class="n">the</span> <span class="n">centroid</span> <span class="n">of</span> <span class="n">each</span> <span class="n">cluster</span><span class="o">.</span>
+<span class="n">until</span> <span class="n">The</span> <span class="n">centroids</span> <span class="n">do</span> <span class="ow">not</span> <span class="n">change</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Note that</p>
+<ul>
+<li>Initial centroids are often chosen randomly.</li>
+<li>The centroid is typically the mean of the points in the cluster.</li>
+<li>Except for number of clusters, the <strong>measure of &ldquo;Closeness&rdquo;</strong> should also be specified. (Usually measured by <em>Euclidean distance</em>, <em>cosine similarity</em>, or <em>correlation</em>).</li>
+<li>To evaluate the clustering performance, the most common measure is <strong>Sum of Squared Error (SSE)</strong></li>
+</ul>
+<p>$$
+SSE = \sum_{i=1}^K\sum_{x \in C_i} dist^2(m_i, x)
+\<br>
+where~x~is~a~data~point~in~C_i~and
+\<br>
+m_i~is~the~centroid~of~C_i
+$$</p>
+<p>The advantages of K-means are</p>
+<ol>
+<li>simple</li>
+<li>math-supported</li>
+<li>small TSSE (Total Sum of Squared Error)</li>
+<li>not slow (given a good initial)</li>
+</ol>
+<p>On the contrary, the weakness of K-means are</p>
+<ol>
+<li>depends on initials</li>
+<li>outliers (noises) will affect results</li>
+</ol>
+<h3 id="limitations-of-k-means">Limitations of K-means</h3>
+<p>K-means has problems when clusters are of</p>
+<ul>
+<li>differing Sizes</li>
+<li>differing Densities</li>
+<li>Non-globular shapes</li>
+</ul>
+<p>K-means also has problems when the data contains outliers.</p>
+<p><img src="https://i.imgur.com/HJvSvUP.png" alt="">
+<img src="https://i.imgur.com/mnPsnOJ.png" alt="">
+<img src="https://i.imgur.com/jZWfvEE.png" alt=""></p>
+<h3 id="k-means-always-converge">K-means always converge</h3>
+<p><strong>Reason 1.</strong> Cluster $n$ points into $K$ clusters $\rightarrow$ finite number of possible clustering results.</p>
+<p><strong>Reason 2.</strong> Each iterstion in k-means causes the lower TSSE (Total Sum of Squared Error).   Hence, there&rsquo;s never a loop (cycle).</p>
+<p>Combine <strong>Reason 1. &amp; 2.</strong>, the hypothesis can be proved.</p>
+<h3 id="handling-empty-clusters">Handling Empty Clusters</h3>
+<p>Empty clusters can be obtained if no points are allocated to a cluster during the assignment step.   If this happens, we need to choose a replacement centroid otherwise SSE would be larger than neccessary.</p>
+<ul>
+<li>Choose the point that contributes most to SSE</li>
+<li>Choose a point from the cluster with the highest SSE</li>
+<li>If there are several empty clusters, the above can be repeated several times.</li>
+</ul>
+<h3 id="initial-centroids-problem">Initial Centroids Problem</h3>
+<p>Poor <strong>initial centroids</strong> affect a lot to the clustering.   The followings are the techniques to address this problem:</p>
+<ul>
+<li>Multiple runs</li>
+<li>Sample and use hierarchical clustering to determine initial centroids</li>
+<li>Select more than K initial centroids and then select among these initial centroids</li>
+<li><a href="../../../2017/09/01/Cluster-Centroid-Init">Cluster Center Initialization Algorithms</a></li>
+<li><a href="#reduce-the-sse-using-post-processing">Postprocessing</a></li>
+<li><a href="#bisecting-k-means">Bisecting K-means</a></li>
+</ul>
+<h3 id="reduce-the-sse-using-post-processing">Reduce the SSE Using Post-processing</h3>
+<ul>
+<li><strong>Split a cluster</strong>: Split ‘loose’ clusters, i.e., clusters with relatively high SSE</li>
+<li><strong>Disperse a cluster</strong>: Eliminate small clusters that may represent outliers</li>
+<li><strong>Merge two clusters</strong>: Merge clusters that are ‘close’ and that have relatively low SSE</li>
+</ul>
+<h3 id="bisecting-k-means">Bisecting K-means</h3>
+<p>Bisecting K-means algorithm is a variant of K-means that can produce a partitional or a hierarchical clustering.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">Initialize</span> <span class="n">list_of_clusters</span> <span class="n">consisting</span> <span class="n">of</span> <span class="n">a</span> <span class="n">cluster</span> <span class="n">containing</span> <span class="nb">all</span> <span class="n">points</span>
+<span class="n">repeat</span>
+    <span class="n">Select</span> <span class="n">a</span> <span class="n">cluster</span> <span class="kn">from</span> <span class="nn">list_of_clusters</span>
+    <span class="k">for</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span> <span class="n">to</span> <span class="n">number_of_iteration</span><span class="p">:</span>
+        <span class="n">Bisect</span> <span class="n">the</span> <span class="n">selected</span> <span class="n">cluster</span> <span class="n">using</span> <span class="n">basic</span> <span class="n">K</span><span class="o">-</span><span class="n">means</span>
+    <span class="n">Add</span> <span class="n">the</span> <span class="n">two</span> <span class="n">clusters</span> <span class="kn">from</span> <span class="nn">the</span> <span class="n">bisection</span> <span class="k">with</span> <span class="n">the</span> <span class="n">lowest</span> <span class="n">SSE</span> <span class="n">to</span> <span class="n">list_of_clusters</span>
+<span class="n">until</span> <span class="n">list_of_clusters</span> <span class="n">contains</span> <span class="n">K</span> <span class="n">clusters</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="bfr-algorithm-extension-of-k-means-to-large-data">BFR Algorithm: Extension of K-means to Large Data</h2>
+<p>Bradley-Fayyad-Reina (BFR) Algorithm is a variant of k-means that can be used when the memory (RAM) buffer is limited and the data set is disk-resident.
+Designed to to handle very large data sets, BFR proposed an efficient way to summarize clusters so that the memory usage requires only $O(k)$ instead of $O(n)$ (as in normal k-means), where $k$ is the numner of clusters and $n$ is the number of data points.</p>
+<p>However, BFS makes a very strong assumption about the shape of clusters:
+Clusters are normally distributed around a centroid in a Euclidean space.
+The mean and standard deviation for a cluster may differ for different dimensions, but the dimensions must be <em>independent</em>.</p>
+<h3 id="a-single-pass-over-the-data">A Single Pass over the Data</h3>
+<p>In BFR, data points are read from disk one main-memory-full at a time, and most points from previous memory loads are summarized by simple statistics.</p>
+<p>When the algorithm obtains a sample from the database and fill the memory buffer, each data point will first be asigned to</p>
+<ul>
+<li><strong>Retained set (RS)</strong>: Isolated points waiting to be assigned.</li>
+</ul>
+<p>Afterwards, data points in RS may be decided to assign to either of the following set:</p>
+<ul>
+<li><strong>Discard set (DS)</strong>: If the point is close enough to any centroid, it would be assigned/sumarized to the DS of the corresponding cluster.</li>
+<li><strong>Compression set (CS)</strong>: If the point is not close to any existing centroid, then it may be assigned/sumarized to a group of existing CS that is close enough.</li>
+</ul>
+<p>For each sumarized set, including the CS sets and the DS set of any cluster, the following statistics are maintained for a $d$-dimensional data set:</p>
+<ul>
+<li>$N$: The number of points</li>
+<li>$\text{SUM}$: A $d$-dimensional vector whose $i$-th component is the sum of the coordinates of the points in the $i$-th dimension</li>
+<li>$\text{SUMSQ}$: A $d$-dimensional vector whose $i$-th component is the sum of squares of coordinates of the points in the $i$-th dimension</li>
+</ul>
+<p>In general, we use $2d + 1$ values to represent a cluster of any size, where its centroid can be calculated as $\text{SUM}/N$ and its variance can be calculated as $(\text{SUMSQ} / N) – (\text{SUM} / N)^2$.</p>
+<h3 id="a-scalable-expectation-maximization-approach">A Scalable Expectation-Maximization Approach</h3>
+<p><img src="https://imgur.com/DKX4FgT.png" alt=""></p>
+<p>The BFR algorithm follows the steps below to decide $k$ clusters:</p>
+<ol>
+<li>Select the initial $k$ centroids (<em>Initialize the mixture model parameters</em>)</li>
+<li>Obtain a sample from the database, filling the memory buffer, and add them into RS.</li>
+<li><strong>Perform Primary Compression</strong>: Find those points that are <em>&ldquo;sufficiently close&rdquo;</em> to a cluster centroid and add them to the DS set of the corresponding cluster (<em>Update mixture model parameters</em>)
+<ul>
+<li>The statistics of the DS set of the corresponding cluster should be updated</li>
+<li><em>&ldquo;sufficiently close&rdquo;</em>: The <em><strong>Mahalanobis distance</strong></em> between the data point and the centroid is less than a threshold</li>
+</ul>
+</li>
+<li><strong>Perform Secondary Compression</strong>: Using data points in RS, determine a number of sub-clusters with any main-memory clustering algorithm (e.g., k-means)
+<ul>
+<li>Sub-clusters are summarized into CSs</li>
+<li>Outlier points go back to RS</li>
+<li>Consider merging CSs if the variance of the combined subcluster isbelow some threshold ($N$, $\text{SUM}$, and $\text{SUMSQ}$ allow us to make that calculation quickly)</li>
+</ul>
+</li>
+<li>Go back to <strong>step 2.</strong> until one full scan of the database is complete; if this is the last round, merge all CSs and all RS points into their nearest cluster.</li>
+</ol>
+<blockquote>
+<p><strong>Mahalanobis Distance:</strong> The Mahalanobis distance is a measure of the distance between a point $\overrightarrow{x}$ and a distribution $D$.
+More specifically, it is a multi-dimensional generalization of the idea of measuring <strong>how many standard deviations away $\overrightarrow{x}$ is from the mean of $D$</strong>.
+This distance is zero if $x$ is at the mean of $D$, and grows as $x$ moves away from the mean along each principal component axis.</p>
+</blockquote>
+<p>BFS suggests that Mahalanobis Distance is a likelihood of the point belonging to currently nearest centroid.
+For example, for a point $\overrightarrow{x} = (x_1, x_2, &hellip;, x_d)$ and a cluster $C$ with centroid $\overrightarrow{c} = (c_1, c_2, &hellip;, c_d)$ and standard deviations $(\sigma_1, \sigma_2, &hellip;, \sigma_d)$, the Mahalanobis Distance between $\overrightarrow{x}$ and $C$ is</p>
+<p>$$
+MD(\overrightarrow{x}, C) = \sqrt{\sum_{i=1}^d \Big(\frac{x_i - c_i}{\sigma_i}\Big)}
+$$</p>
+<p>If a cluster $C'$ is normally distributed in $d$ dimensions, then for any point $\overrightarrow{x}$ that is one standard deviation away from the distribution of $C$, then the Mahalanobis Distance between them is $MD(\overrightarrow{x}, C') = \sqrt{d}$.
+In other words,</p>
+<ul>
+<li>$68%$ of the members of the cluster $C'$ have a Mahalanobis distance $MD &lt; \sqrt{d}$</li>
+<li>$99%$ of the members of the cluster $C'$ have a Mahalanobis distance $MD &lt; 3\sqrt{d}$ (3 standard deviations away in normal distribution)</li>
+</ul>
+<h2 id="hierarchical-clustering">Hierarchical clustering</h2>
+<p>Hierarchical clustering produces a set of nested clusters organized as a hierarchical tree, which can be visualized as a dendrogram.
+<img src="https://i.imgur.com/xM5Ov9T.png" alt=""></p>
+<p>The advantages of hierarchical clustering is that it does not have to assume any particular number of clusters since <strong>any desired number of clusters can be obtained by ‘cutting’ the dendogram at the proper level</strong>.   Also, the clusters may correspond to meaningful taxonomies (e.g., animal kingdom, phylogeny reconstruction, …)</p>
+<p>However, once a decision is made to combine two clusters / divide a cluster, it cannot be undone. Also, no objective function is directly minimized using hierarchical clustering.</p>
+<p>There are two methods to do hierarchical clustering:</p>
+<ol>
+<li><a href="../../../2017/09/01/Agg-Clustering"><strong>Agglomerative Clustering</strong></a>
+<ul>
+<li>Start with the points as individual clusters.</li>
+<li>At each step, it merges the closest pair of clusters until only one cluster (or k clusters) left.</li>
+</ul>
+</li>
+<li><a href="../../../2017/09/01/Divisive-Clustering"><strong>Divisive Clustering</strong></a>
+<ul>
+<li>Starts with one, all-inclusive cluster.</li>
+<li>At each step, it splits a cluster until each cluster contains a point (or there are k clusters).</li>
+</ul>
+</li>
+</ol>
+<h3 id="the-cost-to-update-distance-matrix">The Cost to Update Distance Matrix</h3>
+<p>In the process of Agglomerative Clustering, when you merge two clusters $A$ &amp; $B$ to get a new cluster $R = A \cup B$, how do you compute the distance
+$$
+D(R, Q)
+$$
+Given $R$ and an another cluster $Q$ ($Q \neq A; Q \neq B$)?</p>
+<p>If each data point is of 16 dimensions and we use Euclidean distance, then we need</p>
+<ul>
+<li>16 substractions</li>
+<li>15 additions</li>
+<li>16 multiplications</li>
+<li>and a square root</li>
+</ul>
+<p>So the number of operations is <em>dimension dependent</em>.</p>
+<p>For example, assume you have a $n$-by-$n$ distance matrix initially (if there are $n$ points).   In each step, you merge two clusters (e.g., $A$ &amp; $B$) to get a new cluster $R$ and the number of clusters decrease by 1.   We thus <strong>update the distance matrix</strong> with certain formulas:</p>
+<ul>
+<li>If $D = D_{min}$ (single affinity),
+$$
+D(R, Q) = min{D(A,Q), D(B,Q)}
+$$</li>
+<li>If $D = D_{max}$ (complete affinity),
+$$
+D(R, Q) = Max{D(A,Q), D(B,Q)}
+$$</li>
+<li>If $D = D_{avg}$ (group average),
+$$
+D(R, Q) = \frac{1}{|R||Q|}\sum_{r
+\in R, q \in Q}|r-q|
+\= \frac{1}{|R||Q|}\left[\sum_{r
+\in A, q \in Q}|r-q|+\sum_{r
+\in B, q \in Q}|r-q|\right]
+\= \frac{1}{|R|}\left[\frac{|A|}{|A||Q|}\sum_{r
+\in A, q \in Q}|r-q|+\frac{|B|}{|B||Q|}\sum_{r
+\in B, q \in Q}|r-q|\right]
+\= \frac{|A|}{|R|}D(A,Q) + \frac{|B|}{|R|}D(B,Q)
+$$</li>
+<li>If $D = D_{centroid}$ (UPGMC linkage),
+$$
+Assume~\bar{x}~is~the~centroid~of~a~cluster~X,
+\<br>
+\because A \cup B = R ~ \therefore |A|\bar{a}+|B|\bar{b} = |R|\bar{r}
+\<br>
+\bar{r} = \frac{|A|}{|R|}\bar{a}+\frac{|B|}{|R|}\bar{b} = \bar{a}+\frac{|B|}{|R|}(\bar{b}-\bar{a})
+\<br>
+(\because \frac{|A|}{|R|}+\frac{|B|}{|R|} = 1)
+\<br>
+\bar{r}~is~on~the~line~connecting~\bar{a}~and~\bar{b}
+\<br>
+D(R, Q)^2 =\frac{|A|}{|R|}D(A,Q)^2 + \frac{|B|}{|R|}D(B,Q)^2 - \frac{|A|}{|R|}\frac{|B|}{|R|}D(A,B)^2
+\<br>
+D(R, Q) = \frac{|A|}{|R|}D(A,Q) + \frac{|B|}{|R|}D(B,Q) - \frac{|A|}{|R|}\frac{|B|}{|R|}D(A,B)
+$$</li>
+</ul>
+<h3 id="the-cost-to-compute-similarity-between-all-pairs-of-clusters">The Cost to Compute Similarity between All Pairs of Clusters</h3>
+<p>At the first step of Hierarchical methods to combine/divide clusters,</p>
+<ul>
+<li>Agglomerative method has $C^n_2=\frac{n(n-1)}{2} = \Theta(n^2)$ possible choices</li>
+<li>Divisive method has $\frac{(2^n-2)}{2}=2^{n-1}-1 = \Theta(2^n)$ possible choices</li>
+</ul>
+<p>given $n$ points.</p>
+<p>Note that when $n \geq 5$, the computation cost for 1 iteration of Divisive method will be higher than that of Agglomerative method.   Either way, Hierarchical Clustering is time consuming and memory wasting.</p>
+<p>So&hellip; <em>&ldquo;Which should be used? Divisive method or Agglomerative method?&quot;</em></p>
+<p>If there are many points ($n$ is large) and the number of clusters is very low ($k=2~or~3$), then divisive method should be used;   otherwise, agglomerative method is preferred.   Agglomerative method is good at identifyting small clusters; Divisive method is good at identifying large clusters.</p>
+<h2 id="density-based-clustering">Density-based clustering</h2>
+<p>DBSCAN is a density-based algorithm, where $density$ = number of points within a specified radius ($Eps$), given a specified number of points ($MinPts$) as the threshold.</p>
+<p><strong>Core Point</strong> - A point is a core point if it has more than a specified number of points ($MinPts$) within $Eps$.   These are points that are at the interior of a cluster.</p>
+<p><strong>Border Point</strong> - A border point has fewer than $MinPts$ within $Eps$, but is in the neighborhood of a core point</p>
+<p><strong>Noise Point</strong> - A noise point is any point that is not a core point or a border point.</p>
+<p><img src="https://i.imgur.com/q9CNDv2.png" alt=""></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">DBSCAN</span><span class="p">(</span><span class="n">DB</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">eps</span><span class="p">,</span> <span class="n">minPts</span><span class="p">)</span> <span class="p">{</span>
+   <span class="n">C</span> <span class="o">=</span> <span class="mi">0</span>                                              <span class="o">/*</span> <span class="n">Cluster</span> <span class="n">counter</span> <span class="o">*/</span>
+   <span class="k">for</span> <span class="n">each</span> <span class="n">point</span> <span class="n">P</span> <span class="ow">in</span> <span class="n">database</span> <span class="n">DB</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="n">label</span><span class="p">(</span><span class="n">P</span><span class="p">)</span> <span class="err">≠</span> <span class="n">undefined</span> <span class="n">then</span> <span class="k">continue</span>           <span class="o">/*</span> <span class="n">Previously</span> <span class="n">processed</span> <span class="ow">in</span> <span class="n">inner</span> <span class="n">loop</span> <span class="o">*/</span>
+      <span class="n">Neighbors</span> <span class="n">N</span> <span class="o">=</span> <span class="n">RangeQuery</span><span class="p">(</span><span class="n">DB</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span>      <span class="o">/*</span> <span class="n">Find</span> <span class="n">neighbors</span> <span class="o">*/</span>
+      <span class="k">if</span> <span class="o">|</span><span class="n">N</span><span class="o">|</span> <span class="o">&lt;</span> <span class="n">minPts</span> <span class="n">then</span> <span class="p">{</span>                          <span class="o">/*</span> <span class="n">Density</span> <span class="n">check</span> <span class="o">*/</span>
+         <span class="n">label</span><span class="p">(</span><span class="n">P</span><span class="p">)</span> <span class="o">=</span> <span class="n">Noise</span>                             <span class="o">/*</span> <span class="n">Label</span> <span class="k">as</span> <span class="n">Noise</span> <span class="o">*/</span>
+         <span class="k">continue</span>
+      <span class="p">}</span>
+      <span class="n">C</span> <span class="o">=</span> <span class="n">C</span> <span class="o">+</span> <span class="mi">1</span>                                       <span class="o">/*</span> <span class="nb">next</span> <span class="n">cluster</span> <span class="n">label</span> <span class="o">*/</span>
+      <span class="n">label</span><span class="p">(</span><span class="n">P</span><span class="p">)</span> <span class="o">=</span> <span class="n">C</span>                                    <span class="o">/*</span> <span class="n">Label</span> <span class="n">initial</span> <span class="n">point</span> <span class="o">*/</span>
+      <span class="n">Seed</span> <span class="nb">set</span> <span class="n">S</span> <span class="o">=</span> <span class="n">N</span> \ <span class="p">{</span><span class="n">P</span><span class="p">}</span>                            <span class="o">/*</span> <span class="n">Neighbors</span> <span class="n">to</span> <span class="n">expand</span> <span class="o">*/</span>
+      <span class="k">for</span> <span class="n">each</span> <span class="n">point</span> <span class="n">Q</span> <span class="ow">in</span> <span class="n">S</span> <span class="p">{</span>                         <span class="o">/*</span> <span class="n">Process</span> <span class="n">every</span> <span class="n">seed</span> <span class="n">point</span> <span class="o">*/</span>
+         <span class="k">if</span> <span class="n">label</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span> <span class="o">=</span> <span class="n">Noise</span> <span class="n">then</span> <span class="n">label</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span> <span class="o">=</span> <span class="n">C</span>        <span class="o">/*</span> <span class="n">Change</span> <span class="n">Noise</span> <span class="n">to</span> <span class="n">border</span> <span class="n">point</span> <span class="o">*/</span>
+         <span class="k">if</span> <span class="n">label</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span> <span class="err">≠</span> <span class="n">undefined</span> <span class="n">then</span> <span class="k">continue</span>        <span class="o">/*</span> <span class="n">Previously</span> <span class="n">processed</span> <span class="o">*/</span>
+         <span class="n">label</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span> <span class="o">=</span> <span class="n">C</span>                                 <span class="o">/*</span> <span class="n">Label</span> <span class="n">neighbor</span> <span class="o">*/</span>
+         <span class="n">Neighbors</span> <span class="n">N</span> <span class="o">=</span> <span class="n">RangeQuery</span><span class="p">(</span><span class="n">DB</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span>   <span class="o">/*</span> <span class="n">Find</span> <span class="n">neighbors</span> <span class="o">*/</span>
+         <span class="k">if</span> <span class="o">|</span><span class="n">N</span><span class="o">|</span> <span class="err">≥</span> <span class="n">minPts</span> <span class="n">then</span> <span class="p">{</span>                       <span class="o">/*</span> <span class="n">Density</span> <span class="n">check</span> <span class="o">*/</span>
+            <span class="n">S</span> <span class="o">=</span> <span class="n">S</span> <span class="err">∪</span> <span class="n">N</span>                                 <span class="o">/*</span> <span class="n">Add</span> <span class="n">new</span> <span class="n">neighbors</span> <span class="n">to</span> <span class="n">seed</span> <span class="nb">set</span> <span class="o">*/</span>
+         <span class="p">}</span>
+      <span class="p">}</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">RangeQuery</span><span class="p">(</span><span class="n">DB</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span> <span class="p">{</span>
+   <span class="n">Neighbors</span> <span class="o">=</span> <span class="n">empty</span> <span class="nb">list</span>
+   <span class="k">for</span> <span class="n">each</span> <span class="n">point</span> <span class="n">Q</span> <span class="ow">in</span> <span class="n">database</span> <span class="n">DB</span> <span class="p">{</span>                  <span class="o">/*</span> <span class="n">Scan</span> <span class="nb">all</span> <span class="n">points</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">database</span> <span class="o">*/</span>
+      <span class="k">if</span> <span class="n">dist</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">Q</span><span class="p">)</span> <span class="err">≤</span> <span class="n">eps</span> <span class="n">then</span> <span class="p">{</span>                      <span class="o">/*</span> <span class="n">Compute</span> <span class="n">distance</span> <span class="ow">and</span> <span class="n">check</span> <span class="n">epsilon</span> <span class="o">*/</span>
+         <span class="n">Neighbors</span> <span class="o">=</span> <span class="n">Neighbors</span> <span class="err">∪</span> <span class="p">{</span><span class="n">Q</span><span class="p">}</span>                  <span class="o">/*</span> <span class="n">Add</span> <span class="n">to</span> <span class="n">result</span> <span class="o">*/</span>
+      <span class="p">}</span>
+   <span class="p">}</span>
+   <span class="k">return</span> <span class="n">Neighbors</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>DBSCAN is resistant to noise and can handle clusters of different shapes and sizes.   However, it does not work well if the data is high-dimensional or with varying densities.</p>
+<h3 id="selection-of-dbscan-parameters">Selection of DBSCAN Parameters</h3>
+<p>If clusters in the data are in of similar densities, then for points in a cluster, their $k^{th}$ nearest neighbors are at roughly the same distance.   That is, noise points have the $k^{th}$ nearest neighbor at farther distance.</p>
+<p>So, for each point, we can plot sorted distance of the point to its $k^{th}$ nearest neighbor, given $k$ as its $MinPts$.</p>
+<p><img src="https://i.imgur.com/TQdahjm.png" alt=""></p>
+<p>With references to these plots, we can determine the best $MinPts$ and $Eps$.</p>
+<h2 id="cluster-validity">Cluster Validity</h2>
+<p>For cluster analysis, the analogous question is how to evaluate the “goodness” of the resulting clusters?   However,</p>
+<blockquote>
+<p>“Clusters are in the eye of the beholder”</p>
+</blockquote>
+<p>Then why do we want to evaluate them?</p>
+<ul>
+<li>Determining the clustering tendency of a set of data, i.e., distinguishing whether non-random structure actually exists in the data.</li>
+<li>Comparing the results of a cluster analysis to externally known results, e.g., to externally given class labels.</li>
+<li>Evaluating how well the results of a cluster analysis fit the data without reference to external information. That is, use only the data</li>
+<li>Comparing the results of two different sets of cluster analysis to determine which is better.</li>
+<li>Determining the ‘correct’ number of clusters.</li>
+</ul>
+<p>We can further distinguish whether we want to evaluate the <strong>entire clustering</strong> or just <strong>individual clusters</strong>.</p>
+<p>However, no matter what the measure is, we need a framework to interpret.   For example, if our measure of evaluation has the value, 10, is that good, fair, or poor?</p>
+<p>Statistics provide a framework for cluster validity:   <strong>The more “atypical” a clustering result is, the more likely it represents valid structure in the data</strong>.   We can compare the values of an index that result from random data or clusterings to those of a clustering result.   If the value of the index is unlikely, then the cluster results are valid.</p>
+<p><img src="https://i.imgur.com/FEx6vHS.png" alt=""></p>
+<h3 id="internel-measures">Internel Measures</h3>
+<p>Internal Index is used to measure the goodness of a clustering structure without respect to external information. (e.g., Sum of Squared Error, SSE)</p>
+<p>SSE is good for comparing two clusterings or two clusters (average SSE).   It can also be used to estimate the number of clusters.</p>
+<p><img src="https://i.imgur.com/QMjVaNH.png" alt=""></p>
+<p>Note that</p>
+<p>$$
+TSS = WSS + BSS
+\<br>
+where~TSS~is~Total~Sum~of~Squres
+$$</p>
+<p><strong>1. Cluster Cohesion</strong></p>
+<p>Cohesion is measured by the <strong>within cluster sum of squares (WSS)</strong>, which shows how closely related are objects in a cluster.</p>
+<p>$$
+WSS = \sum_i\sum_{x \in C_i}(x-m_i)^2
+\<br>
+where~C_i~is~the~i^{th}~cluster,
+\<br>
+m_i~is~the~centroid~of~C_i
+$$</p>
+<p><strong>2. Cluster Separation</strong></p>
+<p>Separation is measured by the <strong>between cluster sum of squares (BSS)</strong>, which shows how distinct or well-separated a cluster is from other clusters.</p>
+<p>$$
+BSS = \sum_i \left| C_i \right| (m-m_i)^2
+\<br>
+where~C_i~is~the~i^{th}~cluster,
+\<br>
+m_i~is~the~centroid~of~C_i,
+\<br>
+m~is~the~mean~of~all~points
+$$</p>
+<p><strong>3. Silhouette Coefficient</strong></p>
+<p>Silhouette Coefficient combine ideas of both cohesion and separation, but for individual points, as well as clusters and clusterings.</p>
+<p>Let $a(i)$ be the average dissimilarity of $i$ with all other data within the same cluster.   We can interpret $a(i)$ as <strong>how well $i$ is assigned to its cluster</strong> (the smaller the value, the better the assignment).</p>
+<p>Let $b(i)$ be the lowest average dissimilarity of $i$ to any other cluster, of which $i$ is not a member. The cluster with this <strong>lowest average dissimilarity is said to be the &ldquo;neighbouring cluster&rdquo; of $i$</strong> because it is the next best fit cluster for point $i$.</p>
+<p>$$
+a(i) = \frac{1}{\left|C\right|} \sum_{j \in C} dist(i, j)
+\<br>
+b(i) = min_{C' \neq C}(\frac{1}{\left| C' \right|} \sum_{j \in C'} dist(i, j))
+\<br>
+where~C~is~the~cluster~of~point~i
+$$</p>
+<p>We now define a silhouette coefficient of point $i$ as</p>
+<p>$$
+s(i) = \frac{b(i) - a(i)}{\max(a(i),b(i))}
+$$</p>
+<p>Which can be also written as:</p>
+<p>$$
+s(i) = \begin{cases}
+1-a(i)/b(i), &amp; \mbox{if } a(i) &lt; b(i) \<br>
+0,  &amp; \mbox{if } a(i) = b(i) \<br>
+b(i)/a(i)-1, &amp; \mbox{if } a(i) &gt; b(i) \<br>
+\end{cases}
+$$</p>
+<p>It is clear that the value of a silhouette coefficient is between -1 to 1 (typically between 0 and 1), and the closer it is to 1 the better.</p>
+<h3 id="external-measures">External Measures</h3>
+<p>External Index is used to measure the extent to which cluster labels match externally supplied class labels. (e.g., entropy)</p>
+<h3 id="relative-measures">Relative Measures</h3>
+<p>Relative Index is used to compare two different clusterings or clusters.   It is often an external or internal index is used for this function, e.g., SSE or entropy.</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="http://www-users.cs.umn.edu/~kumar/dmbook/index.php">“Introduction to Data Mining,” by P.-N. Tan, M. Steinbach, V. Kumar, Addison-Wesley.</a></li>
+<li><a href="https://en.wikipedia.org/wiki/DBSCAN">Wikipedia - DBSCAN Algorithm</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Silhouette_(clustering)">Wikipedia - Silhouette (clustering)</a></li>
+<li>Bradley, P. S., Fayyad, U., &amp; Reina, C. (1998). Scaling EM (expectation-maximization) clustering to large databases.</li>
+<li><a href="https://en.wikipedia.org/wiki/BFR_algorithm">Wikipedia - BFR algorithm</a></li>
+</ul>
+    
+	</div>
+  <footer class="article-footer clearfix">
+  
+
+<div class="article-tags">
+  <span></span>
+  
+  <a href="https://binnz.github.io/tags/clustering">Clustering</a>
+  
+  <a href="https://binnz.github.io/tags/data-mining">Data-Mining</a>
+  
+</div>
+
+
+
+
+
+<div class="article-categories">
+  <span></span>
+  
+  <a class="article-category-link" href="https://binnz.github.io/categories/notes">Notes</a>
+  
+</div>
+
+
+
+  <div class="article-share" id="share">
+    <div data-url="https://binnz.github.io/post/2017-09-01-clustering/" data-title="Data Mining - Basic Cluster Analysis" data-tsina="" class="share clearfix">
+    </div>
+  </div>
+</footer>
+
+	</article>
+  
+
+
+<section class="comment">
+<div id="disqus_thread"></div>
+</section>
+<script>
+  <!-- detect whether Disuqs can load -->
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', '//disqus.com/next/config.json?' + new Date().getTime(), true);
+  xhr.timeout = 3000; 
+
+  xhr.onload = function() { 
+
+
+var disqus_config = function () {
+this.page.url = "https://binnz.github.io/post/2017-09-01-clustering/";
+this.page.identifier = "https://binnz.github.io/post/2017-09-01-clustering/";
+};
+(function() { 
+var d = document, s = d.createElement('script');
+
+s.src = '//disc.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+}
+  xhr.ontimeout = function() {
+  <!-- cannot load Disqus, skip it. -->
+  return;
+}
+xhr.send(null);
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+    <div class="openaside"><a class="navbutton" href="#" title="Show SideBar"></a></div>
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide SideBar"></a></div>
+<aside class="clearfix">
+  
+
+<div class="categorieslist">
+  <p class="asidetitle">Categories</p>
+  <ul>
+    
+    <li><a href="https://binnz.github.io/categories/install" title="install">install<sup>2</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/life" title="life">life<sup>1</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/notes" title="notes">notes<sup>50</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/programming" title="programming">programming<sup>25</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/projects" title="projects">projects<sup>2</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/publications" title="publications">publications<sup>1</sup></a></li>
+    
+  </ul>
+</div>
+
+
+
+  
+
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+      
+			<li><a href="https://binnz.github.io/tags/ANDROID" title="android">android<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/APACHE-PIG" title="apache-pig">apache-pig<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/ASSOCIATION-ANALYSIS" title="association-analysis">association-analysis<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/BEER" title="beer">beer<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CLASSIFICATION" title="classification">classification<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CLUSTERING" title="clustering">clustering<sup>19</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CONFERENCE" title="conference">conference<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATA-MINING" title="data-mining">data-mining<sup>64</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATA-SCIENCE" title="data-science">data-science<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATABASE" title="database">database<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DEEP-LEARNING" title="deep-learning">deep-learning<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/ELASTICSEARCH" title="elasticsearch">elasticsearch<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/GRAPH" title="graph">graph<sup>12</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/HADOOP" title="hadoop">hadoop<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/INFORMATION-RETRIEVAL" title="information-retrieval">information-retrieval<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/JAVA" title="java">java<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/MACHINE-LEARNING" title="machine-learning">machine-learning<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NEURAL-NETWORK" title="neural-network">neural-network<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NLP" title="nlp">nlp<sup>4</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NLTK" title="nltk">nltk<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/PYTHON" title="python">python<sup>15</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/R" title="r">r<sup>4</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/RELATION-ALGEBRA" title="relation-algebra">relation-algebra<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SCIKIT-LEARN" title="scikit-learn">scikit-learn<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SPARK" title="spark">spark<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SQL" title="sql">sql<sup>3</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/STATISTICS" title="statistics">statistics<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/STREAMING" title="streaming">streaming<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/TIME-SERIES" title="time-series">time-series<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/TRAVEL" title="travel">travel<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/UNIT-TEST" title="unit-test">unit-test<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/VBA" title="vba">vba<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/WINDOWS" title="windows">windows<sup>1</sup></a></li>
+      
+		</ul>
+</div>
+
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle">Archives</p>
+    <ul class="archive-list">
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2021-06">2021年06月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2020-05">2020年05月</a><span class="archive-list-count">12</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2019-09">2019年09月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-09">2018年09月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-08">2018年08月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-06">2018年06月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-05">2018年05月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-04">2018年04月</a><span class="archive-list-count">5</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-03">2018年03月</a><span class="archive-list-count">5</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-01">2018年01月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-12">2017年12月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-11">2017年11月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-10">2017年10月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-09">2017年09月</a><span class="archive-list-count">10</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-08">2017年08月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-07">2017年07月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-05">2017年05月</a><span class="archive-list-count">3</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-04">2017年04月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-03">2017年03月</a><span class="archive-list-count">20</span>
+      </li>
+      
+    </ul>
+
+  </div>
+
+
+  
+
+<div class="tagcloudlist">
+  <p class="asidetitle">Tags Cloud</p>
+  <div class="tagcloudlist clearfix">
+    
+    <a href="https://binnz.github.io/tags/android" style="font-size: 12px;">android</a>
+    
+    <a href="https://binnz.github.io/tags/apache-pig" style="font-size: 12px;">apache-pig</a>
+    
+    <a href="https://binnz.github.io/tags/association-analysis" style="font-size: 12px;">association-analysis</a>
+    
+    <a href="https://binnz.github.io/tags/beer" style="font-size: 12px;">beer</a>
+    
+    <a href="https://binnz.github.io/tags/classification" style="font-size: 12px;">classification</a>
+    
+    <a href="https://binnz.github.io/tags/clustering" style="font-size: 12px;">clustering</a>
+    
+    <a href="https://binnz.github.io/tags/conference" style="font-size: 12px;">conference</a>
+    
+    <a href="https://binnz.github.io/tags/data-mining" style="font-size: 12px;">data-mining</a>
+    
+    <a href="https://binnz.github.io/tags/data-science" style="font-size: 12px;">data-science</a>
+    
+    <a href="https://binnz.github.io/tags/database" style="font-size: 12px;">database</a>
+    
+    <a href="https://binnz.github.io/tags/deep-learning" style="font-size: 12px;">deep-learning</a>
+    
+    <a href="https://binnz.github.io/tags/elasticsearch" style="font-size: 12px;">elasticsearch</a>
+    
+    <a href="https://binnz.github.io/tags/graph" style="font-size: 12px;">graph</a>
+    
+    <a href="https://binnz.github.io/tags/hadoop" style="font-size: 12px;">hadoop</a>
+    
+    <a href="https://binnz.github.io/tags/information-retrieval" style="font-size: 12px;">information-retrieval</a>
+    
+    <a href="https://binnz.github.io/tags/java" style="font-size: 12px;">java</a>
+    
+    <a href="https://binnz.github.io/tags/machine-learning" style="font-size: 12px;">machine-learning</a>
+    
+    <a href="https://binnz.github.io/tags/neural-network" style="font-size: 12px;">neural-network</a>
+    
+    <a href="https://binnz.github.io/tags/nlp" style="font-size: 12px;">nlp</a>
+    
+    <a href="https://binnz.github.io/tags/nltk" style="font-size: 12px;">nltk</a>
+    
+    <a href="https://binnz.github.io/tags/python" style="font-size: 12px;">python</a>
+    
+    <a href="https://binnz.github.io/tags/r" style="font-size: 12px;">r</a>
+    
+    <a href="https://binnz.github.io/tags/relation-algebra" style="font-size: 12px;">relation-algebra</a>
+    
+    <a href="https://binnz.github.io/tags/scikit-learn" style="font-size: 12px;">scikit-learn</a>
+    
+    <a href="https://binnz.github.io/tags/spark" style="font-size: 12px;">spark</a>
+    
+    <a href="https://binnz.github.io/tags/sql" style="font-size: 12px;">sql</a>
+    
+    <a href="https://binnz.github.io/tags/statistics" style="font-size: 12px;">statistics</a>
+    
+    <a href="https://binnz.github.io/tags/streaming" style="font-size: 12px;">streaming</a>
+    
+    <a href="https://binnz.github.io/tags/time-series" style="font-size: 12px;">time-series</a>
+    
+    <a href="https://binnz.github.io/tags/travel" style="font-size: 12px;">travel</a>
+    
+    <a href="https://binnz.github.io/tags/unit-test" style="font-size: 12px;">unit-test</a>
+    
+    <a href="https://binnz.github.io/tags/vba" style="font-size: 12px;">vba</a>
+    
+    <a href="https://binnz.github.io/tags/windows" style="font-size: 12px;">windows</a>
+    
+  </div>
+</div>
+
+
+
+  
+
+</aside>
+</div>
+
+  </div>
+  <footer><div id="footer" >
+  <div class="line">
+    <span></span>
+    
+    <div style='background:no-repeat url("https://binnz.github.io/img/US-MT-EPS-02-6001.png") left top;-webkit-background-size:6.875em 6.875em;-moz-background-size:6.875em 6.875em;background-size:6.875em 6.875em;' class="author" ></div>
+  </div>
+  <section class="info">
+    <p>hehe</p>
+  </section>
+  <div class="social-font clearfix">
+    <a href='http://weibo.com/coderzh' target="_blank" title="weibo"></a>
+    <a href='https://twitter.com/coderzh' target="_blank" title="twitter"></a>
+    <a href='https://github.com/binnz' target="_blank" class="icon-github" title="github"></a>
+    <a href='https://www.facebook.com/coderzh' target="_blank" title="facebook"></a>
+    <a href='https://www.linkedin.com/coderzh' target="_blank" title="linkedin"></a>
+  </div>
+  <p class="copyright">Powered by <a href="http://gohugo.io" target="_blank" title="hugo">hugo</a> and Theme by <a href="https://github.com/coderzh/hugo-pacman-theme" target="_blank" title="hugo-pacman-theme">hugo-pacman-theme</a> © 2021
+    
+    <a href="https://binnz.github.io/" title="California Dreaming">California Dreaming</a>
+    
+  </p>
+</div>
+</footer>
+  <script src="https://binnz.github.io/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+done = false;
+$(document).ready(function(){
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize();
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  $('form.search').on('submit', function (event) {
+    if (false === done) {
+      event.preventDefault();
+      var orgVal = $(this).find('#search').val();
+      $(this).find('#search').val('site:https:\/\/binnz.github.io\/ ' + orgVal);
+      done = true;
+      $(this).submit();
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://b.bshare.cn/barCode?site=weixin&url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});
+</script>
+
+
+
+
+
+</body>
+</html>

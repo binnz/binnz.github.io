@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Clustering on California Dreaming</title>
+    <link>https://binnz.github.io/tags/clustering/</link>
+    <description>Recent content in Clustering on California Dreaming</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 25 May 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://binnz.github.io/tags/clustering/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Community Detection in Graphs</title>
+      <link>https://binnz.github.io/post/2020-05-25-graph-communities/</link>
+      <pubDate>Mon, 25 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2020-05-25-graph-communities/</guid>
+      <description>&lt;p&gt;In a graph structure, what can be called a community?
+The notion of community structure captures the tendency of nodes to be organized into groups and members within a community are more similar among each other.
+Typically, a community in graphs/networks is a set of nodes with more/better/stronger connections between its members, than to the rest of the network.
+However, there is no widely accepted single definition.
+It depends heavily on the application domain and the properies of the graph.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Cluster Validaty and Cluster Number Selection</title>
+      <link>https://binnz.github.io/post/2018-05-28-cluster-number/</link>
+      <pubDate>Mon, 28 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2018-05-28-cluster-number/</guid>
+      <description>&lt;p&gt;Numbers of cluster validity measures have been proposed to help us not only with the validation of our clustering result but also with cluster number selection.&lt;/p&gt;
+&lt;p&gt;For fuzzy clustering, we can optimize our clustering results with some validity measure such as Partition Coefficient, Partition Entropy, XB-index, and Overlaps Separation Measure.&lt;/p&gt;
+&lt;p&gt;For hard clustering, we can use measures such as DB index and Dunn index.&lt;/p&gt;
+&lt;p&gt;And for hierarchical clustering, we can select the best $k$ by stopping at the &amp;ldquo;Big Jump&amp;rdquo; of distances while performing agglomerative clustering.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Aggregation of Clustering Methods</title>
+      <link>https://binnz.github.io/post/2018-05-21-clustering-integration/</link>
+      <pubDate>Mon, 21 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2018-05-21-clustering-integration/</guid>
+      <description>&lt;p&gt;Since a large number of clustering algorithms exist, aggregating different clustered partitions into a single consolidated one to obtain better results has become an important problem.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Categorical Data Clustering</title>
+      <link>https://binnz.github.io/post/2018-05-07-k-modes/</link>
+      <pubDate>Mon, 07 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2018-05-07-k-modes/</guid>
+      <description>&lt;p&gt;Categorical Data Clustering, including k-modes and ROCK, will be introduced in this document.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Quick-Finding of the Nearest Center</title>
+      <link>https://binnz.github.io/post/2018-04-26-1nn/</link>
+      <pubDate>Thu, 26 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2018-04-26-1nn/</guid>
+      <description>&lt;p&gt;Quick-Finding of the Nearest Center is used for&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Fast k-means&lt;/li&gt;
+&lt;li&gt;Fast VQ (accelerating the compression speed of VQ)&lt;/li&gt;
+&lt;li&gt;Fast classification&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+    <item>
+      <title>Probabilistic D-Clustering</title>
+      <link>https://binnz.github.io/post/2018-04-16-pdc/</link>
+      <pubDate>Mon, 16 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2018-04-16-pdc/</guid>
+      <description>&lt;p&gt;Probabilistic D-Clustering is a new iterative method for probabilistic clustering of data.   Given clusters, their centers and the distances of data points from these centers, the probability of cluster membership at any point is assumed inversely proportional to the distance from (the center of) the cluster. This assumption is the working principle of Probabilistic D-Clustering.&lt;/p&gt;
+&lt;p&gt;At each iteration, the distances (Euclidean, Mahalanobis, etc.) from the cluster centers are computed for all data points, and the centers are updated as convex combinations of these points, with weights determined by the above principle.&lt;/p&gt;
+&lt;p&gt;Progress is monitored by the joint distance function, a measure of distance from all cluster centers, that evolves during the iterations, and captures the data in its low contours.&lt;/p&gt;
+&lt;p&gt;This method is simple, fast (requiring a small number of cheap iterations) and insensitive to outliers.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Vector Quantization and Its Variants</title>
+      <link>https://binnz.github.io/post/2018-04-09-vector-quantization/</link>
+      <pubDate>Mon, 09 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2018-04-09-vector-quantization/</guid>
+      <description>&lt;p&gt;The goal of Vector Quantization(VQ) is to perform compression and decompression using a given codebook.   So, annother question is, &lt;em&gt;&amp;ldquo;How to generate a codebook?&amp;quot;&lt;/em&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Analytical Data Clustering</title>
+      <link>https://binnz.github.io/post/2018-04-02-analytical-clustering/</link>
+      <pubDate>Mon, 02 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2018-04-02-analytical-clustering/</guid>
+      <description>&lt;p&gt;Analytical clustering is a quick and automatic way by preserving certain features of the input data. The method is analytical, deterministic, unsupervised, automatic, and noniterative.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Use Annealing Method to Avoid Local Minimum</title>
+      <link>https://binnz.github.io/post/2018-04-02-annealing-clustering/</link>
+      <pubDate>Mon, 02 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2018-04-02-annealing-clustering/</guid>
+      <description>&lt;p&gt;Local minima are still an important unsolved problem for artificial potential field approaches.   In order to overcome this problem, annealing methods are proposed to prevent being trapped in a local minimum point, and allows the computation to continue its trajectory towards the final destination.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>A Monothetic Clustering Method</title>
+      <link>https://binnz.github.io/post/2018-03-29-monothetic-clustering/</link>
+      <pubDate>Thu, 29 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2018-03-29-monothetic-clustering/</guid>
+      <description>&lt;p&gt;Monothetic Clustering is often used in Taxonomy.   For example, when you see a strange animal, how do you know if it&amp;rsquo;s never reported before? You may need to ask $N$ True-or-False questions.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Q1. animal? (yes/no)&lt;/li&gt;
+&lt;li&gt;Q2. with legs? (yes/no)&lt;/li&gt;
+&lt;li&gt;&amp;hellip;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;So $Monthetic$ means that every time we only use &lt;strong&gt;a single attribute(variable)&lt;/strong&gt; to cluster.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Fuzzy Clustering and Fuzzy k-Means</title>
+      <link>https://binnz.github.io/post/2018-03-25-fuzzy-clustering/</link>
+      <pubDate>Sun, 25 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2018-03-25-fuzzy-clustering/</guid>
+      <description>&lt;p&gt;Fuzzy clustering is the opposite of &amp;ldquo;Hard Clustering&amp;rdquo; (i.e., &amp;ldquo;Crispy Clustering&amp;rdquo;).&lt;/p&gt;
+&lt;p&gt;For example, every data point $x$ would claim its percentage belongness to every cluster $C_i$ ($1 \leq i \leq K$ where $K$ is the number of clusters).   However, the report will be too long as in this type of clustering representation.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Graph-Theoretical Method for Clustering</title>
+      <link>https://binnz.github.io/post/2018-03-15-graph-clustering/</link>
+      <pubDate>Thu, 15 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2018-03-15-graph-clustering/</guid>
+      <description>&lt;p&gt;In general, there are two steps in Graph Methods.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Step 1.&lt;/strong&gt; Construct a graph to connect all data (e.g., Minimal Spanning Tree, Relative Neighborhood Graph, Gabrial Graph, Delaunay Triangles, &amp;hellip;)&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Step 2.&lt;/strong&gt; Delete some edges which are too long (inconsistent edges)&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Peak-Climbing Data Clustering</title>
+      <link>https://binnz.github.io/post/2018-03-15-peak-climbing/</link>
+      <pubDate>Thu, 15 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2018-03-15-peak-climbing/</guid>
+      <description>&lt;p&gt;Peak-climbing is also called &amp;ldquo;mode-seeking&amp;rdquo; or &amp;ldquo;valley-seeking&amp;rdquo;.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Clustering on New York City Bike Dataset</title>
+      <link>https://binnz.github.io/post/2018-01-02-clustering-python/</link>
+      <pubDate>Tue, 02 Jan 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2018-01-02-clustering-python/</guid>
+      <description>&lt;p&gt;Our   major   task  here  is   turn   data   into   different   clusters and   explain   what
+the   cluster   means.    We will try spatial   clustering, temporal   clustering and the combination of both.&lt;/p&gt;
+&lt;p&gt;For each method of clustering, we will&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;try   &lt;strong&gt;at   least   2   values for   each parameter&lt;/strong&gt; in every algorithm.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;explain&lt;/strong&gt; the clustering result.&lt;/li&gt;
+&lt;li&gt;make   some &lt;strong&gt;observation&lt;/strong&gt; ,    &lt;strong&gt;compare&lt;/strong&gt;    different   method   and   parameters.&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+    <item>
+      <title>Data Mining - Advanced Concepts and Algorithms of Cluster Analysis</title>
+      <link>https://binnz.github.io/post/2017-09-24-advanced-clustering/</link>
+      <pubDate>Sun, 24 Sep 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-09-24-advanced-clustering/</guid>
+      <description>&lt;p&gt;Agglomerative clustering algorithms vary in terms of how the proximity of two clusters are computed. However, with MIN (single link), it is susceptible to noise/outliers; with MAX/GROUP AVERAGE, it may not work well with non-globular clusters.&lt;/p&gt;
+&lt;p&gt;So how can we deal with these two types of problem?&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Agglomerative Method for Hierarchical Clustering</title>
+      <link>https://binnz.github.io/post/2017-09-01-agg-clustering/</link>
+      <pubDate>Fri, 01 Sep 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-09-01-agg-clustering/</guid>
+      <description>&lt;p&gt;Agglomerative clustering &lt;strong&gt;start with the points as individual clusters&lt;/strong&gt;.   At each step, it &lt;strong&gt;merges the closest pair of clusters until only one cluster (or k clusters) left&lt;/strong&gt;.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Cluster Center Initialization Algorithms (CCIA)</title>
+      <link>https://binnz.github.io/post/2017-09-01-cluster-centroid-init/</link>
+      <pubDate>Fri, 01 Sep 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-09-01-cluster-centroid-init/</guid>
+      <description>&lt;p&gt;In iterative clustering algorithms, the procedure adopted for choosing initial cluster centers is extremely important as it has a direct impact on the formation of final clusters.   &lt;strong&gt;It is dangerous to select outliers as initial centers, since they are away from normal samples.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Cluster Center Initialization Algorithms (CCIA) is a density-based multi-scale data condensation.   This procedure is applicable to clustering algorithms for continuous data.   In CCIA, we assume that an individual attribute may provide some information about initial cluster center.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Data Mining - Basic Cluster Analysis</title>
+      <link>https://binnz.github.io/post/2017-09-01-clustering/</link>
+      <pubDate>Fri, 01 Sep 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-09-01-clustering/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;“The validation of clustering structures is the most difficult and frustrating part of cluster analysis.
+Without a strong effort in this direction, cluster analysis will remain a black art accessible only to those true believers who have experience and great courage.”&lt;/p&gt;
+&lt;p&gt;&amp;ndash; &lt;em&gt;Algorithms for Clustering Data&lt;/em&gt;, Jain and Dubes&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Clustering Analysis is finding groups of objects such that the objects in a group will be similar (or related) to one another and different from (or unrelated to) the objects in other groups such that&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Intra-cluster distances are minimized&lt;/li&gt;
+&lt;li&gt;Inter-cluster distances are maximized&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+    <item>
+      <title>Divisive Method for Hierarchical Clustering and Minimum Spanning Tree Clustering</title>
+      <link>https://binnz.github.io/post/2017-09-01-divisive-clustering/</link>
+      <pubDate>Fri, 01 Sep 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-09-01-divisive-clustering/</guid>
+      <description>&lt;p&gt;Divisive clustering &lt;strong&gt;starts with one, all-inclusive cluster&lt;/strong&gt;.   At each step, it &lt;strong&gt;splits a cluster until each cluster contains a point&lt;/strong&gt; (or there are k clusters).&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

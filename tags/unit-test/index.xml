@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Unit-Test on California Dreaming</title>
+    <link>https://binnz.github.io/tags/unit-test/</link>
+    <description>Recent content in Unit-Test on California Dreaming</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 30 Mar 2017 00:00:00 +0000</lastBuildDate><atom:link href="https://binnz.github.io/tags/unit-test/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Unit Testing in Python</title>
+      <link>https://binnz.github.io/post/2017-03-30-unit-testing-in-python/</link>
+      <pubDate>Thu, 30 Mar 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-03-30-unit-testing-in-python/</guid>
+      <description>&lt;p&gt;If you want to be able to change or rewrite your code and know you didn&amp;rsquo;t break anything, proper unit testing is imperative.&lt;/p&gt;
+&lt;p&gt;The unittest test framework is python’s xUnit style framework.
+It is a standard module that you already have if you’ve got python version 2.1 or greater.   The &lt;code&gt;unittest&lt;/code&gt; module used to be called PyUnit, due to it’s legacy as a xUnit style framework.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

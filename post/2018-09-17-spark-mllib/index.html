@@ -1,0 +1,1488 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Spark MLlib Programming Practice with Airline Dataset - California Dreaming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+  
+  <meta name="description" content="In this document, I will build a predictive framework for predicting whether each flight in 2006 will be cancelled or not by using the data from 2000 to 2005 as training data.
+Items to be delivered in this document includes:
+
+Show the predictive framework you designed. What features do you extract? What algorithms do you use in the framework?
+Explain the validation method you use.
+Explain the evaluation metric you use and show the effectiveness of your framework (i.e., use confusion matrix)
+Show the validation results and give a summary of results.
+">
+  
+  <meta itemprop="name" content="Spark MLlib Programming Practice with Airline Dataset - California Dreaming">
+  <meta itemprop="description" content="In this document, I will build a predictive framework for predicting whether each flight in 2006 will be cancelled or not by using the data from 2000 to 2005 as training data.
+Items to be delivered in this document includes:
+
+Show the predictive framework you designed. What features do you extract? What algorithms do you use in the framework?
+Explain the validation method you use.
+Explain the evaluation metric you use and show the effectiveness of your framework (i.e., use confusion matrix)
+Show the validation results and give a summary of results.
+">
+  <meta itemprop="image" content="https://binnz.github.io/img/author.jpg">
+  
+  
+  <meta name="twitter:description" content="">
+  
+  <link rel="shortcut icon" href="https://binnz.github.io/img/favicon.ico"/>
+  <link rel="apple-touch-icon" href="https://binnz.github.io/apple-touch-icon.png" />
+  <link rel="apple-touch-icon-precomposed" href="https://binnz.github.io/apple-touch-icon.png" />
+  <link rel="stylesheet" href="https://binnz.github.io/highlight/styles/github.css">
+  <script src="https://binnz.github.io/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  
+  <link rel="stylesheet" href="https://binnz.github.io/font/hack/css/hack.min.css">
+  <link rel="stylesheet" href="https://binnz.github.io/css/style.css">
+</head>
+
+<body>
+  <header>
+    <div>
+  <div style="height:150px; width:100%; clear:both;"></div>
+  <div id="textlogo">
+    <h1 class="site-name"><a href="https://binnz.github.io/" title="California Dreaming">California Dreaming</a></h1>
+    <h2 class="blog-motto"></h2>
+  </div>
+  <div class="navbar"><a class="navbutton navmobile" href="#" title="menu"></a></div>
+			<div style="height:50px; width:100%; clear:both;"></div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="menu">
+			</a><div style="height:50px; width:100%; clear:both;"></div></div>
+  <nav class="animated">
+    <ul>
+      
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/post/">Archives</a></li>
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      <li>
+        <form class="search" method="get" action="https://www.google.com/search">
+          <div>
+            <input type="text" id="search" name="q" placeholder='Search'>
+          </div>
+        </form>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+  </header>
+  <div id="container">
+    <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+      <a href="https://binnz.github.io/post/2018-09-17-spark-mllib/" title="Spark MLlib Programming Practice with Airline Dataset" itemprop="url">Spark MLlib Programming Practice with Airline Dataset</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="" title="">you</a>
+    
+  </p>
+  <p class="article-time">
+    <time datetime="2018-09-17 00:00:00 &#43;0000 UTC" itemprop="datePublished">2018-09-17</time>
+  </p>
+</header>
+
+	<div class="article-content">
+    
+    <p>In this document, I will build a predictive framework for predicting whether each flight in <code>2006</code> will be cancelled or not by using the data from <code>2000</code> to <code>2005</code> as training data.</p>
+<p>Items to be delivered in this document includes:</p>
+<ol>
+<li>Show the predictive framework you designed. What features do you extract? What algorithms do you use in the framework?</li>
+<li>Explain the validation method you use.</li>
+<li>Explain the evaluation metric you use and show the effectiveness of your framework (i.e., use confusion matrix)</li>
+<li>Show the validation results and give a summary of results.</li>
+</ol>
+<h2 id="i-analytic-tool">I. Analytic Tool</h2>
+<p><code>Apache Spark™</code> is an unified analytics engine for large-scale data processing.   To deploy Spark program on Hadoop Platform, you may choose either one program language from Java, Scala, and Python.   In this document, I will use <code>Python</code> Language to implement Spark programs.</p>
+<p><code>MLlib</code>/<code>ML</code> is Spark’s machine learning (ML) library. Its goal is to make practical machine learning scalable and easy. At a high level, it provides tools such as:</p>
+<ol>
+<li><strong>ML Algorithms</strong>: common learning algorithms such as classification, regression, clustering, and collaborative filtering</li>
+<li><strong>Featurization</strong>: feature extraction, transformation, dimensionality reduction, and selection</li>
+<li><strong>Pipelines</strong>: tools for constructing, evaluating, and tuning ML Pipelines</li>
+<li><strong>Persistence</strong>: saving and load algorithms, models, and Pipelines</li>
+<li><strong>Utilities</strong>: linear algebra, statistics, data handling, etc.</li>
+</ol>
+<p>Here are some useful links for the programming guide of Spark’s machine learning (ML) library and its model evaluation metrics:</p>
+<ul>
+<li><a href="https://spark.apache.org/docs/latest/ml-guide.html">Machine Learning Library (MLlib) Guide</a></li>
+<li><a href="https://spark.apache.org/docs/1.3.0/ml-guide.html">Spark ML Programming Guide</a></li>
+<li><a href="https://spark.apache.org/docs/latest/api/python/pyspark.ml">pyspark.ml package</a></li>
+<li><a href="https://spark.apache.org/docs/latest/api/python/pyspark.mllib">pyspark.mllib package</a></li>
+<li><a href="https://spark.apache.org/docs/2.1.0/ml-features.html">Extracting, transforming and selecting features</a></li>
+<li><a href="https://spark.apache.org/docs/2.1.0/mllib-feature-extraction.html">Feature Extraction and Transformation - RDD-based API</a></li>
+<li><a href="https://spark.apache.org/docs/2.2.0/mllib-evaluation-metrics.html">Evaluation Metrics - RDD-based API</a></li>
+<li><a href="https://spark.apache.org/docs/2.2.0/ml-tuning.html">ML Tuning: model selection and hyperparameter tuning</a></li>
+<li><a href="https://stackoverflow.com/questions/32331848/create-a-custom-transformer-in-pyspark-ml">Create a custom Transformer in PySpark ML</a></li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="o">%</span><span class="n">pyspark</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">SparkContext</span> 
+<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SQLContext</span>
+<span class="kn">import</span> <span class="nn">pyspark.sql.functions</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.classification</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.util</span> <span class="kn">import</span> <span class="n">MLUtils</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.feature</span> <span class="kn">import</span> <span class="n">OneHotEncoder</span><span class="p">,</span> <span class="n">StringIndexer</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">,</span> <span class="n">Imputer</span><span class="p">,</span> <span class="n">VectorAssembler</span><span class="p">,</span> <span class="n">SQLTransformer</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.evaluation</span> <span class="kn">import</span> <span class="n">BinaryClassificationMetrics</span><span class="p">,</span> <span class="n">MulticlassMetrics</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.tuning</span> <span class="kn">import</span> <span class="n">CrossValidator</span><span class="p">,</span> <span class="n">ParamGridBuilder</span><span class="p">,</span> <span class="n">CrossValidatorModel</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.evaluation</span> <span class="kn">import</span> <span class="n">BinaryClassificationEvaluator</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml</span> <span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">PipelineModel</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.linalg</span> <span class="kn">import</span> <span class="n">Vectors</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="ii-dataset">II. Dataset</h2>
+<p><a href="http://stat-computing.org/dataexpo/2009/">Airline on-time performance dataset</a> consists of flight arrival and departure details for all commercial flights within the USA, from October 1987 to April 2008. This is a large dataset: there are nearly <strong>120 million records</strong> in total, and takes up 1.6 gigabytes of space compressed and <strong>12 gigabytes</strong> when uncompressed.</p>
+<h3 id="a-supplement-data">A. Supplement Data</h3>
+<p>If you need further information, the <a href="http://stat-computing.org/dataexpo/2009/supplemental-data.html">supplement data</a> describes the locations of US airports, listing of carrier codes, information about individual planes, and meteorological data.</p>
+<h3 id="b-flight-data">B. Flight Data</h3>
+<p>The Schema of the flight data is as follows</p>
+<ul>
+<li>Year int,</li>
+<li>Month int,</li>
+<li>DayofMonth int,</li>
+<li>DayOfWeek int,</li>
+<li>DepTime  int,</li>
+<li>CRSDepTime int,</li>
+<li>ArrTime int,</li>
+<li>CRSArrTime int,</li>
+<li>UniqueCarrier varchar(5),</li>
+<li>FlightNum int,</li>
+<li>TailNum varchar(8),</li>
+<li>ActualElapsedTime int,</li>
+<li>CRSElapsedTime int,</li>
+<li>AirTime int,</li>
+<li>ArrDelay int,</li>
+<li>DepDelay int,</li>
+<li>Origin varchar(3),</li>
+<li>Dest varchar(3),</li>
+<li>Distance int,</li>
+<li>TaxiIn int,</li>
+<li>TaxiOut int,</li>
+<li>Cancelled int,</li>
+<li>CancellationCode varchar(1),</li>
+<li>Diverted varchar(1),</li>
+<li>CarrierDelay int,</li>
+<li>WeatherDelay int,</li>
+<li>NASDelay int,</li>
+<li>SecurityDelay int,</li>
+<li>LateAircraftDelay int</li>
+</ul>
+<p>Here the flight dataset from <code>2000</code> to <code>2006</code> is downloaded to the directory <code>../data/</code> using the shell command <code>wget</code>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">%sh
+
+mkdir ../data
+mkdir ../data/train
+mkdir ../data/test
+
+<span class="k">for</span> i in <span class="m">2000</span> <span class="m">2001</span> <span class="m">2002</span> <span class="m">2003</span> <span class="m">2004</span> <span class="m">2005</span>
+<span class="k">do</span>
+  wget -nv -O ../data/train/<span class="nv">$i</span>.csv.bz2 http://stat-computing.org/dataexpo/2009/<span class="nv">$i</span>.csv.bz2
+  bzip2 -d ../data/train/<span class="nv">$i</span>.csv.bz2
+<span class="k">done</span>
+
+wget -nv -O ../data/test/2006.csv.bz2 http://stat-computing.org/dataexpo/2009/2006.csv.bz2
+bzip2 -d ../data/test/2006.csv.bz2
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="iii-program-workflow--execution-commands">III. Program Workflow &amp; Execution Commands</h2>
+<p>The program workflow is shown in the figure below, which will be elaborated in the next section.</p>
+<p><img src="https://i.imgur.com/fyoKt5K.png" alt=""></p>
+<p>To execute the program <code>main.py</code> (which includes both training and testing phase), the following command is used.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">$ pyspark main.py --packages com.databricks:spark-csv_2.10:1.5.0 <span class="se">\
+</span><span class="se"></span>                  --driver-memory<span class="o">=</span>2g --executor-memory<span class="o">=</span>7g <span class="se">\
+</span><span class="se"></span>                  --num-executors<span class="o">=</span><span class="m">8</span> --executor-cores<span class="o">=</span><span class="m">4</span> <span class="se">\
+</span><span class="se"></span>                  --conf <span class="s2">&#34;spark.storage.memoryFraction=1&#34;</span> <span class="se">\
+</span><span class="se"></span>                  --conf <span class="s2">&#34;spark.akka.frameSize=200&#34;</span> <span class="se">\
+</span><span class="se"></span>                  --conf <span class="s2">&#34;spark.default.parallelism=100&#34;</span> <span class="se">\
+</span><span class="se"></span>                  --conf <span class="s2">&#34;spark.core.connection.ack.wait.timeout=600&#34;</span> <span class="se">\
+</span><span class="se"></span>                  --conf <span class="s2">&#34;spark.yarn.executor.memoryOverhead=2048&#34;</span> <span class="se">\
+</span><span class="se"></span>                  --conf <span class="s2">&#34;spark.yarn.driver.memoryOverhead=400&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Note that the followings are required in advance.</p>
+<ul>
+<li>Make input/output directories on HDFS.</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ hadoop fs -mkdir HW4/input
+$ hadoop fs -mkdir HW4/input/train
+$ hadoop fs -mkdir HW4/input/test
+$ hadoop fs -mkdir HW4/output
+$ hadoop fs -mkdir HW4/output/model
+$ hadoop fs -mkdir HW4/output/preprocessor
+$ hadoop fs -mkdir HW4/output/results
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>Copy the input files (airline dataset) to input directory on HDFS (<code>HW4/input/train</code> and <code>HW4/input/test</code>).</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ hadoop fs -copyFromLocal ../data/train/*.csv HW4/input/train
+$ hadoop fs -copyFromLocal ../data/test/*.csv HW4/input/test
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>Make a logging ouput directory in local file system (<code>./log</code>)</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ mkdir log
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="iv-the-predictive-framework">IV. The Predictive Framework</h2>
+<p>Here I will build a predictive framework for predicting whether each flight in <code>2006</code> will be cancelled or not by using the data from <code>2000</code> to <code>2005</code> as training data items.</p>
+<p>In this framework, I utilize Spark&rsquo;s <code>Pipelines</code> and <code>PipelineModels</code>, which help to ensure that training and test data go through identical feature processing steps.</p>
+<h3 id="a-training-phase">A. Training Phase</h3>
+<p>In the training phase, only training data can be seen.   So we will use <code>k-fold</code> cross validation to help select the best parameters and also evaluate the performance of the model we trained.</p>
+<p>The overview of our training process in shown in the figure below.</p>
+<img style="width:350px" src="https://i.imgur.com/KSj2sHQ.png">
+<p><strong>Step 1. Load the Training Data</strong></p>
+<p>In the flight dataset, some columns are not appropriate to use as attributes if we want to predict whether a flight will be cancelled or not.    For example, if we use <code>CancellationCode</code> as an attribute, then we can always succesfully &ldquo;predict&rdquo; if a flight is cancelled or not.   Actually, to prevent <strong>data leakage problem</strong>, we should not use any attributes that cannot be known before the flight takes place.</p>
+<p>That is why in this step we first select some columns.   Afterwards, we also determine which columns are categorical columns and which are not.   To deal with missing values, the imputation method we use is stated as below.</p>
+<ul>
+<li>Categorical Attributes: use the <code>highest-occurences</code> value of each attribute</li>
+<li>Numerical Attributes: use the <code>mean</code> value of each attribute</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="o">%</span><span class="n">pyspark</span>
+
+<span class="c1"># List numerical features &amp; categorical features</span>
+<span class="n">target_col</span> <span class="o">=</span> <span class="s2">&#34;Cancelled&#34;</span>
+<span class="n">use_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">,</span> <span class="s1">&#39;Month&#39;</span><span class="p">,</span> <span class="s1">&#39;DayofMonth&#39;</span><span class="p">,</span> <span class="s1">&#39;DayOfWeek&#39;</span><span class="p">,</span> <span class="s1">&#39;CRSDepTime&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;CRSArrTime&#39;</span><span class="p">,</span> <span class="s1">&#39;UniqueCarrier&#39;</span><span class="p">,</span> <span class="s1">&#39;FlightNum&#39;</span><span class="p">,</span> <span class="s1">&#39;TailNum&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;CRSElapsedTime&#39;</span><span class="p">,</span> <span class="s1">&#39;Origin&#39;</span><span class="p">,</span> <span class="s1">&#39;Dest&#39;</span><span class="p">,</span> <span class="s1">&#39;Distance&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;TaxiIn&#39;</span><span class="p">,</span> <span class="s1">&#39;TaxiOut&#39;</span><span class="p">,</span> <span class="s1">&#39;Cancelled&#39;</span><span class="p">]</span>
+<span class="n">cate_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;Month&#34;</span><span class="p">,</span> <span class="s1">&#39;DayOfWeek&#39;</span><span class="p">,</span> <span class="s1">&#39;UniqueCarrier&#39;</span><span class="p">,</span> <span class="s1">&#39;FlightNum&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;TailNum&#39;</span><span class="p">,</span> <span class="s1">&#39;Origin&#39;</span><span class="p">,</span> <span class="s1">&#39;Dest&#39;</span><span class="p">]</span>
+<span class="n">num_cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">use_cols</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">cate_cols</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">target_col</span><span class="p">]))</span>
+
+<span class="c1"># Load Training Data</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">train</span><span class="p">)</span>  
+
+<span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="c1"># Load DataFrame</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;com.databricks.spark.csv&#39;</span><span class="p">)</span>\
+                    <span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">header</span><span class="o">=</span><span class="s1">&#39;true&#39;</span><span class="p">)</span>\
+                    <span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="c1"># Select useful columns (drop columns that should not be known </span>
+    <span class="c1"># before the flight take place) </span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">use_cols</span><span class="p">)</span>
+
+    <span class="c1"># Impute numerical features</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">num_cols</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s1">&#39;double&#39;</span><span class="p">))</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="n">col</span><span class="p">:</span><span class="s1">&#39;mean&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">collect</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">isNull</span><span class="p">(),</span> <span class="n">mu</span><span class="p">)</span>\
+                           <span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]))</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="n">target_col</span><span class="p">]</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s1">&#39;double&#39;</span><span class="p">))</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isNotNull</span><span class="p">())</span>
+
+    <span class="c1"># Impute categorical features</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cate_cols</span><span class="p">:</span>
+        <span class="n">frq</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>\
+                            <span class="o">.</span><span class="n">orderBy</span><span class="p">(</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> \
+                            <span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">isNull</span><span class="p">()</span> <span class="o">|</span> 
+                                       <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">)),</span> <span class="n">frq</span><span class="p">)</span> \
+                                <span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]))</span>
+
+    <span class="c1"># Assure there is no missing values</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">num_cols</span> <span class="o">+</span> <span class="n">cate_cols</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]:</span>
+        <span class="k">assert</span> <span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">isNull</span><span class="p">())</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> 
+                        <span class="s2">&#34;Column &#39;</span><span class="si">{}</span><span class="s2">&#39; exists NULL value(s)&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> 
+                        <span class="s2">&#34;Column &#39;</span><span class="si">{}</span><span class="s2">&#39; exists empty string(s)&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>Step 2. Create a Pre-Processor to Extract Features from Training Data</strong></p>
+<p>To pre-process both numerical attributes and categorical attributes, the following feature extraction/transformation processes are used successively.</p>
+<ol>
+<li><code>StringIndexer</code>: StringIndexer encodes a string column of labels to a column of label indices.</li>
+<li><code>OneHotEncoder</code>: One-hot encoding <strong>maps a column of label indices to a column of binary vectors, with at most a single one-value</strong>. This encoding allows algorithms which expect continuous features, such as Logistic Regression, to use categorical features.</li>
+<li><code>VectorAssembler</code>: VectorAssembler is a transformer that <strong>combines a given list of columns into a single vector column</strong>.</li>
+<li><code>StandardScaler</code>: StandardScaler transforms a dataset of Vector rows, <strong>normalizing each feature</strong> to have unit standard deviation and/or zero mean. It takes parameters:
+<ul>
+<li><em>withStd</em>: True by default. Scales the data to unit standard deviation.</li>
+<li><em>withMean</em>: False by default. Centers the data with mean before scaling. It will build a dense output, so this does not work on sparse input and will raise an exception.</li>
+</ul>
+</li>
+</ol>
+<p>After defining these feature extractor/tranformer, we create a <code>PipelineModel</code> by concatenate them and apply it on the training data to extract features.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="o">%</span><span class="n">pyspark</span>
+
+<span class="c1"># Pre-Process</span>
+<span class="n">preprocessor</span> <span class="o">=</span> <span class="n">gen_preprocessor</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>   
+<span class="n">df</span> <span class="o">=</span> <span class="n">preprocessor</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> 
+
+<span class="c1"># Save Pre-Processor for later usage</span>
+<span class="n">preprocessor</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&#34;</span><span class="si">{}</span><span class="s2">/preprocessor&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">output</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">gen_preprocessor</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+    <span class="c1"># String Indexing for categorical features</span>
+    <span class="n">indexers</span> <span class="o">=</span> <span class="p">[</span><span class="n">StringIndexer</span><span class="p">(</span><span class="n">inputCol</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> 
+                              <span class="n">outputCol</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">{}</span><span class="s2">_idx&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col</span><span class="p">))</span> \
+                              <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cate_cols</span><span class="p">]</span>
+    
+    <span class="c1"># One-hot encoding for categorical features</span>
+    <span class="n">encoders</span> <span class="o">=</span> <span class="p">[</span><span class="n">OneHotEncoder</span><span class="p">(</span><span class="n">inputCol</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">{}</span><span class="s2">_idx&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> 
+                              <span class="n">outputCol</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">{}</span><span class="s2">_oh&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col</span><span class="p">))</span> \
+                              <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cate_cols</span><span class="p">]</span>
+
+    <span class="c1"># Concat Feature Columns</span>
+    <span class="n">assembler</span> <span class="o">=</span> <span class="n">VectorAssembler</span><span class="p">(</span><span class="n">inputCols</span> <span class="o">=</span> <span class="n">num_cols</span> <span class="o">+</span> \
+                            <span class="p">[</span><span class="s2">&#34;</span><span class="si">{}</span><span class="s2">_oh&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cate_cols</span><span class="p">],</span> 
+                            <span class="n">outputCol</span> <span class="o">=</span> <span class="s2">&#34;_features&#34;</span><span class="p">)</span>
+    
+    <span class="c1"># Standardize Features</span>
+    <span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">(</span><span class="n">inputCol</span><span class="o">=</span><span class="s1">&#39;_features&#39;</span><span class="p">,</span> 
+                            <span class="n">outputCol</span><span class="o">=</span><span class="s1">&#39;features&#39;</span><span class="p">,</span> 
+                            <span class="n">withStd</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">withMean</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">preprocessor</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">stages</span> <span class="o">=</span> <span class="n">indexers</span> <span class="o">+</span> <span class="n">encoders</span> <span class="o">+</span> \
+                                     <span class="p">[</span><span class="n">assembler</span><span class="p">,</span> <span class="n">scaler</span><span class="p">])</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">preprocessor</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>Step 3. Train Logistic Regression Model</strong></p>
+<p>In our predictive framework, the model we use is <code>Logistic Regression Classifier</code>, which is widely used to predict a binary response.   In statistics, the logistic model is a statistical model with input (independent variable) a continuous variable and output (dependent variable) a binary variable, where a unit change in the input multiplies the odds of the two possible outputs by a constant factor.   For binary classification problems, the algorithm outputs a binary logistic regression model.</p>
+<p>In <code>spark.ml</code>, two algorithms have been implemented to solve logistic regression: <em>mini-batch gradient descent</em> and <em>L-BFGS</em>.    <strong>L-BFGS</strong> is used in our predictive framework for faster convergence.</p>
+<p>Besides the fact that we have decided the model to be used, we also need to find its best parameters for a given task.</p>
+<p>We tackle this <em>tuning</em> task using <code>CrossValidator</code>, which takes an <em>Estimator</em> (i.e., logistic regression in this case), a set of <em>ParamMaps</em> (i.e., regularization parameter (&gt;= 0) of logistic regression model in this case), and an <em>Evaluator</em> (i.e. area under precision-recall curve in this case).</p>
+<p><code>CrossValidator</code> begins by splitting the dataset into a set of folds which are used as separate training and test datasets.   For example, with <code>k=3</code> folds, CrossValidator will generate 3 (training, test) dataset pairs, each of which uses 2/3 of the data for training and 1/3 for testing.   For each ParamMap, <code>CrossValidator</code> trains the given Estimator and evaluates it using the given Evaluator.    Note that we use <code>k=10</code> in our predictive framework (10-fold cross validation).</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="o">%</span><span class="n">pyspark</span>
+
+<span class="c1"># Logistic Regression Classifier</span>
+<span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">maxIter</span><span class="o">=</span><span class="mi">10</span><span class="o">^</span><span class="mi">5</span><span class="p">)</span>
+    
+<span class="c1"># Train the 10-fold Cross Validator</span>
+<span class="n">cvModel</span> <span class="o">=</span> <span class="n">CrossValidator</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="n">Pipeline</span><span class="p">(</span><span class="n">stages</span> <span class="o">=</span> <span class="p">[</span><span class="n">lr</span><span class="p">]),</span>
+            <span class="n">estimatorParamMaps</span><span class="o">=</span><span class="n">ParamGridBuilder</span><span class="p">()</span> \
+                                <span class="o">.</span><span class="n">addGrid</span><span class="p">(</span><span class="n">lr</span><span class="o">.</span><span class="n">regParam</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">])</span> \
+                                <span class="o">.</span><span class="n">build</span><span class="p">(),</span>
+            <span class="n">evaluator</span><span class="o">=</span><span class="n">BinaryClassificationEvaluator</span><span class="p">(</span><span class="n">metricName</span><span class="o">=</span><span class="s1">&#39;areaUnderPR&#39;</span><span class="p">),</span>
+            <span class="n">numFolds</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+<span class="c1"># Save the best model for later usage</span>
+<span class="n">cvModel</span><span class="o">.</span><span class="n">bestModel</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&#34;</span><span class="si">{}</span><span class="s2">/model&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">output</span><span class="p">))</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>Step 4.Evaluate the Model Trained with 10-fold Cross Validation</strong></p>
+<p>After the <code>Logistic Regression Classifier</code> is trained and the best parameters are chosen, we can evaluate the performance of this model on the training data.</p>
+<p>The evaluation metrics we use are</p>
+<ul>
+<li>area under ROC (receiver operating characteristic curve)</li>
+<li>area under Precision-Recall curve</li>
+<li>confusion matrix</li>
+<li>overall precision</li>
+<li>overall recall</li>
+<li>overall f1 score</li>
+<li>precision, recall, and f1 score for each class</li>
+</ul>
+<img style="width:300px" src="https://i.imgur.com/yqsVGVt.png">
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="o">%</span><span class="n">pyspark</span>
+
+<span class="c1"># Evaluate on Training Set</span>
+<span class="n">predictionAndLabels</span> <span class="o">=</span> <span class="n">cvModel</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">log</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">predictionAndLabels</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/train.json&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">log</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+    
+<span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="n">predictionAndLabels</span><span class="p">):</span>
+    <span class="n">log</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Show Validation Score (AUROC)</span>
+    <span class="n">evaluator</span> <span class="o">=</span> <span class="n">BinaryClassificationEvaluator</span><span class="p">(</span><span class="n">metricName</span><span class="o">=</span><span class="s1">&#39;areaUnderROC&#39;</span><span class="p">)</span>
+    <span class="n">log</span><span class="p">[</span><span class="s1">&#39;AUROC&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">%f</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">predictionAndLabels</span><span class="p">)</span>    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;Area under ROC = </span><span class="si">{}</span><span class="s2">&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;AUROC&#39;</span><span class="p">]))</span>
+
+    <span class="c1"># Show Validation Score (AUPR)</span>
+    <span class="n">evaluator</span> <span class="o">=</span> <span class="n">BinaryClassificationEvaluator</span><span class="p">(</span><span class="n">metricName</span><span class="o">=</span><span class="s1">&#39;areaUnderPR&#39;</span><span class="p">)</span>
+    <span class="n">log</span><span class="p">[</span><span class="s1">&#39;AUPR&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">%f</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">predictionAndLabels</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;Area under PR = </span><span class="si">{}</span><span class="s2">&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;AUPR&#39;</span><span class="p">]))</span>
+
+    <span class="c1"># Metrics</span>
+    <span class="n">predictionRDD</span> <span class="o">=</span> <span class="n">predictionAndLabels</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s1">&#39;label&#39;</span><span class="p">,</span> <span class="s1">&#39;prediction&#39;</span><span class="p">])</span> \
+                            <span class="o">.</span><span class="n">rdd</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">line</span><span class="p">:</span> <span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">metrics</span> <span class="o">=</span> <span class="n">MulticlassMetrics</span><span class="p">(</span><span class="n">predictionRDD</span><span class="p">)</span>
+
+    <span class="c1"># Confusion Matrix</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">metrics</span><span class="o">.</span><span class="n">confusionMatrix</span><span class="p">()</span><span class="o">.</span><span class="n">toArray</span><span class="p">())</span>
+
+    <span class="c1"># Overall statistics</span>
+    <span class="n">log</span><span class="p">[</span><span class="s1">&#39;precision&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="n">metrics</span><span class="o">.</span><span class="n">precision</span><span class="p">()</span>
+    <span class="n">log</span><span class="p">[</span><span class="s1">&#39;recall&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="n">metrics</span><span class="o">.</span><span class="n">recall</span><span class="p">()</span>
+    <span class="n">log</span><span class="p">[</span><span class="s1">&#39;F1 Measure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="n">metrics</span><span class="o">.</span><span class="n">fMeasure</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;[Overall]</span><span class="se">\t</span><span class="s2">precision = </span><span class="si">%s</span><span class="s2"> | recall = </span><span class="si">%s</span><span class="s2"> | F1 Measure = </span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> \
+            <span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;precision&#39;</span><span class="p">],</span> <span class="n">log</span><span class="p">[</span><span class="s1">&#39;recall&#39;</span><span class="p">],</span> <span class="n">log</span><span class="p">[</span><span class="s1">&#39;F1 Measure&#39;</span><span class="p">]))</span>
+
+    <span class="c1"># Statistics by class</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
+        <span class="n">log</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">log</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="s1">&#39;precision&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="n">metrics</span><span class="o">.</span><span class="n">precision</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+        <span class="n">log</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="s1">&#39;recall&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="n">metrics</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+        <span class="n">log</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="s1">&#39;F1 Measure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="n">metrics</span><span class="o">.</span><span class="n">fMeasure</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> 
+                                                           <span class="n">beta</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;[Class </span><span class="si">%s</span><span class="s2">]</span><span class="se">\t</span><span class="s2">precision = </span><span class="si">%s</span><span class="s2"> | recall = </span><span class="si">%s</span><span class="s2"> | F1 Measure = </span><span class="si">%s</span><span class="s2">&#34;</span> \
+                  <span class="o">%</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">log</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="s1">&#39;precision&#39;</span><span class="p">],</span> 
+                    <span class="n">log</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="s1">&#39;recall&#39;</span><span class="p">],</span> <span class="n">log</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="s1">&#39;F1 Measure&#39;</span><span class="p">]))</span>
+
+    <span class="k">return</span> <span class="n">log</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="b-testing-phase">B. Testing Phase</h3>
+<p>In the testing phase, I will use the logistic regression classifier trained on the training data (flights in <code>2001~2005</code>) to make predictions with the testing data (flights in <code>2006</code>).</p>
+<p>The overview of our training process in shown in the figure below.</p>
+<p><img src="https://i.imgur.com/cmmSNaw.png" alt=""></p>
+<p>Note that we will use the same pre-processor to make sure the testing data go through the same feature processing steps.</p>
+<p><strong>Step 1. Load Testing Data</strong></p>
+<p>Here we load the testing data and select the same columns as we use in the training phase.</p>
+<p>Note that we impute the numerical attributes and categorical attributes by the <code>mean</code> values and <code>highest-occurrences</code> values in the testing data (instead of that in the training data) respectively.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="o">%</span><span class="n">pyspark</span>
+
+<span class="c1"># Load Testing Data</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">test</span><span class="p">)</span> 
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>Step 2. Extract Features by Applying the Pre-Processor on Testing Data</strong></p>
+<p>Here we use the same preprocessor we use in the training phase to pre-process the testing data.</p>
+<p>However, the problem is that there may be unseen labels that did not appear in training data.   To deal with it, we simply filter out those rows and apply the preprocessor on the testing data afterwards.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="o">%</span><span class="n">pyspark</span>
+
+<span class="c1"># Pre-Process</span>
+<span class="n">preprocessor</span> <span class="o">=</span> <span class="n">PipelineModel</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">preprocessor</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">preprocess</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">preprocessor</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">preprocessor</span><span class="p">):</span>
+    <span class="n">dic</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="o">.</span><span class="n">_java_obj</span><span class="o">.</span><span class="n">getInputCol</span><span class="p">():</span> 
+            <span class="p">[</span><span class="n">lab</span> <span class="k">for</span> <span class="n">lab</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">_java_obj</span><span class="o">.</span><span class="n">labels</span><span class="p">()]</span> \
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">preprocessor</span><span class="o">.</span><span class="n">stages</span> \
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">StringIndexerModel</span><span class="p">)}</span>
+
+    <span class="c1"># Filter out unseen labels </span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cate_cols</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">dic</span><span class="p">[</span><span class="n">col</span><span class="p">]))</span>
+    
+    <span class="c1"># Assure there is no unseen values</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cate_cols</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">dic</span><span class="p">[</span><span class="n">col</span><span class="p">])</span> <span class="o">==</span> <span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> 
+                <span class="s2">&#34;Column &#39;</span><span class="si">{}</span><span class="s2">&#39; exists unseen label(s)&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+    
+    <span class="n">df</span> <span class="o">=</span> <span class="n">preprocessor</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>Step 3. Make Predictions Using our Logistic Regrssion Classifier</strong></p>
+<p>Next, we predict whether a flight will be cancelled or not in <code>2006</code> using the logistic regression classifier we trained on the trainig data (flights in <code>2001~2005</code>).</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="o">%</span><span class="n">pyspark</span>
+
+<span class="c1"># Logistic Regression Classification</span>
+<span class="n">cvModel</span> <span class="o">=</span> <span class="n">PipelineModel</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+<span class="n">predictionAndLabels</span> <span class="o">=</span> <span class="n">cvModel</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+<span class="c1"># Save Prediction Results</span>
+<span class="n">predictionAndLabels</span><span class="o">.</span><span class="n">write</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">)</span>\
+                   <span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&#34;</span><span class="si">{}</span><span class="s2">/results&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">output</span><span class="p">))</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>Step 4. Evaluate the Testing Performance</strong></p>
+<p>Lastly, we use the following metrics to evaluate the testing performance.</p>
+<ul>
+<li>area under ROC (receiver operating characteristic curve)</li>
+<li>area under Precision-Recall curve</li>
+<li>confusion matrix</li>
+<li>overall precision</li>
+<li>overall recall</li>
+<li>overall f1 score</li>
+<li>precision, recall, and f1 score for each class</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="o">%</span><span class="n">pyspark</span>
+
+<span class="c1"># Evaluate on Testing Set</span>
+<span class="n">log</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">predictionAndLabels</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/test.json&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">log</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="v-validation-method-evaluation-metric-and-results">V. Validation Method, Evaluation Metric, and Results</h2>
+<p>In this section, I will show how well our predictive framework works on both training data and testing data.</p>
+<h3 id="a-model-validation-on-training-set">A. Model Validation on Training Set</h3>
+<p>The validation method we used in our predictive framework is <code>10-fold Cross Validation</code>.</p>
+<p>Cross-validation is a model validation technique for assessing how the results of a statistical analysis will generalize to an independent data set. It is mainly used in settings where the goal is prediction, and one wants to estimate how accurately a predictive model will perform in practice.</p>
+<p>The result of model validation on training data is shown as below.</p>
+<p><img style="width:45%" src="https://i.imgur.com/q0CiAW9.png"><img style="width:45%" src="https://i.imgur.com/kUdPJdM.png"></p>
+<p>By checking the confusion matrix, we can see that</p>
+<ol>
+<li>There is a data imbalence probelm that the number of Class 0.0(<code>Not Cancelled</code>) is about <code>43</code> times larger than that of Class 1.0(<code>Cancelled</code>).</li>
+<li>Among all <code>Cancelled</code> flights, about <code>69%</code> are correctly predicted as <code>Cancelled</code>.</li>
+<li>Among all flights being predicted as <code>Cancelled</code>, more than <code>99%</code> are truely <code>Cancelled</code> flights.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Precision</th>
+<th>Recall</th>
+<th>F1 Score</th>
+<th>Area under ROC</th>
+<th>Area under PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Overall</td>
+<td>0.992945546078</td>
+<td>0.992945546078</td>
+<td>0.992945546078</td>
+<td>0.981035</td>
+<td>0.817182</td>
+</tr>
+<tr>
+<td>Class 0.0 <br>(<code>Not Cancelled</code>)</td>
+<td>0.992847084173</td>
+<td>0.999987728664</td>
+<td>0.996404613385</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Class 1.0 <br>(<code>Cancelled</code>)</td>
+<td>0.999223200859</td>
+<td>0.686622491843</td>
+<td>0.813940596166</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Given the evaluation metrics, the validation results show that</p>
+<ol>
+<li>The overall precision and recall are both good (&gt; 0.99)</li>
+<li>The Class 0.0(<code>Not Cancelled</code>) precision and recall are both good as well (&gt; 0.99)</li>
+<li>The Class 1.0(<code>Not Cancelled</code>) precision is good (&gt; 0.99) but iits recall is a little worse (0.68) due to the data imbalence problem.</li>
+</ol>
+<!--```sh
+[CRSElapsedTime] # missing values: 270
+[TailNum] # missing values: 56387
+```-->
+<h3 id="b-evaluation-on-testing-set">B. Evaluation on Testing Set</h3>
+<p><img style="width:45%" src="https://i.imgur.com/AOerFBN.png"><img style="width:45%" src="https://i.imgur.com/8xmKsSo.png"></p>
+<p>By checking the confusion matrix, we can see that</p>
+<ol>
+<li>There is a data imbalence probelm that the number of Class 0.0(<code>Not Cancelled</code>) is about <code>58</code> times larger than that of Class 1.0(<code>Cancelled</code>).</li>
+<li>Among all <code>Cancelled</code> flights, about <code>75%</code> are correctly predicted as <code>Cancelled</code>.</li>
+<li>Among all flights being predicted as <code>Cancelled</code>, more than <code>99%</code> are truely <code>Cancelled</code> flights.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Precision</th>
+<th>Recall</th>
+<th>F1 Score</th>
+<th>Area under ROC</th>
+<th>Area under PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Overall</td>
+<td>0.995517407226</td>
+<td>0.995517407226</td>
+<td>0.995517407226</td>
+<td>0.979634</td>
+<td>0.826068</td>
+</tr>
+<tr>
+<td>Class 0.0 <br>(<code>Not Cancelled</code>)</td>
+<td>0.995478844317</td>
+<td>0.999982376073</td>
+<td>0.997725528213</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Class 1.0 <br>(<code>Cancelled</code>)</td>
+<td>0.9985983131</td>
+<td>0.734367717185</td>
+<td>0.846338994256</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Given the evaluation metrics, the evaluation results show that</p>
+<ol>
+<li>The overall precision and recall are both good (&gt; 0.99)</li>
+<li>The Class 0.0(<code>Not Cancelled</code>) precision and recall are both good as well (&gt; 0.99)</li>
+<li>The Class 1.0(<code>Not Cancelled</code>) precision is good (&gt; 0.99) but iits recall is a little worse (0.73) due to the data imbalence problem.</li>
+</ol>
+<!--
+|  | UniqueCarrier | FlightNum | TailNum | Origin | Dest |
+| - | - | - | - | - | - |
+| Number of Unseen Labels | 304764 | 28921 | 482600 | 7267 | 7289 |
+```sh
+[CRSElapsedTime] # missing values: 4
+[UniqueCarrier] # unseen labels: 304764
+[FlightNum] # unseen labels: 28921
+[TailNum] # unseen labels: 482600
+[Origin] # unseen labels: 7267
+[Dest] # unseen labels: 7289
+```-->
+<h2 id="vi-discussion">VI. Discussion</h2>
+<p>In the process of building up the predictive framework in this document, the first trouble that I came across was to understand the difference between <code>ml</code> package and <code>mllib</code> package.   I was using <code>mllib</code> packages, which is RDD-based, until I realize that <code>ml</code> packages, which is Dataset-based, actually provides a uniform set of <strong>high-level</strong> APIs.    I later decided to use <code>mlllib</code> packages, which can help create and tune practical machine learning pipelines.</p>
+<p>Another problem I met was the version problem.   I was originally testing my program on my own computer, which uses Spark 2.2.0, with a small subset of the trainig/testing data.    By Spark version 2.2.0, the selection of feature transformer is much wiser (e.g., <code>Imputer</code>, <code>SQLTransformer</code>) and the functionalities of <code>PipelineModel</code> class is more complete (e.g., <code>save()</code>, <code>load()</code>).   So it really caused me troubles when I need to run my program on a platform that uses Spark 1.5.0.   I need to seek for alternatives for some functionalities that Spark 1.5.0 hasn&rsquo;t provided yet.</p>
+<p>The last issue I encountered was the &ldquo;Exexcutor Lost Error&rdquo;.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">ERROR cluster.YarnScheduler: Lost executor ... on ...: 
+                             remote Rpc client disassociated
+</code></pre></td></tr></table>
+</div>
+</div><p>Initially I was thinking it of a random error, so I just execute my program again.   However, this error was reproduced again and again.   I eventually found out that it is because that we were not leaving sufficient memory for YARN itself and containers were being killed because of it.   Thus, we should solve this issue by introducing some configuration parameters <code>spark.akka.frameSize</code> and <code>spark.executor.memoryOverhead</code>.</p>
+<p><code>spark.akka.frameSize</code> controls maximum message size (in MB) to allow in &ldquo;control plane&rdquo; communication (defualt: <code>128</code>). It generally only applies to map output size information sent between executors and the driver. We should increase this because we are running jobs with many thousands of map and reduce tasks for the sake of large amount data we are using.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">--conf spark.akka.frameSize<span class="o">=</span><span class="m">200</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><code>spark.executor.memoryOverhead</code> controls the amount of off-heap memory to be allocated per executor, in MiB unless otherwise specified (default: <code>driverMemory*0.1</code>, with minimum <code>384</code>). This is memory that accounts for things like VM overheads, interned strings, other native overheads, etc. This tends to grow with the executor size (typically 6-10%).   So that&rsquo;s why we should set this value a lot higher than default to prevent executor lost error.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-sh" data-lang="sh">--conf spark.yarn.executor.memoryOverhead<span class="o">=</span><span class="m">2048</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="vii-references">VII. References</h2>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Logistic_regression">Logistic regression - Wikipedia</a></li>
+<li><a href="https://newbiettn.github.io/2016/08/30/precision-recall-sensitivity-specificity/">Ngoc Tran - Precision, Recall, Sensitivity and Specificity</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Cross-validation_(statistics)">Cross-validation (statistics) - Wikipedia</a></li>
+<li><a href="https://mapr.com/blog/predicting-breast-cancer-using-apache-spark-machine-learning-logistic-regression/">Predicting Breast Cancer Using Apache Spark Machine Learning Logistic Regression</a></li>
+</ul>
+    
+	</div>
+  <footer class="article-footer clearfix">
+  
+
+<div class="article-tags">
+  <span></span>
+  
+  <a href="https://binnz.github.io/tags/data-mining">Data-Mining</a>
+  
+  <a href="https://binnz.github.io/tags/spark">Spark</a>
+  
+  <a href="https://binnz.github.io/tags/python">Python</a>
+  
+  <a href="https://binnz.github.io/tags/machine-learning">Machine-Learning</a>
+  
+  <a href="https://binnz.github.io/tags/classification">Classification</a>
+  
+</div>
+
+
+
+
+
+<div class="article-categories">
+  <span></span>
+  
+  <a class="article-category-link" href="https://binnz.github.io/categories/programming">Programming</a>
+  
+</div>
+
+
+
+  <div class="article-share" id="share">
+    <div data-url="https://binnz.github.io/post/2018-09-17-spark-mllib/" data-title="Spark MLlib Programming Practice with Airline Dataset" data-tsina="" class="share clearfix">
+    </div>
+  </div>
+</footer>
+
+	</article>
+  
+
+
+<section class="comment">
+<div id="disqus_thread"></div>
+</section>
+<script>
+  <!-- detect whether Disuqs can load -->
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', '//disqus.com/next/config.json?' + new Date().getTime(), true);
+  xhr.timeout = 3000; 
+
+  xhr.onload = function() { 
+
+
+var disqus_config = function () {
+this.page.url = "https://binnz.github.io/post/2018-09-17-spark-mllib/";
+this.page.identifier = "https://binnz.github.io/post/2018-09-17-spark-mllib/";
+};
+(function() { 
+var d = document, s = d.createElement('script');
+
+s.src = '//disc.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+}
+  xhr.ontimeout = function() {
+  <!-- cannot load Disqus, skip it. -->
+  return;
+}
+xhr.send(null);
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+    <div class="openaside"><a class="navbutton" href="#" title="Show SideBar"></a></div>
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide SideBar"></a></div>
+<aside class="clearfix">
+  
+
+<div class="categorieslist">
+  <p class="asidetitle">Categories</p>
+  <ul>
+    
+    <li><a href="https://binnz.github.io/categories/install" title="install">install<sup>2</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/life" title="life">life<sup>1</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/notes" title="notes">notes<sup>50</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/programming" title="programming">programming<sup>25</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/projects" title="projects">projects<sup>2</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/publications" title="publications">publications<sup>1</sup></a></li>
+    
+  </ul>
+</div>
+
+
+
+  
+
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+      
+			<li><a href="https://binnz.github.io/tags/ANDROID" title="android">android<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/APACHE-PIG" title="apache-pig">apache-pig<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/ASSOCIATION-ANALYSIS" title="association-analysis">association-analysis<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/BEER" title="beer">beer<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CLASSIFICATION" title="classification">classification<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CLUSTERING" title="clustering">clustering<sup>19</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CONFERENCE" title="conference">conference<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATA-MINING" title="data-mining">data-mining<sup>64</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATA-SCIENCE" title="data-science">data-science<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATABASE" title="database">database<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DEEP-LEARNING" title="deep-learning">deep-learning<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/ELASTICSEARCH" title="elasticsearch">elasticsearch<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/GRAPH" title="graph">graph<sup>12</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/HADOOP" title="hadoop">hadoop<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/INFORMATION-RETRIEVAL" title="information-retrieval">information-retrieval<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/JAVA" title="java">java<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/MACHINE-LEARNING" title="machine-learning">machine-learning<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NEURAL-NETWORK" title="neural-network">neural-network<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NLP" title="nlp">nlp<sup>4</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NLTK" title="nltk">nltk<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/PYTHON" title="python">python<sup>15</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/R" title="r">r<sup>4</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/RELATION-ALGEBRA" title="relation-algebra">relation-algebra<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SCIKIT-LEARN" title="scikit-learn">scikit-learn<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SPARK" title="spark">spark<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SQL" title="sql">sql<sup>3</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/STATISTICS" title="statistics">statistics<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/STREAMING" title="streaming">streaming<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/TIME-SERIES" title="time-series">time-series<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/TRAVEL" title="travel">travel<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/UNIT-TEST" title="unit-test">unit-test<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/VBA" title="vba">vba<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/WINDOWS" title="windows">windows<sup>1</sup></a></li>
+      
+		</ul>
+</div>
+
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle">Archives</p>
+    <ul class="archive-list">
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2021-06">2021年06月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2020-05">2020年05月</a><span class="archive-list-count">12</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2019-09">2019年09月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-09">2018年09月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-08">2018年08月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-06">2018年06月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-05">2018年05月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-04">2018年04月</a><span class="archive-list-count">5</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-03">2018年03月</a><span class="archive-list-count">5</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-01">2018年01月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-12">2017年12月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-11">2017年11月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-10">2017年10月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-09">2017年09月</a><span class="archive-list-count">10</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-08">2017年08月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-07">2017年07月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-05">2017年05月</a><span class="archive-list-count">3</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-04">2017年04月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-03">2017年03月</a><span class="archive-list-count">20</span>
+      </li>
+      
+    </ul>
+
+  </div>
+
+
+  
+
+<div class="tagcloudlist">
+  <p class="asidetitle">Tags Cloud</p>
+  <div class="tagcloudlist clearfix">
+    
+    <a href="https://binnz.github.io/tags/android" style="font-size: 12px;">android</a>
+    
+    <a href="https://binnz.github.io/tags/apache-pig" style="font-size: 12px;">apache-pig</a>
+    
+    <a href="https://binnz.github.io/tags/association-analysis" style="font-size: 12px;">association-analysis</a>
+    
+    <a href="https://binnz.github.io/tags/beer" style="font-size: 12px;">beer</a>
+    
+    <a href="https://binnz.github.io/tags/classification" style="font-size: 12px;">classification</a>
+    
+    <a href="https://binnz.github.io/tags/clustering" style="font-size: 12px;">clustering</a>
+    
+    <a href="https://binnz.github.io/tags/conference" style="font-size: 12px;">conference</a>
+    
+    <a href="https://binnz.github.io/tags/data-mining" style="font-size: 12px;">data-mining</a>
+    
+    <a href="https://binnz.github.io/tags/data-science" style="font-size: 12px;">data-science</a>
+    
+    <a href="https://binnz.github.io/tags/database" style="font-size: 12px;">database</a>
+    
+    <a href="https://binnz.github.io/tags/deep-learning" style="font-size: 12px;">deep-learning</a>
+    
+    <a href="https://binnz.github.io/tags/elasticsearch" style="font-size: 12px;">elasticsearch</a>
+    
+    <a href="https://binnz.github.io/tags/graph" style="font-size: 12px;">graph</a>
+    
+    <a href="https://binnz.github.io/tags/hadoop" style="font-size: 12px;">hadoop</a>
+    
+    <a href="https://binnz.github.io/tags/information-retrieval" style="font-size: 12px;">information-retrieval</a>
+    
+    <a href="https://binnz.github.io/tags/java" style="font-size: 12px;">java</a>
+    
+    <a href="https://binnz.github.io/tags/machine-learning" style="font-size: 12px;">machine-learning</a>
+    
+    <a href="https://binnz.github.io/tags/neural-network" style="font-size: 12px;">neural-network</a>
+    
+    <a href="https://binnz.github.io/tags/nlp" style="font-size: 12px;">nlp</a>
+    
+    <a href="https://binnz.github.io/tags/nltk" style="font-size: 12px;">nltk</a>
+    
+    <a href="https://binnz.github.io/tags/python" style="font-size: 12px;">python</a>
+    
+    <a href="https://binnz.github.io/tags/r" style="font-size: 12px;">r</a>
+    
+    <a href="https://binnz.github.io/tags/relation-algebra" style="font-size: 12px;">relation-algebra</a>
+    
+    <a href="https://binnz.github.io/tags/scikit-learn" style="font-size: 12px;">scikit-learn</a>
+    
+    <a href="https://binnz.github.io/tags/spark" style="font-size: 12px;">spark</a>
+    
+    <a href="https://binnz.github.io/tags/sql" style="font-size: 12px;">sql</a>
+    
+    <a href="https://binnz.github.io/tags/statistics" style="font-size: 12px;">statistics</a>
+    
+    <a href="https://binnz.github.io/tags/streaming" style="font-size: 12px;">streaming</a>
+    
+    <a href="https://binnz.github.io/tags/time-series" style="font-size: 12px;">time-series</a>
+    
+    <a href="https://binnz.github.io/tags/travel" style="font-size: 12px;">travel</a>
+    
+    <a href="https://binnz.github.io/tags/unit-test" style="font-size: 12px;">unit-test</a>
+    
+    <a href="https://binnz.github.io/tags/vba" style="font-size: 12px;">vba</a>
+    
+    <a href="https://binnz.github.io/tags/windows" style="font-size: 12px;">windows</a>
+    
+  </div>
+</div>
+
+
+
+  
+
+</aside>
+</div>
+
+  </div>
+  <footer><div id="footer" >
+  <div class="line">
+    <span></span>
+    
+    <div style='background:no-repeat url("https://binnz.github.io/img/US-MT-EPS-02-6001.png") left top;-webkit-background-size:6.875em 6.875em;-moz-background-size:6.875em 6.875em;background-size:6.875em 6.875em;' class="author" ></div>
+  </div>
+  <section class="info">
+    <p>hehe</p>
+  </section>
+  <div class="social-font clearfix">
+    <a href='http://weibo.com/coderzh' target="_blank" title="weibo"></a>
+    <a href='https://twitter.com/coderzh' target="_blank" title="twitter"></a>
+    <a href='https://github.com/binnz' target="_blank" class="icon-github" title="github"></a>
+    <a href='https://www.facebook.com/coderzh' target="_blank" title="facebook"></a>
+    <a href='https://www.linkedin.com/coderzh' target="_blank" title="linkedin"></a>
+  </div>
+  <p class="copyright">Powered by <a href="http://gohugo.io" target="_blank" title="hugo">hugo</a> and Theme by <a href="https://github.com/coderzh/hugo-pacman-theme" target="_blank" title="hugo-pacman-theme">hugo-pacman-theme</a> © 2021
+    
+    <a href="https://binnz.github.io/" title="California Dreaming">California Dreaming</a>
+    
+  </p>
+</div>
+</footer>
+  <script src="https://binnz.github.io/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+done = false;
+$(document).ready(function(){
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize();
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  $('form.search').on('submit', function (event) {
+    if (false === done) {
+      event.preventDefault();
+      var orgVal = $(this).find('#search').val();
+      $(this).find('#search').val('site:https:\/\/binnz.github.io\/ ' + orgVal);
+      done = true;
+      $(this).submit();
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://b.bshare.cn/barCode?site=weixin&url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});
+</script>
+
+
+
+
+
+</body>
+</html>

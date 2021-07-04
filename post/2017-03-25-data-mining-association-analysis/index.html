@@ -1,0 +1,1157 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Data Mining - Association Analysis - California Dreaming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+  
+  <meta name="description" content="Association analysis is useful for discovering interesting relationships hidden in large data sets.   The uncovered relationships can be represented in the form of association rules or sets of frequent items.
+For example, given a table of market basket transactions
+
+
+
+TID
+Items
+
+
+
+
+1
+{Bread, Milk}
+
+
+2
+{Bread, Diapers, Beer, Eggs}
+
+
+3
+{Milk, Diapers, Beer, Cola}
+
+
+4
+{Bread, Milk, Diapers, Beer}
+
+
+5
+{Bread, Milk, Diapers, Cola}
+
+
+
+The follwing rule can be extracted from the table:
+$$
+{Milk, Diaper} \rightarrow {Beer}
+$$
+A common strategy adopted by many association rule mining algorithms is to decompose the problem into 2 major subtasks:
+1. Frequent Itemset Generation
+Find all the itemsets that satisfy the minsup threshold.
+2. Rule Generation">
+  
+  <meta itemprop="name" content="Data Mining - Association Analysis - California Dreaming">
+  <meta itemprop="description" content="Association analysis is useful for discovering interesting relationships hidden in large data sets.   The uncovered relationships can be represented in the form of association rules or sets of frequent items.
+For example, given a table of market basket transactions
+
+
+
+TID
+Items
+
+
+
+
+1
+{Bread, Milk}
+
+
+2
+{Bread, Diapers, Beer, Eggs}
+
+
+3
+{Milk, Diapers, Beer, Cola}
+
+
+4
+{Bread, Milk, Diapers, Beer}
+
+
+5
+{Bread, Milk, Diapers, Cola}
+
+
+
+The follwing rule can be extracted from the table:
+$$
+{Milk, Diaper} \rightarrow {Beer}
+$$
+A common strategy adopted by many association rule mining algorithms is to decompose the problem into 2 major subtasks:
+1. Frequent Itemset Generation
+Find all the itemsets that satisfy the minsup threshold.
+2. Rule Generation">
+  <meta itemprop="image" content="https://binnz.github.io/img/author.jpg">
+  
+  
+  <meta name="twitter:description" content="">
+  
+  <link rel="shortcut icon" href="https://binnz.github.io/img/favicon.ico"/>
+  <link rel="apple-touch-icon" href="https://binnz.github.io/apple-touch-icon.png" />
+  <link rel="apple-touch-icon-precomposed" href="https://binnz.github.io/apple-touch-icon.png" />
+  <link rel="stylesheet" href="https://binnz.github.io/highlight/styles/github.css">
+  <script src="https://binnz.github.io/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  
+  <link rel="stylesheet" href="https://binnz.github.io/font/hack/css/hack.min.css">
+  <link rel="stylesheet" href="https://binnz.github.io/css/style.css">
+</head>
+
+<body>
+  <header>
+    <div>
+  <div style="height:150px; width:100%; clear:both;"></div>
+  <div id="textlogo">
+    <h1 class="site-name"><a href="https://binnz.github.io/" title="California Dreaming">California Dreaming</a></h1>
+    <h2 class="blog-motto"></h2>
+  </div>
+  <div class="navbar"><a class="navbutton navmobile" href="#" title="menu"></a></div>
+			<div style="height:50px; width:100%; clear:both;"></div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="menu">
+			</a><div style="height:50px; width:100%; clear:both;"></div></div>
+  <nav class="animated">
+    <ul>
+      
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/post/">Archives</a></li>
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      <li>
+        <form class="search" method="get" action="https://www.google.com/search">
+          <div>
+            <input type="text" id="search" name="q" placeholder='Search'>
+          </div>
+        </form>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+  </header>
+  <div id="container">
+    <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+      <a href="https://binnz.github.io/post/2017-03-25-data-mining-association-analysis/" title="Data Mining - Association Analysis" itemprop="url">Data Mining - Association Analysis</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="" title="">you</a>
+    
+  </p>
+  <p class="article-time">
+    <time datetime="2017-03-25 00:00:00 &#43;0000 UTC" itemprop="datePublished">2017-03-25</time>
+  </p>
+</header>
+
+	<div class="article-content">
+    
+    <p>Association analysis is useful for discovering interesting relationships hidden in large data sets.   The uncovered relationships can be represented in the form of <strong>association rules</strong> or sets of frequent items.</p>
+<p>For example, given a table of market basket transactions</p>
+<table>
+<thead>
+<tr>
+<th>TID</th>
+<th>Items</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>{Bread, Milk}</td>
+</tr>
+<tr>
+<td>2</td>
+<td>{Bread, Diapers, Beer, Eggs}</td>
+</tr>
+<tr>
+<td>3</td>
+<td>{Milk, Diapers, Beer, Cola}</td>
+</tr>
+<tr>
+<td>4</td>
+<td>{Bread, Milk, Diapers, Beer}</td>
+</tr>
+<tr>
+<td>5</td>
+<td>{Bread, Milk, Diapers, Cola}</td>
+</tr>
+</tbody>
+</table>
+<p>The follwing rule can be extracted from the table:</p>
+<p>$$
+{Milk, Diaper} \rightarrow {Beer}
+$$</p>
+<p>A common strategy adopted by many association rule mining algorithms is to decompose the problem into 2 major subtasks:</p>
+<p><strong>1. Frequent Itemset Generation</strong></p>
+<p>Find all the itemsets that satisfy the <em>minsup</em> threshold.</p>
+<p><strong>2. Rule Generation</strong></p>
+<p>Extract all the high-confidence rules (<em>strong rules</em>) from the frequent itemsets found in the previous step.</p>
+<p><img src="https://i.imgur.com/RiwE2Oe.png" alt=""></p>
+<h2 id="definitions">Definitions</h2>
+<h3 id="support-count">Support Count</h3>
+<p>$$
+\sigma(X) = \left|{ {t_{i}|X \subset t_{i}, t_{i} \in T}} \right|
+$$</p>
+<ul>
+<li>$I={i_{1}, i{2}, &hellip;, i_{N}}$ is the set of all items</li>
+<li>$T={t_{1}, t_{2}, &hellip;, t_{N}}$ is the set of all transactions</li>
+<li>Each $t_{i}$ is a transaction which conatins a subset of items chosen from $I$</li>
+<li>$X$ is a subset of $t_{i}$</li>
+</ul>
+<h3 id="association-rule">Association Rule</h3>
+<p>An associasion rule is an implication expression of the form $X \rightarrow Y$, where $X$ and $Y$ are disjoint itemsets ($X \cap Y= \varnothing$).</p>
+<p>The strength of an association rule can be measured in terms of its <strong>support</strong> and <strong>confidence</strong>.   A rule that has very low support may occur simply by chance.   Confidence measures the reliability of the inference made by a rule.</p>
+<ul>
+<li><strong>Support</strong> of an association rule $X \rightarrow Y$
+<ul>
+<li>$\sigma(X)$ is the support count of $X$</li>
+<li>$N$ is the count of the transactions set $T$.</li>
+</ul>
+</li>
+</ul>
+<p>$$
+s(X \rightarrow Y) = \frac{\sigma(X \cup Y)}{N}
+$$</p>
+<ul>
+<li><strong>Confidence</strong> of an association rule $X \rightarrow Y$
+<ul>
+<li>$\sigma(X)$ is the support count of $X$</li>
+<li>$N$ is the count of the transactions set $T$.</li>
+</ul>
+</li>
+</ul>
+<p>$$
+conf(X \rightarrow Y) = \frac{\sigma(X \cup Y)}{\sigma(X)}
+$$</p>
+<ul>
+<li><strong>Interest</strong> of an association rule $X \rightarrow Y$
+<ul>
+<li>$P(Y) = s(Y)$ is the support of $Y$ (fraction of baskets that contain $Y$)</li>
+<li>If interest of a rule is close to 1, then it is uninteresting.
+<ul>
+<li>$I(X \rightarrow Y)=1 \rightarrow X$ and $Y$ are independent</li>
+<li>$I(X \rightarrow Y)&gt;1 \rightarrow X$ and $Y$ are positive correlated</li>
+<li>$I(X \rightarrow Y)&lt;1 \rightarrow X$ and $Y$ are negative correlated</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>$$
+I(X \rightarrow Y) = \frac{P(X,Y)}{P(X) \times P(Y)}
+$$</p>
+<p>For example, given a table of market basket transactions:</p>
+<table>
+<thead>
+<tr>
+<th>TID</th>
+<th>Items</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>{Bread, Milk}</td>
+</tr>
+<tr>
+<td>2</td>
+<td>{Bread, Diaper, Beer, Eggs}</td>
+</tr>
+<tr>
+<td>3</td>
+<td>{Milk, Diaper, Beer, Coke}</td>
+</tr>
+<tr>
+<td>4</td>
+<td>{Bread, Milk, Diaper, Beer}</td>
+</tr>
+<tr>
+<td>5</td>
+<td>{Bread, Milk, Diaper, Coke}</td>
+</tr>
+</tbody>
+</table>
+<p>We can conclude that</p>
+<p>$$
+s({Milk, Diaper} \rightarrow {Beer}) = 2/5 = 0.4
+$$</p>
+<p>$$
+conf({Milk, Diaper} \rightarrow {Beer}) = 2/3 = 0.67
+$$</p>
+<p>$$
+I({Milk, Diaper} \rightarrow {Beer}) = \frac{2/5}{3/5 \times 3/5} = 10/9 = 1.11
+$$</p>
+<h2 id="frequent-itemset-generation">Frequent Itemset Generation</h2>
+<p>A lattice structure can be used to enumerate the list of all possible itemsets:</p>
+<p><img src="https://i.imgur.com/04r1a8L.png" alt=""></p>
+<p>However, the cost of frequent itemset generation is large.   Given $d$ items, there are $2^d$ possible candidate itemsets.   There are several ways to reduce the computational complexity of frequent itemset generation:</p>
+<ol>
+<li>Reduce the number of candidate itemsets ($M$): <a href="#frequent-itemset-generation-using-apriori">The <em>Apriori</em> Principle</a></li>
+<li>Reduce the number of comparison while counting supports:
+By using more advanced data structures, we can reduce the number of comparisons for matching each candidate itemset against every transaction.</li>
+</ol>
+<p><img src="https://i.imgur.com/GR5EA5x.png" alt=""></p>
+<p>Factors Affecting Complexity:</p>
+<ul>
+<li><strong>Choice of minimum support threshold</strong>
+lowering support threshold results in more frequent itemsets.   This may increase number of candidates and max length of frequent itemsets</li>
+<li><strong>Dimensionality (number of items) of the data set</strong>
+More space is needed to store support count of each item.</li>
+<li><strong>Number of transactions</strong>
+Since Apriori makes multiple passes, run time of algorithm may increase with number of transactions.</li>
+<li><strong>Average transaction width</strong>
+This may increase max length of frequent itemsets and traversals of hash tree.</li>
+</ul>
+<h3 id="frequent-itemset-generation-using-aprioriapriori">Frequent Itemset Generation Using <a href="./apriori">Apriori</a></h3>
+<p><strong>The Apriori Principle</strong>:</p>
+<p>If an itemset is frequent, then all of its subsets must also be frequent.
+Conversely, if an subset is infrequent, then all of its supersets must be infrequent, too.</p>
+<p><img src="https://i.imgur.com/5j1It8G.png" alt=""></p>
+<p><strong>Aprioir Algorithm:</strong></p>
+<ul>
+<li>Generate frequent itemsets of length k (initially k=1)</li>
+<li>Repeat until no new frequent itemsets are identified
+<ul>
+<li>Generate length (k+1) candidate itemsets from length k frequent itemsets</li>
+<li>Prune length (k+1) candidate itemsets that contain subsets of length k that are infrequent</li>
+<li>Count the support of each candidate</li>
+<li>Eliminate length (k+1) candidates that are infrequent</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">k</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">F</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">all</span> <span class="n">frequent</span> <span class="mi">1</span><span class="o">-</span><span class="n">itemsets</span>
+<span class="k">while</span> <span class="n">F</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">!=</span> <span class="n">Empty</span> <span class="n">Set</span><span class="p">:</span>
+    <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="c1">## Candidate Itemsets Generation and Pruning</span>
+    <span class="n">C</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">candidate</span> <span class="n">itemsets</span> <span class="n">generated</span> <span class="n">by</span> <span class="n">F</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1">## Support Counting</span>
+    <span class="k">for</span> <span class="n">transaction</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">T</span><span class="p">:</span>
+        <span class="n">C</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">subset</span><span class="p">(</span><span class="n">C</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">t</span><span class="p">)</span>     <span class="c1"># Identify all candidates that belong to t</span>
+        <span class="k">for</span> <span class="n">candidate</span> <span class="n">itemset</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">C</span><span class="p">[</span><span class="n">t</span><span class="p">]:</span>
+            <span class="n">support_count</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># Increment support count</span>
+
+    <span class="n">F</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span> <span class="o">|</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">C</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="ow">and</span> <span class="n">support_count</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">&gt;=</span><span class="n">N</span><span class="o">*</span><span class="n">minsup</span><span class="p">}</span>
+
+<span class="k">return</span> <span class="n">F</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="nb">all</span> <span class="n">values</span> <span class="n">of</span> <span class="n">k</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="frequent-itemset-generation-using-eclat">Frequent Itemset Generation Using ECLAT</h3>
+<p>Instead of horizontal data layout, ECLAT uses vertical data layout to store a list of transaction ids for each item.</p>
+<p><img src="https://i.imgur.com/99QaH9Y.png" alt=""></p>
+<ul>
+<li>Advantage: very fast support counting</li>
+<li>Disadvantage: intermediate tid-lists may become too large for memory</li>
+</ul>
+<h3 id="frequent-itemset-generation-using-fp-growthfrequent-itemset-generation-using-fp-growth">Frequent Itemset Generation Using <a href="./frequent-itemset-generation-using-fp-growth">FP-Growth</a></h3>
+<p>FP-Growth uses FP-tree (Frequent Pattern Tree), a compressed representation of the database.   Once an FP-tree has been constructed, it uses a recursive divide-and-conquer approach to mine the frequent itemsets.</p>
+<p><strong>Build Tree</strong></p>
+<blockquote>
+<p>How to construct a FP-Tree?</p>
+</blockquote>
+<ol>
+<li>Create the root node (null)</li>
+<li>Scan the database, get the frequent itemsets of length 1, and sort these $1$-itemsets in decreasing support count.</li>
+<li>Read a transaction at a time.   <strong>Sort</strong> items in the transaction acoording to the last step.</li>
+<li>For each transaction, insert items to the FP-Tree from the root node and increment occurence record at every inserted node.</li>
+<li>Create a new child node if reaching the leaf node before the insersion completes.</li>
+<li>If a new child node is created, <strong>link</strong> it from the last node consisting of the same item.</li>
+</ol>
+<p><strong>Mining Tree</strong></p>
+<blockquote>
+<p>How to mine the frequent itemsets using the FP-Tree?</p>
+</blockquote>
+<p>FP-Growth finds all the frequent itemsets ending with a particular suffix by employing a divide-and-conquer strategy to split the problem into smaller subproblems.</p>
+<ol>
+<li>Using the pointer in the header table, decompose the FP-Tree into multiple subtrees, each represent a subproblem (ex. finding frequent itemsets ending in $e$)</li>
+<li>For each subproblem, traverse the corresponding subtree bottom-up to obtain <strong>conditional pattern bases</strong> for the subproblem recursively.</li>
+</ol>
+<p><strong>Benefits of using FP-Tree structure:</strong></p>
+<ul>
+<li>No need to generate itemset candidates</li>
+<li>No need to scan the database frequently. (Only 2 pass is needed.)</li>
+</ul>
+<h2 id="rule-generation">Rule Generation</h2>
+<p>Given a frequent itemset $L$, find all non-empty subsets $f \subset L$ such that $f \rightarrow L – f$ satisfies the minimum <a href="#association-rule">confidence</a> requirement.</p>
+<p>If |$L$| = $k$, then there are $2k – 2$ candidate association rules (ignoring $L \rightarrow \varnothing – f$ and $\varnothing \rightarrow L$)</p>
+<p>So how to efficiently generate rules from frequent itemsets?</p>
+<h3 id="confidence-based-pruning">Confidence-Based Pruning</h3>
+<p>In general, confidence does not have an anti-monotone property.   But <strong>confidence of rules generated from the same itemset</strong> has an <strong>anti-
+monotone</strong> property:</p>
+<p>$$
+L = {A,B,C,D}
+\<br>
+c(ABC \rightarrow D) \geq c(AB \rightarrow CD) \geq c(A \rightarrow BCD)
+$$</p>
+<p>If we compare rules generated from the same frequent itemset $Y$, the following theorem holds for the confidence measure:</p>
+<blockquote>
+<p>If a rule $X \rightarrow Y$ does not satisfy the confidence threshold, then any rule $X' \rightarrow Y-X'$ (where $X' \subset X$), must not satisfy the confidence threshold as well.</p>
+</blockquote>
+<p><img src="https://i.imgur.com/L2jXSFl.png" alt=""></p>
+<h3 id="rule-generation-in-apriori-algorithm">Rule Generation in Apriori Algorithm</h3>
+<p>Candidate rule is generated by merging two rules that share the same prefix in the rule consequent.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">F</span> <span class="o">=</span> <span class="n">frequent</span> <span class="n">k</span><span class="o">-</span><span class="n">itemsets</span> <span class="k">for</span> <span class="n">k</span><span class="o">&gt;=</span><span class="mi">2</span>
+<span class="k">for</span> <span class="n">itemset</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">F</span><span class="p">:</span>
+    <span class="n">H</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">itemsets</span> <span class="ow">in</span> <span class="n">f</span> 
+    <span class="n">rules</span> <span class="o">+=</span> <span class="n">ap_genrules</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">H</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="k">return</span> <span class="n">rules</span>
+
+<span class="k">def</span> <span class="nf">ap_genrules</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">H</span><span class="p">):</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">size</span> <span class="n">of</span> <span class="n">itemset</span> <span class="n">f</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">size</span> <span class="n">of</span> <span class="n">itemsets</span> <span class="ow">in</span> <span class="n">H</span>
+    <span class="k">if</span> <span class="n">k</span><span class="o">&gt;</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">H</span><span class="p">[</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="n">itemsets</span> <span class="ow">in</span> <span class="n">f</span>
+        <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">H</span><span class="p">[</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">conf</span> <span class="o">=</span> <span class="n">support_count</span><span class="p">[</span><span class="n">f</span><span class="p">]</span><span class="o">/</span><span class="n">support_count</span><span class="p">[</span><span class="n">f</span><span class="o">-</span><span class="n">h</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">conf</span> <span class="o">&gt;=</span> <span class="n">minconf</span><span class="p">:</span>
+                <span class="n">output</span> <span class="n">the</span> <span class="n">rule</span> <span class="p">(</span><span class="n">f</span><span class="o">-</span><span class="n">h</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">h</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">H</span><span class="p">[</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">H</span><span class="p">[</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">h</span>
+        <span class="n">ap_genrules</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">H</span><span class="p">[</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="compact-representation-of-frequent-itemsets">Compact Representation of Frequent Itemsets</h2>
+<p>In practice, the number of frequent itemsets produced from a transaction data set can be very large. It is useful to identify a small representation set of itemsets from which all other frequent itemsets can be derived.</p>
+<p>To reduce the number of rules we can post-process them and only output:</p>
+<ul>
+<li>
+<p>Maximal frequent itemsets</p>
+<ul>
+<li>No immediate superset is frequent</li>
+<li>Gives more pruning</li>
+</ul>
+</li>
+<li>
+<p>Closed itemsets</p>
+<ul>
+<li>No immediate superset has the same count</li>
+<li>Stores not only frequent information, but exact counts</li>
+</ul>
+</li>
+</ul>
+<h3 id="maximal-frequent-itemsets">Maximal Frequent Itemsets</h3>
+<blockquote>
+<p>An itemset is <strong>maximal frequent</strong> if none of its immediate supersets is frequent.</p>
+</blockquote>
+<p><img src="https://i.imgur.com/iSDbt5C.png" alt=""></p>
+<p>For example, the frequent itemsets in above Figure can be derived into 2 groups:</p>
+<ul>
+<li>Frequent itemsets that begin with item $a$, and may contain items $c$, $d$, or $e$.</li>
+<li>Frequent itemsets that begin with items $b$, $c$, $d$, or $e$.</li>
+</ul>
+<p>Maximal frequent itemsets provide a valuable representation for data sets that can produce very long, frequent itemsets, as there are exponentially many frequent itemsets in such data.</p>
+<p>Despite providing a compact representation, maximal frequent itemsets do not contains the support information of their subsets.</p>
+<h3 id="closed-frequent-itemsets">Closed Frequent Itemsets</h3>
+<blockquote>
+<p>An itemset is <strong>closed</strong> if none of its immediate supersets has the same support as the itemset.</p>
+</blockquote>
+<blockquote>
+<p>An itemset is <strong>closed frequent</strong> if it is closed and its support is greater than or equal to <em>minsup</em>.</p>
+</blockquote>
+<p>Algorithms are available to explicitly extract closed frequent itemsets from a given data set.   With this compact representation, we can count support of the frequent itemsets efficciently:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">C</span> <span class="o">=</span> <span class="n">the</span> <span class="nb">set</span> <span class="n">of</span> <span class="n">closed</span> <span class="n">frequent</span> <span class="n">itemsets</span>
+<span class="n">k_max</span> <span class="o">=</span> <span class="n">the</span> <span class="n">maximun</span> <span class="n">size</span> <span class="n">of</span> <span class="n">closed</span> <span class="n">frequent</span> <span class="n">itemsets</span>
+<span class="n">F</span><span class="p">[</span><span class="n">k_max</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span> <span class="nb">set</span> <span class="n">of</span> <span class="n">frequent</span> <span class="n">itemsets</span> <span class="n">of</span> <span class="n">size</span> <span class="n">k_max</span>
+
+<span class="n">k</span> <span class="o">=</span> <span class="n">k_max</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="k">while</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">F</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">frequent</span> <span class="n">itemsets</span> <span class="n">of</span> <span class="n">size</span> <span class="n">k</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">F</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">f</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">C</span><span class="p">:</span>            
+            <span class="n">X</span> <span class="o">=</span> <span class="n">a</span> <span class="nb">set</span> <span class="n">of</span> <span class="n">frequent</span> <span class="n">itemsets</span> <span class="n">such</span> <span class="n">that</span> <span class="n">each</span> <span class="n">member</span> <span class="n">ff</span> <span class="ow">is</span> <span class="ow">in</span> <span class="n">F</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">also</span> <span class="n">a</span> <span class="n">subset</span> <span class="n">of</span> <span class="n">f</span>
+            <span class="n">support</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">support</span><span class="p">[</span><span class="n">ff</span><span class="p">]</span> <span class="ow">in</span> <span class="n">X</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="multiple-minimum-support">Multiple Minimum Support</h2>
+<p>Using a single minimum aupport threshold may not be effective since many real data sets have skewed support distribution.</p>
+<ul>
+<li>If <em>minsup</em> is set too high, we could miss itemsets involving interesting rare items. (e.g., expensive products)</li>
+<li>If <em>minsup</em> is set too low, it is computationally expensive and the number of itemsets is very large.</li>
+</ul>
+<p><img src="https://i.imgur.com/jztdahq.png" alt=""></p>
+<blockquote>
+<p>But how to apply multiple minimum supports?</p>
+</blockquote>
+<p>$$
+MS(i) = minimum~support~for~item~i
+\<br>
+MS({A, B}) = min(MS(A), MS(B))
+$$</p>
+<p>For example,  given</p>
+<ul>
+<li>MS(Milk)=5%</li>
+<li>MS(Coke) = 3%</li>
+<li>MS(Broccoli)=0.1%</li>
+<li>MS(Salmon)=0.5%</li>
+</ul>
+<p>MS({Milk, Broccoli}) = min (MS(Milk), MS(Broccoli)) = 0.1%</p>
+<blockquote>
+<p>However, with multiple minimum support, support is no longer anti-monotone.</p>
+</blockquote>
+<p>Need to modify Apriori such that $C_{k+1}$(Candidate itemsets of size $(k+1)$) is generated from $L_{k}$(set of items whose support is $\geq MS(k) = k^{th}$ smallest minimum support) instead of $F_{k}$ (set of frequent $1$-itemset candidates.)</p>
+<h2 id="evaluation-of-association-patterns">Evaluation of Association Patterns</h2>
+<p>Association rule algorithms tend to produce too many rules.   Many of them are uninteresting or redundant.</p>
+<p><strong>Objective Evaluation</strong></p>
+<p>An objective measure is a data-driven approach for evaluating the quality of association patterns.   It is domain-independent and requires minimal input from the users.   Patterns that involve a set of <strong>mutually independent</strong> items or <strong>cover very few transactions</strong> are considered <a href="#association-rule">uninteresting</a> because they may capture spurious relationships in the data.   Such patterns can be eliminated by applying an <a href="#objective-measures-of-interestingness"><strong>objective interestingness measure</strong></a>.</p>
+<p>An objective measure is usually computed based on <strong>contingency table</strong>.   For example, the table below is a 2-way contingency table for variable $A$ and $B$.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>$B$</th>
+<th>$\bar{B}$</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$A$</td>
+<td>$f_{11}$</td>
+<td>$f_{10}$</td>
+<td>$f_{1+}$</td>
+</tr>
+<tr>
+<td>$\bar{A}$</td>
+<td>$f_{01}$</td>
+<td>$f_{00}$</td>
+<td>$f_{0+}$</td>
+</tr>
+<tr>
+<td></td>
+<td>$f_{+1}$</td>
+<td>$f_{+1}$</td>
+<td>$N$</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>$f_{11}=N \times P(A,B)$ denotes the number of transaction that contains $A$ and $B$.</li>
+<li>$f_{10}=N \times P(A, \bar{B})$ denotes the number of transaction that contains $A$ but not $B$.</li>
+<li>$f_{1+}=N \times P(A)$ denotes the support count for $A$.</li>
+<li>$f_{+1}=N \times P(B)$ denotes the support count for $B$.</li>
+</ul>
+<p>The pitfall of confidence can be traced to the fact that the measure ignores the support of the itemset in the rule consequent (e.g. $P(B)$ in the above case).</p>
+<p><strong>Subjective Evaluation</strong></p>
+<p>A pattern is considered subjectively uninteresting unless it reveals unexpected information about the data.   Unlike Objective measures, which rank patterns based on statistics computed from data, subjective measures rank patterns according to user’s interpretation.</p>
+<h3 id="objective-measures-of-interestingness">Objective Measures of Interestingness</h3>
+<ul>
+<li><strong>Interest</strong> of an association rule $X \rightarrow Y$
+<ul>
+<li>$P(Y) = s(Y)$ is the support of $Y$ (fraction of baskets that contain $Y$)</li>
+<li>If interest of a rule is close to 1, then it is uninteresting.
+<ul>
+<li>$I(X \rightarrow Y)=1 \rightarrow X$ and $Y$ are independent</li>
+<li>$I(X \rightarrow Y)&gt;1 \rightarrow X$ and $Y$ are positive correlated</li>
+<li>$I(X \rightarrow Y)&lt;1 \rightarrow X$ and $Y$ are negative correlated</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>$$
+I(X \rightarrow Y) = \frac{P(X,Y)}{P(X) \times P(Y)}
+$$</p>
+<ul>
+<li><strong>Lift</strong> of an association rule $X \rightarrow Y$
+<ul>
+<li>$P(Y$|$X)=\frac{P(X,Y)}{P(X)}=\frac{f_{11}}{f_{1+}}$</li>
+<li>$P(Y)=f_{+1}$</li>
+</ul>
+</li>
+</ul>
+<p>$$
+Lift(X \rightarrow Y) = \frac{P(Y|X)}{P(Y)}
+$$</p>
+<p>There are lots of measures proposed in the literature.   Some measures are good for certain applications, but not for others:</p>
+<p><img src="https://i.imgur.com/kj1MR0m.png" alt=""></p>
+<h3 id="properties-of-good-objective-measure">Properties of Good Objective Measure</h3>
+<p><strong>Inversion Property</strong></p>
+<p>An objective measure $M$ is invariant under the inversion operation if its value remains the same when exchanging the frequent counts $f_{11}$ with $f_{10}$ and $f_{10}$ with $f_{01}$.</p>
+<p><strong>Null Addition Property</strong></p>
+<p>An objective measure $M$ is invariant under the null addition operation if it is not affected by increaing $f_{00}$, while all other frequencies in the contingency table stay the same.</p>
+<p><strong>Scaling Invariance Property</strong></p>
+<p>An objective measure $M$ is invariant under the row/column scaling operation.</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="http://www-users.cs.umn.edu/~kumar/dmbook/index.php">“Introduction to Data Mining,” by P.-N. Tan, M. Steinbach, V. Kumar, Addison-Wesley.</a></li>
+<li><a href="https://www.slideshare.net/wanaezwani/apriori-and-eclat-algorithm-in-association-rule-mining">Apriori and Eclat algorithm in Association Rule Mining</a></li>
+</ul>
+    
+	</div>
+  <footer class="article-footer clearfix">
+  
+
+<div class="article-tags">
+  <span></span>
+  
+  <a href="https://binnz.github.io/tags/data-mining">Data-Mining</a>
+  
+  <a href="https://binnz.github.io/tags/association-analysis">Association-Analysis</a>
+  
+</div>
+
+
+
+
+
+<div class="article-categories">
+  <span></span>
+  
+  <a class="article-category-link" href="https://binnz.github.io/categories/notes">Notes</a>
+  
+</div>
+
+
+
+  <div class="article-share" id="share">
+    <div data-url="https://binnz.github.io/post/2017-03-25-data-mining-association-analysis/" data-title="Data Mining - Association Analysis" data-tsina="" class="share clearfix">
+    </div>
+  </div>
+</footer>
+
+	</article>
+  
+
+
+<section class="comment">
+<div id="disqus_thread"></div>
+</section>
+<script>
+  <!-- detect whether Disuqs can load -->
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', '//disqus.com/next/config.json?' + new Date().getTime(), true);
+  xhr.timeout = 3000; 
+
+  xhr.onload = function() { 
+
+
+var disqus_config = function () {
+this.page.url = "https://binnz.github.io/post/2017-03-25-data-mining-association-analysis/";
+this.page.identifier = "https://binnz.github.io/post/2017-03-25-data-mining-association-analysis/";
+};
+(function() { 
+var d = document, s = d.createElement('script');
+
+s.src = '//disc.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+}
+  xhr.ontimeout = function() {
+  <!-- cannot load Disqus, skip it. -->
+  return;
+}
+xhr.send(null);
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+    <div class="openaside"><a class="navbutton" href="#" title="Show SideBar"></a></div>
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide SideBar"></a></div>
+<aside class="clearfix">
+  
+
+<div class="categorieslist">
+  <p class="asidetitle">Categories</p>
+  <ul>
+    
+    <li><a href="https://binnz.github.io/categories/install" title="install">install<sup>2</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/life" title="life">life<sup>1</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/notes" title="notes">notes<sup>50</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/programming" title="programming">programming<sup>25</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/projects" title="projects">projects<sup>2</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/publications" title="publications">publications<sup>1</sup></a></li>
+    
+  </ul>
+</div>
+
+
+
+  
+
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+      
+			<li><a href="https://binnz.github.io/tags/ANDROID" title="android">android<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/APACHE-PIG" title="apache-pig">apache-pig<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/ASSOCIATION-ANALYSIS" title="association-analysis">association-analysis<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/BEER" title="beer">beer<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CLASSIFICATION" title="classification">classification<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CLUSTERING" title="clustering">clustering<sup>19</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CONFERENCE" title="conference">conference<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATA-MINING" title="data-mining">data-mining<sup>64</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATA-SCIENCE" title="data-science">data-science<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATABASE" title="database">database<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DEEP-LEARNING" title="deep-learning">deep-learning<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/ELASTICSEARCH" title="elasticsearch">elasticsearch<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/GRAPH" title="graph">graph<sup>12</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/HADOOP" title="hadoop">hadoop<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/INFORMATION-RETRIEVAL" title="information-retrieval">information-retrieval<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/JAVA" title="java">java<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/MACHINE-LEARNING" title="machine-learning">machine-learning<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NEURAL-NETWORK" title="neural-network">neural-network<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NLP" title="nlp">nlp<sup>4</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NLTK" title="nltk">nltk<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/PYTHON" title="python">python<sup>15</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/R" title="r">r<sup>4</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/RELATION-ALGEBRA" title="relation-algebra">relation-algebra<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SCIKIT-LEARN" title="scikit-learn">scikit-learn<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SPARK" title="spark">spark<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SQL" title="sql">sql<sup>3</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/STATISTICS" title="statistics">statistics<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/STREAMING" title="streaming">streaming<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/TIME-SERIES" title="time-series">time-series<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/TRAVEL" title="travel">travel<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/UNIT-TEST" title="unit-test">unit-test<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/VBA" title="vba">vba<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/WINDOWS" title="windows">windows<sup>1</sup></a></li>
+      
+		</ul>
+</div>
+
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle">Archives</p>
+    <ul class="archive-list">
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2021-06">2021年06月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2020-05">2020年05月</a><span class="archive-list-count">12</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2019-09">2019年09月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-09">2018年09月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-08">2018年08月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-06">2018年06月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-05">2018年05月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-04">2018年04月</a><span class="archive-list-count">5</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-03">2018年03月</a><span class="archive-list-count">5</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-01">2018年01月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-12">2017年12月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-11">2017年11月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-10">2017年10月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-09">2017年09月</a><span class="archive-list-count">10</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-08">2017年08月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-07">2017年07月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-05">2017年05月</a><span class="archive-list-count">3</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-04">2017年04月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-03">2017年03月</a><span class="archive-list-count">20</span>
+      </li>
+      
+    </ul>
+
+  </div>
+
+
+  
+
+<div class="tagcloudlist">
+  <p class="asidetitle">Tags Cloud</p>
+  <div class="tagcloudlist clearfix">
+    
+    <a href="https://binnz.github.io/tags/android" style="font-size: 12px;">android</a>
+    
+    <a href="https://binnz.github.io/tags/apache-pig" style="font-size: 12px;">apache-pig</a>
+    
+    <a href="https://binnz.github.io/tags/association-analysis" style="font-size: 12px;">association-analysis</a>
+    
+    <a href="https://binnz.github.io/tags/beer" style="font-size: 12px;">beer</a>
+    
+    <a href="https://binnz.github.io/tags/classification" style="font-size: 12px;">classification</a>
+    
+    <a href="https://binnz.github.io/tags/clustering" style="font-size: 12px;">clustering</a>
+    
+    <a href="https://binnz.github.io/tags/conference" style="font-size: 12px;">conference</a>
+    
+    <a href="https://binnz.github.io/tags/data-mining" style="font-size: 12px;">data-mining</a>
+    
+    <a href="https://binnz.github.io/tags/data-science" style="font-size: 12px;">data-science</a>
+    
+    <a href="https://binnz.github.io/tags/database" style="font-size: 12px;">database</a>
+    
+    <a href="https://binnz.github.io/tags/deep-learning" style="font-size: 12px;">deep-learning</a>
+    
+    <a href="https://binnz.github.io/tags/elasticsearch" style="font-size: 12px;">elasticsearch</a>
+    
+    <a href="https://binnz.github.io/tags/graph" style="font-size: 12px;">graph</a>
+    
+    <a href="https://binnz.github.io/tags/hadoop" style="font-size: 12px;">hadoop</a>
+    
+    <a href="https://binnz.github.io/tags/information-retrieval" style="font-size: 12px;">information-retrieval</a>
+    
+    <a href="https://binnz.github.io/tags/java" style="font-size: 12px;">java</a>
+    
+    <a href="https://binnz.github.io/tags/machine-learning" style="font-size: 12px;">machine-learning</a>
+    
+    <a href="https://binnz.github.io/tags/neural-network" style="font-size: 12px;">neural-network</a>
+    
+    <a href="https://binnz.github.io/tags/nlp" style="font-size: 12px;">nlp</a>
+    
+    <a href="https://binnz.github.io/tags/nltk" style="font-size: 12px;">nltk</a>
+    
+    <a href="https://binnz.github.io/tags/python" style="font-size: 12px;">python</a>
+    
+    <a href="https://binnz.github.io/tags/r" style="font-size: 12px;">r</a>
+    
+    <a href="https://binnz.github.io/tags/relation-algebra" style="font-size: 12px;">relation-algebra</a>
+    
+    <a href="https://binnz.github.io/tags/scikit-learn" style="font-size: 12px;">scikit-learn</a>
+    
+    <a href="https://binnz.github.io/tags/spark" style="font-size: 12px;">spark</a>
+    
+    <a href="https://binnz.github.io/tags/sql" style="font-size: 12px;">sql</a>
+    
+    <a href="https://binnz.github.io/tags/statistics" style="font-size: 12px;">statistics</a>
+    
+    <a href="https://binnz.github.io/tags/streaming" style="font-size: 12px;">streaming</a>
+    
+    <a href="https://binnz.github.io/tags/time-series" style="font-size: 12px;">time-series</a>
+    
+    <a href="https://binnz.github.io/tags/travel" style="font-size: 12px;">travel</a>
+    
+    <a href="https://binnz.github.io/tags/unit-test" style="font-size: 12px;">unit-test</a>
+    
+    <a href="https://binnz.github.io/tags/vba" style="font-size: 12px;">vba</a>
+    
+    <a href="https://binnz.github.io/tags/windows" style="font-size: 12px;">windows</a>
+    
+  </div>
+</div>
+
+
+
+  
+
+</aside>
+</div>
+
+  </div>
+  <footer><div id="footer" >
+  <div class="line">
+    <span></span>
+    
+    <div style='background:no-repeat url("https://binnz.github.io/img/US-MT-EPS-02-6001.png") left top;-webkit-background-size:6.875em 6.875em;-moz-background-size:6.875em 6.875em;background-size:6.875em 6.875em;' class="author" ></div>
+  </div>
+  <section class="info">
+    <p>hehe</p>
+  </section>
+  <div class="social-font clearfix">
+    <a href='http://weibo.com/coderzh' target="_blank" title="weibo"></a>
+    <a href='https://twitter.com/coderzh' target="_blank" title="twitter"></a>
+    <a href='https://github.com/binnz' target="_blank" class="icon-github" title="github"></a>
+    <a href='https://www.facebook.com/coderzh' target="_blank" title="facebook"></a>
+    <a href='https://www.linkedin.com/coderzh' target="_blank" title="linkedin"></a>
+  </div>
+  <p class="copyright">Powered by <a href="http://gohugo.io" target="_blank" title="hugo">hugo</a> and Theme by <a href="https://github.com/coderzh/hugo-pacman-theme" target="_blank" title="hugo-pacman-theme">hugo-pacman-theme</a> © 2021
+    
+    <a href="https://binnz.github.io/" title="California Dreaming">California Dreaming</a>
+    
+  </p>
+</div>
+</footer>
+  <script src="https://binnz.github.io/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+done = false;
+$(document).ready(function(){
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize();
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  $('form.search').on('submit', function (event) {
+    if (false === done) {
+      event.preventDefault();
+      var orgVal = $(this).find('#search').val();
+      $(this).find('#search').val('site:https:\/\/binnz.github.io\/ ' + orgVal);
+      done = true;
+      $(this).submit();
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://b.bshare.cn/barCode?site=weixin&url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});
+</script>
+
+
+
+
+
+</body>
+</html>

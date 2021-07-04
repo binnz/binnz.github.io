@@ -1,0 +1,2223 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Analyze the NYC Taxi Data - California Dreaming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+  
+  <meta name="description" content="In this document, I will walk through the analysis of New York City Taxi Data (with download link shown in Section II) using Python.   6 months of &ldquo;Yellow&rdquo; label data will be loaded and analyzed.">
+  
+  <meta itemprop="name" content="Analyze the NYC Taxi Data - California Dreaming">
+  <meta itemprop="description" content="In this document, I will walk through the analysis of New York City Taxi Data (with download link shown in Section II) using Python.   6 months of &ldquo;Yellow&rdquo; label data will be loaded and analyzed.">
+  <meta itemprop="image" content="https://binnz.github.io/img/author.jpg">
+  
+  
+  <meta name="twitter:description" content="">
+  
+  <link rel="shortcut icon" href="https://binnz.github.io/img/favicon.ico"/>
+  <link rel="apple-touch-icon" href="https://binnz.github.io/apple-touch-icon.png" />
+  <link rel="apple-touch-icon-precomposed" href="https://binnz.github.io/apple-touch-icon.png" />
+  <link rel="stylesheet" href="https://binnz.github.io/highlight/styles/github.css">
+  <script src="https://binnz.github.io/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  
+  <link rel="stylesheet" href="https://binnz.github.io/font/hack/css/hack.min.css">
+  <link rel="stylesheet" href="https://binnz.github.io/css/style.css">
+</head>
+
+<body>
+  <header>
+    <div>
+  <div style="height:150px; width:100%; clear:both;"></div>
+  <div id="textlogo">
+    <h1 class="site-name"><a href="https://binnz.github.io/" title="California Dreaming">California Dreaming</a></h1>
+    <h2 class="blog-motto"></h2>
+  </div>
+  <div class="navbar"><a class="navbutton navmobile" href="#" title="menu"></a></div>
+			<div style="height:50px; width:100%; clear:both;"></div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="menu">
+			</a><div style="height:50px; width:100%; clear:both;"></div></div>
+  <nav class="animated">
+    <ul>
+      
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/post/">Archives</a></li>
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      <li>
+        <form class="search" method="get" action="https://www.google.com/search">
+          <div>
+            <input type="text" id="search" name="q" placeholder='Search'>
+          </div>
+        </form>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+  </header>
+  <div id="container">
+    <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+      <a href="https://binnz.github.io/post/2018-05-14-nyc/" title="Analyze the NYC Taxi Data" itemprop="url">Analyze the NYC Taxi Data</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="" title="">you</a>
+    
+  </p>
+  <p class="article-time">
+    <time datetime="2018-05-14 00:00:00 &#43;0000 UTC" itemprop="datePublished">2018-05-14</time>
+  </p>
+</header>
+
+	<div class="article-content">
+    
+    <p>In this document, I will walk through the analysis of New York City Taxi Data (with download link shown in Section II) using <code>Python</code>.   <strong>6 months of &ldquo;Yellow&rdquo; label data</strong> will be loaded and analyzed.</p>
+<h2 id="i-data-analytic-toolpackage-used">I. Data Analytic Tool/Package Used</h2>
+<p>The following libraries are the basic libraries for data analytics.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">urllib.request</span>
+<span class="kn">import</span> <span class="nn">zipfile</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">math</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>On the other hand, to visualize the information extracted from data, the libraries in below are also needed.   For example, the Python Shapefile Library (pyshp) provides <a href="">read and write support for the ESRI Shapefile format</a>.   And Matplotlib is a Python 2D plotting library which produces publication quality figures in a variety of hardcopy formats and interactive environments across platforms.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">shapefile</span>
+<span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">Polygon</span>
+<span class="kn">from</span> <span class="nn">descartes.patch</span> <span class="kn">import</span> <span class="n">PolygonPatch</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;ggplot&#39;</span><span class="p">)</span>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Furthermore, to deal with the large scale of data (<code>4GB</code> for 6 months in this case), a database is needed.   Here I will use <a href="http://docs.sqlalchemy.org/en/latest/core/tutorial.html"><code>SQLAlchemy</code></a>, which is a Python SQL toolkit and Object Relational Mapper that gives application developers the full power and flexibility of SQL.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">create_engine</span>
+
+<span class="n">nyc_database</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="s1">&#39;sqlite:///nyc_database.db&#39;</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="ii-dataset">II. Dataset</h2>
+<p>The information and download links of NYC Taxi Data can be found in the link below:</p>
+<p><a href="http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml">http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml</a></p>
+<p>Here we use <code>Python</code> code to download &ldquo;Yellow&rdquo; label data <strong>from 2017 January to 2017 June</strong>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Download the Trip Record Data</span>
+<span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">7</span><span class="p">):</span>
+    <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="s2">&#34;https://s3.amazonaws.com/nyc-tlc/trip+data/&#34;</span><span class="o">+</span> \
+                               <span class="s2">&#34;yellow_tripdata_2017-</span><span class="si">{0:0=2d}</span><span class="s2">.csv&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">month</span><span class="p">),</span> 
+                               <span class="s2">&#34;nyc.2017-</span><span class="si">{0:0=2d}</span><span class="s2">.csv&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">month</span><span class="p">))</span>
+
+<span class="c1"># Download the location Data</span>
+<span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="s2">&#34;https://s3.amazonaws.com/nyc-tlc/misc/taxi_zones.zip&#34;</span><span class="p">,</span> <span class="s2">&#34;taxi_zones.zip&#34;</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="s2">&#34;taxi_zones.zip&#34;</span><span class="p">,</span><span class="s2">&#34;r&#34;</span><span class="p">)</span> <span class="k">as</span> <span class="n">zip_ref</span><span class="p">:</span>
+    <span class="n">zip_ref</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="s2">&#34;./shape&#34;</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="a-trip-record-data">A. Trip Record Data</h3>
+<p>The yellow taxi trip records include fields capturing</p>
+<ul>
+<li>pick-up and drop-off dates/times</li>
+<li>pick-up and drop-off locations</li>
+<li>trip distances</li>
+<li>itemized fares</li>
+<li>rate types</li>
+<li>payment types</li>
+<li>driver-reported passenger counts</li>
+</ul>
+<p>and the explanations are in <a href="http://www.nyc.gov/html/tlc/downloads/pdf/data_dictionary_trip_records_yellow.pdf">this dictionary</a>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&#34;nyc.2017-01.csv&#34;</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><table class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>VendorID</th>
+      <th>tpep_pickup_datetime</th>
+      <th>tpep_dropoff_datetime</th>
+      <th>passenger_count</th>
+      <th>trip_distance</th>
+      <th>RatecodeID</th>
+      <th>store_and_fwd_flag</th>
+      <th>PULocationID</th>
+      <th>DOLocationID</th>
+      <th>payment_type</th>
+      <th>fare_amount</th>
+      <th>extra</th>
+      <th>mta_tax</th>
+      <th>tip_amount</th>
+      <th>tolls_amount</th>
+      <th>improvement_surcharge</th>
+      <th>total_amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>2017-01-09 11:13:28</td>
+      <td>2017-01-09 11:25:45</td>
+      <td>1</td>
+      <td>3.30</td>
+      <td>1</td>
+      <td>N</td>
+      <td>263</td>
+      <td>161</td>
+      <td>1</td>
+      <td>12.5</td>
+      <td>0.0</td>
+      <td>0.5</td>
+      <td>2.00</td>
+      <td>0</td>
+      <td>0.3</td>
+      <td>15.30</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>2017-01-09 11:32:27</td>
+      <td>2017-01-09 11:36:01</td>
+      <td>1</td>
+      <td>0.90</td>
+      <td>1</td>
+      <td>N</td>
+      <td>186</td>
+      <td>234</td>
+      <td>1</td>
+      <td>5.0</td>
+      <td>0.0</td>
+      <td>0.5</td>
+      <td>1.45</td>
+      <td>0</td>
+      <td>0.3</td>
+      <td>7.25</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1</td>
+      <td>2017-01-09 11:38:20</td>
+      <td>2017-01-09 11:42:05</td>
+      <td>1</td>
+      <td>1.10</td>
+      <td>1</td>
+      <td>N</td>
+      <td>164</td>
+      <td>161</td>
+      <td>1</td>
+      <td>5.5</td>
+      <td>0.0</td>
+      <td>0.5</td>
+      <td>1.00</td>
+      <td>0</td>
+      <td>0.3</td>
+      <td>7.30</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+      <td>2017-01-09 11:52:13</td>
+      <td>2017-01-09 11:57:36</td>
+      <td>1</td>
+      <td>1.10</td>
+      <td>1</td>
+      <td>N</td>
+      <td>236</td>
+      <td>75</td>
+      <td>1</td>
+      <td>6.0</td>
+      <td>0.0</td>
+      <td>0.5</td>
+      <td>1.70</td>
+      <td>0</td>
+      <td>0.3</td>
+      <td>8.50</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2</td>
+      <td>2017-01-01 00:00:00</td>
+      <td>2017-01-01 00:00:00</td>
+      <td>1</td>
+      <td>0.02</td>
+      <td>2</td>
+      <td>N</td>
+      <td>249</td>
+      <td>234</td>
+      <td>2</td>
+      <td>52.0</td>
+      <td>0.0</td>
+      <td>0.5</td>
+      <td>0.00</td>
+      <td>0</td>
+      <td>0.3</td>
+      <td>52.80</td>
+    </tr>
+  </tbody>
+</table>
+<p>Now we load the trip record data into our database chunk by chunk.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">j</span><span class="p">,</span> <span class="n">chunksize</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">100000</span>
+<span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">7</span><span class="p">):</span>
+    <span class="n">fp</span> <span class="o">=</span> <span class="s2">&#34;nyc.2017-</span><span class="si">{0:0=2d}</span><span class="s2">.csv&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">month</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="n">chunksize</span><span class="p">,</span> <span class="n">iterator</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">})</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;pickup_hour&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">11</span><span class="p">:</span><span class="mi">13</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;tpep_pickup_datetime&#39;</span><span class="p">]]</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;dropoff_hour&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">11</span><span class="p">:</span><span class="mi">13</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;tpep_dropoff_datetime&#39;</span><span class="p">]]</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">+=</span> <span class="n">j</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_sql</span><span class="p">(</span><span class="s1">&#39;table_record&#39;</span><span class="p">,</span> <span class="n">nyc_database</span><span class="p">,</span> <span class="n">if_exists</span><span class="o">=</span><span class="s1">&#39;append&#39;</span><span class="p">)</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="k">del</span> <span class="n">df</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="location-data">Location Data</h3>
+<p>Location data including <strong>TLC taxi zone location IDs</strong>, <strong>location names</strong> and <strong>corresponding boroughs for each ID</strong> can be found <a href="https://s3.amazonaws.com/nyc-tlc/misc/taxi+_zone_lookup.csv">here</a>. A shapefile containing the boundaries for the taxi zones can be found <a href="https://s3.amazonaws.com/nyc-tlc/misc/taxi_zones.zip">here</a>.</p>
+<p>Note that if you need the exact latitude/longitude of each region, <a href="https://mygeodata.cloud/converter/shp-to-latlong">this website</a> will do you the favor.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">sf</span> <span class="o">=</span> <span class="n">shapefile</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="s2">&#34;shape/taxi_zones.shp&#34;</span><span class="p">)</span>
+<span class="n">fields_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">field</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">sf</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+<span class="n">shp_dic</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">fields_name</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fields_name</span><span class="p">)))))</span>
+<span class="n">attributes</span> <span class="o">=</span> <span class="n">sf</span><span class="o">.</span><span class="n">records</span><span class="p">()</span>
+<span class="n">shp_attr</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">fields_name</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">]</span>
+
+<span class="n">df_loc</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">shp_attr</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">get_lat_lon</span><span class="p">(</span><span class="n">sf</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&#34;LocationID&#34;</span><span class="p">),</span> <span class="n">on</span><span class="o">=</span><span class="s2">&#34;LocationID&#34;</span><span class="p">)</span>
+<span class="n">df_loc</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><table class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>LocationID</th>
+      <th>OBJECTID</th>
+      <th>Shape_Area</th>
+      <th>Shape_Leng</th>
+      <th>borough</th>
+      <th>zone</th>
+      <th>longitude</th>
+      <th>latitude</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>1</td>
+      <td>0.000782</td>
+      <td>0.116357</td>
+      <td>EWR</td>
+      <td>Newark Airport</td>
+      <td>-74.171533</td>
+      <td>40.689483</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2</td>
+      <td>0.004866</td>
+      <td>0.433470</td>
+      <td>Queens</td>
+      <td>Jamaica Bay</td>
+      <td>-73.822478</td>
+      <td>40.610824</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>3</td>
+      <td>0.000314</td>
+      <td>0.084341</td>
+      <td>Bronx</td>
+      <td>Allerton/Pelham Gardens</td>
+      <td>-73.844953</td>
+      <td>40.865747</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>4</td>
+      <td>0.000112</td>
+      <td>0.043567</td>
+      <td>Manhattan</td>
+      <td>Alphabet City</td>
+      <td>-73.977725</td>
+      <td>40.724137</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>5</td>
+      <td>0.000498</td>
+      <td>0.092146</td>
+      <td>Staten Island</td>
+      <td>Arden Heights</td>
+      <td>-74.187558</td>
+      <td>40.550664</td>
+    </tr>
+  </tbody>
+</table>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Boroughs in NYC&#34;</span><span class="p">)</span>
+<span class="n">draw_region_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">sf</span><span class="p">)</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Zones in NYC&#34;</span><span class="p">)</span>
+<span class="n">draw_zone_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">sf</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/WZa4IJ1.png" alt="Location Data"></p>
+<h2 id="iii-analytic-problems">III. Analytic Problems</h2>
+<p>In the following 3 Analytic Problems, I will show my analytic results and graph visualizations along with the <code>Python</code> code that generates the plots.</p>
+<h3 id="q1-which-regions-have-most-pickups-and-drop-offs">Q1: Which regions have most pickups and drop-offs?</h3>
+<p>In the beginning, we select the data we need (location of pickup/dropoff ans their counts) from the databse.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">df_pu</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s1">&#39;SELECT PULocationID AS LocationID, count(*) AS PUcount </span><span class="se">\
+</span><span class="se"></span><span class="s1">                        FROM table_record </span><span class="se">\
+</span><span class="se"></span><span class="s1">                        GROUP BY PULocationID&#39;</span><span class="p">,</span> <span class="n">nyc_database</span><span class="p">)</span>
+<span class="n">df_do</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s1">&#39;SELECT DOLocationID AS LocationID, count(*) AS DOcount </span><span class="se">\
+</span><span class="se"></span><span class="s1">                        FROM table_record </span><span class="se">\
+</span><span class="se"></span><span class="s1">                        GROUP BY DOLocationID&#39;</span><span class="p">,</span> <span class="n">nyc_database</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>With the selected data, we want to obtain the zones with most pickups and drop-offs.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">template</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">max</span><span class="p">(</span><span class="n">df_loc</span><span class="p">[</span><span class="s1">&#39;LocationID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))],</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;LocationID&#34;</span><span class="p">])</span>
+<span class="n">df_q1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pu</span><span class="p">,</span> <span class="n">df_do</span><span class="p">])</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&#34;LocationID&#34;</span><span class="p">),</span> <span class="n">how</span> <span class="o">=</span> <span class="s1">&#39;outer&#39;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;LocationID&#34;</span><span class="p">])</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> \
+                                    <span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&#34;LocationID&#34;</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> \
+                                    <span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;PUcount&#39;</span><span class="p">:</span> <span class="s1">&#39;sum&#39;</span><span class="p">,</span> <span class="s1">&#39;DOcount&#39;</span><span class="p">:</span> <span class="s1">&#39;sum&#39;</span><span class="p">})</span>\
+                                    <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;LocationID&#39;</span><span class="p">])</span>
+<span class="n">df_q1</span><span class="p">[</span><span class="s1">&#39;TOTALcount&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_q1</span><span class="p">[</span><span class="s1">&#39;PUcount&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">df_q1</span><span class="p">[</span><span class="s1">&#39;DOcount&#39;</span><span class="p">]</span>
+<span class="n">loc</span> <span class="o">=</span> <span class="n">df_loc</span><span class="p">[[</span><span class="s2">&#34;LocationID&#34;</span><span class="p">,</span> <span class="s2">&#34;zone&#34;</span><span class="p">,</span> <span class="s2">&#34;borough&#34;</span><span class="p">]]</span>
+<span class="n">df_q1</span> <span class="o">=</span> <span class="n">df_q1</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&#34;LocationID&#34;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">&#34;LocationID&#34;</span><span class="p">)</span>
+
+<span class="n">PUcount</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">df_q1</span><span class="p">[</span><span class="s1">&#39;LocationID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">df_q1</span><span class="p">[</span><span class="s1">&#39;PUcount&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
+<span class="n">PUtop3</span> <span class="o">=</span> <span class="n">df_q1</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;PUcount&#39;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&#34;LocationID&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">DOcount</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">df_q1</span><span class="p">[</span><span class="s1">&#39;LocationID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">df_q1</span><span class="p">[</span><span class="s1">&#39;DOcount&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
+<span class="n">DOtop3</span> <span class="o">=</span> <span class="n">df_q1</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;DOcount&#39;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&#34;LocationID&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>In the tables below, we can see that in the first half of 2017,</p>
+<ul>
+<li>the top 3 pickup zones are <code>Upper East Side South</code>, <code>Midtown Center</code>, and <code>Upper East Side North</code>, which are all in <code>Manhattan</code>.</li>
+<li>the top 3 drop-off zones are also <code>Upper East Side South</code>, <code>Midtown Center</code>, and <code>Upper East Side North</code>.</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">PUtop3</span>
+</code></pre></td></tr></table>
+</div>
+</div><table class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>PUcount</th>
+      <th>DOcount</th>
+      <th>TOTALcount</th>
+      <th>zone</th>
+      <th>borough</th>
+    </tr>
+    <tr>
+      <th>LocationID</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>237</th>
+      <td>1915990.0</td>
+      <td>1692273.0</td>
+      <td>3608263.0</td>
+      <td>Upper East Side South</td>
+      <td>Manhattan</td>
+    </tr>
+    <tr>
+      <th>161</th>
+      <td>1822848.0</td>
+      <td>1781749.0</td>
+      <td>3604597.0</td>
+      <td>Midtown Center</td>
+      <td>Manhattan</td>
+    </tr>
+    <tr>
+      <th>236</th>
+      <td>1774245.0</td>
+      <td>1828630.0</td>
+      <td>3602875.0</td>
+      <td>Upper East Side North</td>
+      <td>Manhattan</td>
+    </tr>
+  </tbody>
+</table>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">DOtop3</span>
+</code></pre></td></tr></table>
+</div>
+</div><table class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>PUcount</th>
+      <th>DOcount</th>
+      <th>TOTALcount</th>
+      <th>zone</th>
+      <th>borough</th>
+    </tr>
+    <tr>
+      <th>LocationID</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>236</th>
+      <td>1774245.0</td>
+      <td>1828630.0</td>
+      <td>3602875.0</td>
+      <td>Upper East Side North</td>
+      <td>Manhattan</td>
+    </tr>
+    <tr>
+      <th>161</th>
+      <td>1822848.0</td>
+      <td>1781749.0</td>
+      <td>3604597.0</td>
+      <td>Midtown Center</td>
+      <td>Manhattan</td>
+    </tr>
+    <tr>
+      <th>237</th>
+      <td>1915990.0</td>
+      <td>1692273.0</td>
+      <td>3608263.0</td>
+      <td>Upper East Side South</td>
+      <td>Manhattan</td>
+    </tr>
+  </tbody>
+</table>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Zones with most pickups&#34;</span><span class="p">)</span>
+<span class="n">draw_zone_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">sf</span><span class="p">,</span> <span class="n">heat</span><span class="o">=</span><span class="n">PUcount</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">PUtop3</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Zones with most drop-offs&#34;</span><span class="p">)</span>
+<span class="n">draw_zone_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">sf</span><span class="p">,</span> <span class="n">heat</span><span class="o">=</span><span class="n">DOcount</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">DOtop3</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://i.imgur.com/rpw0HKF.png" alt="Popular Zones in the forst half of 2017"></p>
+<p>Note that in the figure above, we can see that despite the top 3 pickup/dropoff zones, many other zones in <code>Manhattan</code> are also popular.   By the way, the zone in the lower-right part of the map, which is <code>JFK Airport</code>, is the most popular pickup/dropoff zone in New York City excluding zones in <code>Manhattan</code>.</p>
+<p>Next, we investigate boroughs with most pickups and drop-offs.   In the tables below, we can see that <code>Manhattan</code> is obviously the most popular borough and <code>Staten Island</code> is the least popular borough.   <code>Queens</code> and <code>Brooklyn</code> are also popular, although their pickup/droppoff count is less than 10% of <code>Manhattan</code>&rsquo;s.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">df_q1_region</span> <span class="o">=</span> <span class="n">df_q1</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&#34;borough&#34;</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> \
+                    <span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;PUcount&#39;</span><span class="p">:</span> <span class="s1">&#39;sum&#39;</span><span class="p">,</span> <span class="s1">&#39;DOcount&#39;</span><span class="p">:</span> <span class="s1">&#39;sum&#39;</span><span class="p">,</span> <span class="s1">&#39;TOTALcount&#39;</span><span class="p">:</span> <span class="s1">&#39;sum&#39;</span><span class="p">})</span> \
+                    <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;TOTALcount&#39;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">df_q1_region</span>
+</code></pre></td></tr></table>
+</div>
+</div><table class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>borough</th>
+      <th>PUcount</th>
+      <th>DOcount</th>
+      <th>TOTALcount</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>3</th>
+      <td>Manhattan</td>
+      <td>44852180.0</td>
+      <td>43309852.0</td>
+      <td>88162032.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Queens</td>
+      <td>2893988.0</td>
+      <td>2473817.0</td>
+      <td>5367805.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Brooklyn</td>
+      <td>725594.0</td>
+      <td>2335785.0</td>
+      <td>3061379.0</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>Bronx</td>
+      <td>42170.0</td>
+      <td>305066.0</td>
+      <td>347236.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>EWR</td>
+      <td>3457.0</td>
+      <td>91694.0</td>
+      <td>95151.0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Staten Island</td>
+      <td>1561.0</td>
+      <td>11871.0</td>
+      <td>13432.0</td>
+    </tr>
+  </tbody>
+</table>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">PUcount</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">df_q1_region</span><span class="p">[</span><span class="s1">&#39;borough&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">df_q1_region</span><span class="p">[</span><span class="s1">&#39;PUcount&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
+<span class="n">DOcount</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">df_q1_region</span><span class="p">[</span><span class="s1">&#39;borough&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">df_q1_region</span><span class="p">[</span><span class="s1">&#39;DOcount&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Boroughs with most pickups&#34;</span><span class="p">)</span>
+<span class="n">draw_region_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">sf</span><span class="p">,</span> <span class="n">heat</span> <span class="o">=</span> <span class="n">PUcount</span><span class="p">)</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Boroughs with most drop-offs&#34;</span><span class="p">)</span>
+<span class="n">draw_region_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">sf</span><span class="p">,</span> <span class="n">heat</span> <span class="o">=</span> <span class="n">DOcount</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://imgur.com/ODjOoIP.png" alt="Popular Boroughs in the first half iof 2017"></p>
+<p>In the figure above, it is noticed that in the first half of 2017, there are more pickups in <code>Queens</code> than in <code>Brooklyn</code> while there are similar number of drop-offs in both <code>Queens</code> and <code>Brooklyn</code>.</p>
+<h3 id="q2-when-are-the-peak-hours-and-off-peak-hours-for-taking-taxi">Q2: When are the peak hours and off-peak hours for taking taxi?</h3>
+<p>Again we start from selecting data needed from the database.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">df_pu</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s1">&#39;SELECT pickup_hour AS time, count(*) AS PUcount </span><span class="se">\
+</span><span class="se"></span><span class="s1">                        FROM table_record </span><span class="se">\
+</span><span class="se"></span><span class="s1">                        GROUP BY pickup_hour&#39;</span><span class="p">,</span> <span class="n">nyc_database</span><span class="p">)</span>
+<span class="n">df_do</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s1">&#39;SELECT dropoff_hour AS time, count(*) AS DOcount </span><span class="se">\
+</span><span class="se"></span><span class="s1">                        FROM table_record </span><span class="se">\
+</span><span class="se"></span><span class="s1">                        GROUP BY dropoff_hour&#39;</span><span class="p">,</span> <span class="n">nyc_database</span><span class="p">)</span>
+<span class="n">df_q2</span> <span class="o">=</span> <span class="n">df_pu</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_do</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&#34;time&#34;</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>From the selected data, we arrange and show the visualization of the information we need.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">template</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="s2">&#34;</span><span class="si">{0:0=2d}</span><span class="s2">&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">24</span><span class="p">)],</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;time&#34;</span><span class="p">])</span>
+<span class="n">df_q2</span> <span class="o">=</span> <span class="n">df_q2</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&#34;time&#34;</span><span class="p">),</span> <span class="n">how</span> <span class="o">=</span> <span class="s1">&#39;outer&#39;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;time&#34;</span><span class="p">])</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> \
+                <span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&#34;time&#34;</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> \
+                <span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;PUcount&#39;</span><span class="p">:</span> <span class="s1">&#39;sum&#39;</span><span class="p">,</span> <span class="s1">&#39;DOcount&#39;</span><span class="p">:</span> <span class="s1">&#39;sum&#39;</span><span class="p">})</span> \
+                <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;PUcount&#39;</span><span class="p">:</span><span class="s1">&#39;Pick-ups&#39;</span><span class="p">,</span> <span class="s1">&#39;DOcount&#39;</span><span class="p">:</span> <span class="s1">&#39;Drop-offs&#39;</span><span class="p">})</span> \
+                <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">)</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">df_q2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Pick-ups&#39;</span><span class="p">,</span> <span class="s1">&#39;Drop-offs&#39;</span><span class="p">],</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;line&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&#34;-o&#34;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&#34;count&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://imgur.com/toWcYAM.png" alt="The Accumulated Number of Taxi Trips at Different Time of in the First Half of 2017"></p>
+<p>As you can see, according to the NYC Taxi records from 2017 January to 2017 June, it is found that</p>
+<ul>
+<li>The peak hours are around <code>6PM ~ 7PM</code>.</li>
+<li>The off-peak hours are around <code>5AM</code>.</li>
+</ul>
+<h3 id="q3-what-are-the-differences-between-short-and-long-distance-trips-of-taking-taxi">Q3: What are the differences between short and long distance trips of taking taxi?</h3>
+<p>To answer this question, we should define what short and long distance trips are at first.</p>
+<h4 id="1-define-short-and-long-distance">1. Define short and long distance</h4>
+<p>To get a closer look at the distribution of trip distance, we select the <code>trip_distance</code> column values and print out its summary statistics.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">df_dist</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s1">&#39;SELECT trip_distance FROM table_record&#39;</span><span class="p">,</span> <span class="n">nyc_database</span><span class="p">)</span>
+<span class="n">df_dist</span><span class="p">[</span><span class="s1">&#39;trip_distance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">count    4.932189e+07
+mean     2.891543e+00
+std      3.701831e+00
+min      0.000000e+00
+25%      9.800000e-01
+50%      1.600000e+00
+75%      3.000000e+00
+max      1.514910e+03
+Name: trip_distance, dtype: float64
+</code></pre></td></tr></table>
+</div>
+</div><p>The distrubution of <code>trip_distance</code> is extremely right skewed, which is shown in the figure below.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">ax</span> <span class="o">=</span> <span class="n">df_dist</span><span class="p">[</span><span class="s1">&#39;trip_distance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&#34;trip distance (miles)&#34;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&#34;count&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://imgur.com/woP7tIr.png" alt="The Distribution of Trip Distance"></p>
+<p>According to the dustribution of trip distances and the fact that it takes about 30 miles to drive across the whole New York City, we decided to use <strong>30</strong> as the number to split the trips into short or long distance trips.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">df_q3_short</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s1">&#39;SELECT count(*) AS count FROM table_record </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                 WHERE trip_distance &lt; 30&#39;</span><span class="p">,</span> <span class="n">nyc_database</span><span class="p">)</span>
+<span class="n">df_q3_long</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s1">&#39;SELECT count(*) AS count FROM table_record </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                WHERE trip_distance &gt;= 30 &#39;</span><span class="p">,</span> <span class="n">nyc_database</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&#34;Short Trips: </span><span class="si">{}</span><span class="s2"> records in total.</span><span class="se">\n</span><span class="s2">Long Trips: </span><span class="si">{}</span><span class="s2"> records in total.&#34;</span>\
+     <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">df_q3_short</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">df_q3_long</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">Short Trips: 49303249 records in total.
+Long Trips: 18640 records in total.
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="2-observe-the-difference-in-temporal-attributes">2. Observe The Difference in Temporal Attributes</h4>
+<p>Instinctly, we think that the pickup/dropoff time may be different for short trips and long trips since the purpose for short trips is not the same as that of long trips.</p>
+<p>To validate our assumption, we first select temporal information from our database.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">df_q3_short</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s1">&#39;SELECT pickup_hour AS PUtime, </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                 dropoff_hour AS DOtime, count(*) AS count </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                 FROM table_record </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                 WHERE trip_distance &lt; 30 </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                 GROUP BY pickup_hour, dropoff_hour&#39;</span><span class="p">,</span> <span class="n">nyc_database</span><span class="p">)</span>
+<span class="n">df_q3_long</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s1">&#39;SELECT pickup_hour AS PUtime, </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                 dropoff_hour AS DOtime, count(*) AS count </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                 FROM table_record </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                 WHERE trip_distance &gt;= 30 </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                 GROUP BY pickup_hour, dropoff_hour&#39;</span><span class="p">,</span> <span class="n">nyc_database</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Afterwards, we visualize the pickup/dropoff counts at each time for both short trips and long trips.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">df_q3</span> <span class="o">=</span> <span class="n">df_q3_short</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_q3_long</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;PUtime&#34;</span><span class="p">,</span> <span class="s2">&#34;DOtime&#34;</span><span class="p">],</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;_short&#34;</span><span class="p">,</span> <span class="s2">&#34;_long&#34;</span><span class="p">])</span> \
+                        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&#34;count_short&#34;</span><span class="p">:</span><span class="s2">&#34;short trips&#34;</span><span class="p">,</span> <span class="s2">&#34;count_long&#34;</span><span class="p">:</span><span class="s2">&#34;long trips&#34;</span><span class="p">,</span> \
+                                        <span class="s2">&#34;PUtime&#34;</span><span class="p">:</span><span class="s2">&#34;pickup time&#34;</span><span class="p">,</span> <span class="s2">&#34;DOtime&#34;</span><span class="p">:</span><span class="s2">&#34;dropoff time&#34;</span><span class="p">})</span>
+
+<span class="n">df_q3_PU</span> <span class="o">=</span> <span class="n">df_q3</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&#34;pickup time&#34;</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;short trips&#39;</span><span class="p">:</span> <span class="s1">&#39;sum&#39;</span><span class="p">,</span> <span class="s1">&#39;long trips&#39;</span><span class="p">:</span><span class="s1">&#39;sum&#39;</span><span class="p">})</span> \
+            <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&#34;pickup time&#34;</span><span class="p">)</span>
+<span class="n">df_q3_DO</span> <span class="o">=</span> <span class="n">df_q3</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&#34;dropoff time&#34;</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;short trips&#39;</span><span class="p">:</span> <span class="s1">&#39;sum&#39;</span><span class="p">,</span> <span class="s1">&#39;long trips&#39;</span><span class="p">:</span><span class="s1">&#39;sum&#39;</span><span class="p">})</span> \
+            <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&#34;dropoff time&#34;</span><span class="p">)</span>
+
+<span class="n">diff_short_long_trip_on_time</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://imgur.com/WpMFdZa.png" alt="The Pickup/Drop-off Time For Short Trips and Long Trips"></p>
+<p>Based on the figure shown above, we can observe that</p>
+<ol>
+<li>For <strong>short trips</strong>,
+<ul>
+<li>the peak hours of pickups are from <code>6PM</code> to <code>10PM</code>.</li>
+<li>the peak hours of dropoffs are also from <code>6PM</code> to <code>10PM</code>.</li>
+</ul>
+</li>
+<li>For <strong>long trips</strong> ( &gt; 30 miles),
+<ul>
+<li>the peak hours of pickups are from <code>1PM</code> to <code>4PM</code>.</li>
+<li>the peak hours of dropoffs are from <code>3PM</code> to midnight.</li>
+</ul>
+</li>
+<li>The off-peak hours are similar for both short trips and long trips.</li>
+</ol>
+<p>With these observations, it can be guesed that</p>
+<ul>
+<li>Short trips are mainly contributed by people having dinner and hanging out at night.</li>
+<li>Long trips ( &gt; 30 miles) are contributed by travelers taking an arrival or a departure.</li>
+</ul>
+<h4 id="3-observe-the-difference-in-spatial-attributes">3. Observe The Difference in Spatial Attributes</h4>
+<p>So let&rsquo;s examine if our guesses are correct by summarize the spatial attributes of short trips and long trips.</p>
+<p>Here we extract pickup/dropoff locations and their counts from database by grouping the counts by each <code>('pickup zone', 'dropoff zone')</code> pair.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">df_q3_short</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s1">&#39;SELECT PULocationID, DOLocationID, count(*) AS count </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                 FROM table_record </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                 WHERE trip_distance &lt; 30 </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                 GROUP BY PULocationID, DOLocationID&#39;</span><span class="p">,</span> <span class="n">nyc_database</span><span class="p">)</span>
+<span class="n">df_q3_long</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s1">&#39;SELECT PULocationID, DOLocationID, count(*) AS count </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                 FROM table_record </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                 WHERE trip_distance &gt;= 30 </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                 GROUP BY PULocationID, DOLocationID&#39;</span><span class="p">,</span> <span class="n">nyc_database</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>After extracting data from database, we then arrange the information and show the top 3 <code>('pickup zone', 'dropoff zone')</code> pair for both short trips and long trips.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">df_q3</span> <span class="o">=</span> <span class="n">df_q3_short</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_q3_long</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;PULocationID&#34;</span><span class="p">,</span> <span class="s2">&#34;DOLocationID&#34;</span><span class="p">],</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;_short&#34;</span><span class="p">,</span> <span class="s2">&#34;_long&#34;</span><span class="p">])</span> \
+                        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&#34;count_short&#34;</span><span class="p">:</span><span class="s2">&#34;short trips&#34;</span><span class="p">,</span> <span class="s2">&#34;count_long&#34;</span><span class="p">:</span><span class="s2">&#34;long trips&#34;</span><span class="p">})</span>
+<span class="n">df_q3</span> <span class="o">=</span> <span class="n">df_q3</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_loc</span><span class="p">[[</span><span class="s2">&#34;LocationID&#34;</span><span class="p">,</span> <span class="s2">&#34;zone&#34;</span><span class="p">]],</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&#34;PULocationID&#34;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">&#34;LocationID&#34;</span><span class="p">)</span> \
+             <span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;LocationID&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&#34;zone&#34;</span><span class="p">:</span><span class="s2">&#34;pickup zone&#34;</span><span class="p">})</span> \
+             <span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_loc</span><span class="p">[[</span><span class="s2">&#34;LocationID&#34;</span><span class="p">,</span> <span class="s2">&#34;zone&#34;</span><span class="p">]],</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&#34;DOLocationID&#34;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">&#34;LocationID&#34;</span><span class="p">)</span> \
+             <span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;LocationID&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&#34;zone&#34;</span><span class="p">:</span><span class="s2">&#34;dropoff zone&#34;</span><span class="p">})</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>In the tables below, we can see that</p>
+<ol>
+<li><strong>The top 3 routes for short trips</strong> are all in the most prosperous area in <code>Manhattan</code>, which are filled with restaurants and entertainment venues.</li>
+<li><strong>The top 3 routes for long trips ( &gt; 30 miles)</strong> are routes that drive from one airport zone to another.
+<ul>
+<li>The second popular route is a special case that passengers are picked up from  and also dropped-off at <code>JFK Airport</code>, which may be some kind of city tours of the tranfer during their waiting time between the connecting flights.</li>
+</ul>
+</li>
+</ol>
+<p>These findings support our guesses that long trips are for traveling and that short trips are for eating and entertaining.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">ShortTrip_top3</span> <span class="o">=</span> <span class="n">df_q3</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&#34;short trips&#34;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ShortTrip_top3</span><span class="p">[[</span><span class="s1">&#39;pickup zone&#39;</span><span class="p">,</span> <span class="s1">&#39;dropoff zone&#39;</span><span class="p">,</span> <span class="s1">&#39;short trips&#39;</span><span class="p">]]</span>
+</code></pre></td></tr></table>
+</div>
+</div><div>
+<table class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>pickup zone</th>
+      <th>dropoff zone</th>
+      <th>short trips</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>563</th>
+      <td>Upper East Side North</td>
+      <td>Upper East Side North</td>
+      <td>238878</td>
+    </tr>
+    <tr>
+      <th>632</th>
+      <td>Upper East Side South</td>
+      <td>Upper East Side South</td>
+      <td>209915</td>
+    </tr>
+    <tr>
+      <th>1025</th>
+      <td>Upper West Side South</td>
+      <td>Upper West Side North</td>
+      <td>137164</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">LongTrip_top3</span> <span class="o">=</span> <span class="n">df_q3</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&#34;long trips&#34;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">LongTrip_top3</span><span class="p">[[</span><span class="s1">&#39;pickup zone&#39;</span><span class="p">,</span> <span class="s1">&#39;dropoff zone&#39;</span><span class="p">,</span> <span class="s1">&#39;long trips&#39;</span><span class="p">]]</span>
+</code></pre></td></tr></table>
+</div>
+</div><table class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>pickup zone</th>
+      <th>dropoff zone</th>
+      <th>long trips</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>29</th>
+      <td>JFK Airport</td>
+      <td>Newark Airport</td>
+      <td>1097</td>
+    </tr>
+    <tr>
+      <th>101</th>
+      <td>JFK Airport</td>
+      <td>JFK Airport</td>
+      <td>586</td>
+    </tr>
+    <tr>
+      <th>31</th>
+      <td>LaGuardia Airport</td>
+      <td>Newark Airport</td>
+      <td>463</td>
+    </tr>
+  </tbody>
+</table>
+<p>On the other hand, we can also observe the popular zones for short and long trips on map.   By aggregating the pickup/dropoff trip count of each zone, we then show the popular pickup/drop-off zones for short trips and long trips.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">df_q3_PU</span> <span class="o">=</span> <span class="n">df_q3</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&#34;PULocationID&#34;</span><span class="p">,</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;short trips&#39;</span><span class="p">:</span><span class="s1">&#39;sum&#39;</span><span class="p">,</span> <span class="s1">&#39;long trips&#39;</span><span class="p">:</span><span class="s1">&#39;sum&#39;</span><span class="p">})</span>
+<span class="n">PUtop3_short</span> <span class="o">=</span> <span class="n">df_q3_PU</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;short trips&#39;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&#34;PULocationID&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">PUtop3_long</span> <span class="o">=</span> <span class="n">df_q3_PU</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;long trips&#39;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&#34;PULocationID&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">PUcount_short</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">df_q3_PU</span><span class="p">[</span><span class="s1">&#39;PULocationID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">df_q3_PU</span><span class="p">[</span><span class="s1">&#39;short trips&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
+<span class="n">PUcount_long</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">df_q3_PU</span><span class="p">[</span><span class="s1">&#39;PULocationID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">df_q3_PU</span><span class="p">[</span><span class="s1">&#39;long trips&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
+
+<span class="n">df_q3_DO</span> <span class="o">=</span> <span class="n">df_q3</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&#34;DOLocationID&#34;</span><span class="p">,</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;short trips&#39;</span><span class="p">:</span><span class="s1">&#39;sum&#39;</span><span class="p">,</span> <span class="s1">&#39;long trips&#39;</span><span class="p">:</span><span class="s1">&#39;sum&#39;</span><span class="p">})</span>
+<span class="n">DOtop3_short</span> <span class="o">=</span> <span class="n">df_q3_DO</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;short trips&#39;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&#34;DOLocationID&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">DOtop3_long</span> <span class="o">=</span> <span class="n">df_q3_DO</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;long trips&#39;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&#34;DOLocationID&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">DOcount_short</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">df_q3_DO</span><span class="p">[</span><span class="s1">&#39;DOLocationID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">df_q3_DO</span><span class="p">[</span><span class="s1">&#39;short trips&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
+<span class="n">DOcount_long</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">df_q3_DO</span><span class="p">[</span><span class="s1">&#39;DOLocationID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">df_q3_DO</span><span class="p">[</span><span class="s1">&#39;long trips&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span><span class="mi">18</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Zones with most pickups for Short Trips&#34;</span><span class="p">)</span>
+<span class="n">draw_zone_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">sf</span><span class="p">,</span> <span class="n">heat</span><span class="o">=</span><span class="n">PUcount_short</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">PUtop3_short</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Zones with most pickups for Long Trips&#34;</span><span class="p">)</span>
+<span class="n">draw_zone_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">sf</span><span class="p">,</span> <span class="n">heat</span><span class="o">=</span><span class="n">PUcount_long</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">PUtop3_long</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Zones with most drop-offs for Short Trips&#34;</span><span class="p">)</span>
+<span class="n">draw_zone_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">sf</span><span class="p">,</span> <span class="n">heat</span><span class="o">=</span><span class="n">DOcount_short</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">DOtop3_short</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Zones with most drop-offs for Long Trips&#34;</span><span class="p">)</span>
+<span class="n">draw_zone_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">sf</span><span class="p">,</span> <span class="n">heat</span><span class="o">=</span><span class="n">DOcount_long</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">DOtop3_long</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://imgur.com/y2EI0LZ.png" alt="Popular Pickup/Drop-off Zones for Short Trips and Long Trips"></p>
+<p>From the figure above, we can find something interesting:</p>
+<ol>
+<li>Surprisingly, <code>JFK Airport</code> is the most popular pickup zone for <strong>short</strong> trips.
+<ul>
+<li>More specifically, in 6 months there are about 1 million taxis taken from <code>JFK Airport</code> (about <strong>5700 trips per day</strong>) and drive no more than 30 miles to arrive their destination.</li>
+<li>These passengers may contain foreign travelers or locals who just came back from abroad.</li>
+</ul>
+</li>
+<li>There are more drop-offs at <code>JFK Airport</code> than <code>Newark Airport</code> in short trips.</li>
+<li>There are more drop-offs at <code>Newark Airport</code> than <code>JFK Airport</code> in long trips.</li>
+<li>For long trips, <code>JFK Airport</code> and <code>LaGuardia Airport</code> are the most popular pickup zones.</li>
+</ol>
+<h4 id="4-other-differences">4. Other Differences</h4>
+<p>Lastly, we compare short trips and long trips in some other aspects.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&#34;passenger_count&#34;</span><span class="p">,</span> <span class="s2">&#34;RatecodeID&#34;</span><span class="p">,</span> <span class="s2">&#34;payment_type&#34;</span><span class="p">]:</span>
+    <span class="n">diff_short_long_trip_on</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">rpr</span><span class="o">=</span><span class="s2">&#34;proportion&#34;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src="https://imgur.com/MXTJTvU.png" alt="Passenger Count"></p>
+<p>Unexpectedly, the distribution of passenger count is nearly the same for short trips and long trips.</p>
+<p><img src="https://imgur.com/q4DOWDo.png" alt="RateCode"></p>
+<p><code>RateCodeID</code> represents the final rate code in effect at the end of the trip:</p>
+<ul>
+<li>1=Standard rate</li>
+<li>2=JFK</li>
+<li>3=Newark</li>
+<li>4=Nassau or Westchester</li>
+<li>5=Negotiated fare</li>
+<li>6=Group ride</li>
+</ul>
+<p>It can be seen that <code>40</code> percent of <strong>long trips</strong> use <code>Negotiated fare</code> and another <code>40</code> percent of long trips use <code>JFK</code>, <code>Newark</code>, or <code>Nassau or Westchester</code> while less than <code>5</code> percent of <strong>short trips</strong> use any of them.</p>
+<p><img src="https://imgur.com/H7BVjkC.png" alt="Payment Type"></p>
+<p><code>payment_type</code> is a numeric code signifying how the passenger paid for the trip:</p>
+<ul>
+<li>1=Credit card</li>
+<li>2=Cash</li>
+<li>3=No charge</li>
+<li>4=Dispute</li>
+</ul>
+<p>Passengers of <strong>long trips</strong> paid a little more frequent in credit card and a little less frequent in cash comparing to that of <strong>short trips</strong>.</p>
+<h2 id="iv-appendix">IV. Appendix</h2>
+<p>Here are some self-defined functions that are frequently used in the above sections.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">diff_short_long_trip_on_time</span><span class="p">():</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span><span class="mi">18</span><span class="p">))</span>
+
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">polar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># make the histogram that bined on 24 hour</span>
+    <span class="n">radii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">df_q3_PU</span><span class="p">[</span><span class="s1">&#39;short trips&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&#34;int64&#34;</span><span class="p">)</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="s2">&#34;Pickup Time for Short Trips&#34;</span>
+    <span class="n">plt_clock</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">radii</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="s2">&#34;#dc143c&#34;</span><span class="p">)</span>
+
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span> <span class="n">polar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># make the histogram that bined on 24 hour</span>
+    <span class="n">radii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">df_q3_PU</span><span class="p">[</span><span class="s1">&#39;long trips&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&#34;int64&#34;</span><span class="p">)</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="s2">&#34;Pickup Time for Long Trips&#34;</span>
+    <span class="n">plt_clock</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">radii</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="s2">&#34;#56B4E9&#34;</span><span class="p">)</span>
+
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span> <span class="n">polar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># make the histogram that bined on 24 hour</span>
+    <span class="n">radii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">df_q3_DO</span><span class="p">[</span><span class="s1">&#39;short trips&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&#34;int64&#34;</span><span class="p">)</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="s2">&#34;Dropoff Time for Short Trips&#34;</span>
+    <span class="n">plt_clock</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">radii</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="s2">&#34;#dc143c&#34;</span><span class="p">)</span>
+
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span> <span class="n">polar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># make the histogram that bined on 24 hour</span>
+    <span class="n">radii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">df_q3_DO</span><span class="p">[</span><span class="s1">&#39;long trips&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&#34;int64&#34;</span><span class="p">)</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="s2">&#34;Dropoff Time for Long Trips&#34;</span>
+    <span class="n">plt_clock</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">radii</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="s2">&#34;#56B4E9&#34;</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">plt_clock</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">radii</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="mi">24</span>
+    <span class="n">bottom</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="c1"># create theta for 24 hours</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+    <span class="c1"># width of each bin on the plot</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="n">N</span>
+    
+    <span class="n">bars</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">radii</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="n">bottom</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&#34;#999999&#34;</span><span class="p">)</span>
+
+    <span class="c1"># set the lable go clockwise and start from the top</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_theta_zero_location</span><span class="p">(</span><span class="s2">&#34;N&#34;</span><span class="p">)</span>
+    <span class="c1"># clockwise</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_theta_direction</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># set the label</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+    <span class="n">ticks</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;</span><span class="si">{}</span><span class="s2">:00&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">24</span><span class="p">)]</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">ticks</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">diff_short_long_trip_on</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">rpr</span><span class="o">=</span><span class="s2">&#34;count&#34;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">):</span>
+    <span class="n">df_q3_short</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s1">&#39;SELECT &#39;</span><span class="o">+</span><span class="n">attr</span><span class="o">+</span><span class="s1">&#39;, count(*) as count </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                    FROM table_record </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                    WHERE trip_distance &lt; 30 </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                    GROUP BY &#39;</span><span class="o">+</span><span class="n">attr</span><span class="p">,</span> <span class="n">nyc_database</span><span class="p">)</span>
+    <span class="n">df_q3_long</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s1">&#39;SELECT &#39;</span><span class="o">+</span><span class="n">attr</span><span class="o">+</span><span class="s1">&#39;, avg(trip_distance) AS AVG_trip_distance, count(*) as count </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                    FROM table_record </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                    WHERE trip_distance &gt;= 30 </span><span class="se">\
+</span><span class="se"></span><span class="s1">                                    GROUP BY &#39;</span><span class="o">+</span><span class="n">attr</span><span class="p">,</span> <span class="n">nyc_database</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">rpr</span> <span class="o">==</span> <span class="s2">&#34;proportion&#34;</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">df_q3_short</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">df_q3_short</span><span class="p">[</span><span class="s1">&#39;proportion&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="n">s</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">df_q3_short</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]]</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">df_q3_long</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">df_q3_long</span><span class="p">[</span><span class="s1">&#39;proportion&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="n">s</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">df_q3_long</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]]</span>
+    
+    <span class="n">df_q3</span> <span class="o">=</span> <span class="n">df_q3_short</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_q3_long</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">attr</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;_short&#34;</span><span class="p">,</span> <span class="s2">&#34;_long&#34;</span><span class="p">])</span> \
+                        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">rpr</span><span class="o">+</span><span class="s2">&#34;_short&#34;</span><span class="p">:</span><span class="s2">&#34;short trips&#34;</span><span class="p">,</span> <span class="n">rpr</span><span class="o">+</span><span class="s2">&#34;_long&#34;</span><span class="p">:</span><span class="s2">&#34;long trips&#34;</span><span class="p">})</span> 
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">df_q3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">attr</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;short trips&#39;</span><span class="p">,</span> <span class="s1">&#39;long trips&#39;</span><span class="p">],</span> <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">rpr</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&#34;_&#34;</span><span class="p">,</span> <span class="s2">&#34; &#34;</span><span class="p">)</span><span class="o">+</span><span class="s2">&#34; difference in short/long trip&#34;</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">get_lat_lon</span><span class="p">(</span><span class="n">sf</span><span class="p">):</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">sr</span> <span class="ow">in</span> <span class="n">sf</span><span class="o">.</span><span class="n">shapeRecords</span><span class="p">():</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">sr</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">rec</span> <span class="o">=</span> <span class="n">sr</span><span class="o">.</span><span class="n">record</span>
+        <span class="n">loc_id</span> <span class="o">=</span> <span class="n">rec</span><span class="p">[</span><span class="n">shp_dic</span><span class="p">[</span><span class="s1">&#39;LocationID&#39;</span><span class="p">]]</span>
+        
+        <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">shape</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">shape</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span>
+        
+        <span class="n">content</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">loc_id</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;LocationID&#34;</span><span class="p">,</span> <span class="s2">&#34;longitude&#34;</span><span class="p">,</span> <span class="s2">&#34;latitude&#34;</span><span class="p">])</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">get_boundaries</span><span class="p">(</span><span class="n">sf</span><span class="p">):</span>
+    <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">shape</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">sf</span><span class="o">.</span><span class="n">iterShapes</span><span class="p">()):</span>
+        <span class="n">lat</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">shape</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">shape</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+        <span class="n">lon</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">shape</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">shape</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]])</span>
+
+    <span class="n">margin</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="c1"># buffer to add to the range</span>
+    <span class="n">lat_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span> <span class="o">-</span> <span class="n">margin</span>
+    <span class="n">lat_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span> <span class="o">+</span> <span class="n">margin</span>
+    <span class="n">lon_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span> <span class="o">-</span> <span class="n">margin</span>
+    <span class="n">lon_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span> <span class="o">+</span> <span class="n">margin</span>
+
+    <span class="k">return</span> <span class="n">lat_min</span><span class="p">,</span> <span class="n">lat_max</span><span class="p">,</span> <span class="n">lon_min</span><span class="p">,</span> <span class="n">lon_max</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">draw_region_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">sf</span><span class="p">,</span> <span class="n">heat</span><span class="o">=</span><span class="p">{}):</span>
+    <span class="n">continent</span> <span class="o">=</span> <span class="p">[</span><span class="mi">235</span><span class="o">/</span><span class="mi">256</span><span class="p">,</span> <span class="mi">151</span><span class="o">/</span><span class="mi">256</span><span class="p">,</span> <span class="mi">78</span><span class="o">/</span><span class="mi">256</span><span class="p">]</span>
+    <span class="n">ocean</span> <span class="o">=</span> <span class="p">(</span><span class="mi">89</span><span class="o">/</span><span class="mi">256</span><span class="p">,</span> <span class="mi">171</span><span class="o">/</span><span class="mi">256</span><span class="p">,</span> <span class="mi">227</span><span class="o">/</span><span class="mi">256</span><span class="p">)</span>    
+    
+    <span class="n">reg_list</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Staten Island&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Queens&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;Bronx&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;Manhattan&#39;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;EWR&#39;</span><span class="p">:</span><span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;Brooklyn&#39;</span><span class="p">:</span><span class="mi">6</span><span class="p">}</span>
+    <span class="n">reg_x</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Staten Island&#39;</span><span class="p">:[],</span> <span class="s1">&#39;Queens&#39;</span><span class="p">:[],</span> <span class="s1">&#39;Bronx&#39;</span><span class="p">:[],</span> <span class="s1">&#39;Manhattan&#39;</span><span class="p">:[],</span> <span class="s1">&#39;EWR&#39;</span><span class="p">:[],</span> <span class="s1">&#39;Brooklyn&#39;</span><span class="p">:[]}</span>
+    <span class="n">reg_y</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Staten Island&#39;</span><span class="p">:[],</span> <span class="s1">&#39;Queens&#39;</span><span class="p">:[],</span> <span class="s1">&#39;Bronx&#39;</span><span class="p">:[],</span> <span class="s1">&#39;Manhattan&#39;</span><span class="p">:[],</span> <span class="s1">&#39;EWR&#39;</span><span class="p">:[],</span> <span class="s1">&#39;Brooklyn&#39;</span><span class="p">:[]}</span>
+    
+    <span class="c1"># colorbar</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">heat</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">heat</span><span class="o">.</span><span class="n">values</span><span class="p">())),</span> <span class="n">vmax</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">heat</span><span class="o">.</span><span class="n">values</span><span class="p">())))</span> <span class="c1">#norm = mpl.colors.LogNorm(vmin=1,vmax=max(heat))</span>
+        <span class="n">cm</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s1">&#39;Reds&#39;</span><span class="p">)</span>
+        <span class="c1">#sm = plt.cm.ScalarMappable(cmap=cm, norm=norm)</span>
+        <span class="c1">#sm.set_array([])</span>
+        <span class="c1">#plt.colorbar(sm, ticks=np.linspace(min(heat.values()),max(heat.values()),8), \</span>
+        <span class="c1">#             boundaries=np.arange(min(heat.values())-10,max(heat.values())+10,.1))</span>
+    
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">ocean</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">sr</span> <span class="ow">in</span> <span class="n">sf</span><span class="o">.</span><span class="n">shapeRecords</span><span class="p">():</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">sr</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">rec</span> <span class="o">=</span> <span class="n">sr</span><span class="o">.</span><span class="n">record</span>
+        <span class="n">reg_name</span> <span class="o">=</span> <span class="n">rec</span><span class="p">[</span><span class="n">shp_dic</span><span class="p">[</span><span class="s1">&#39;borough&#39;</span><span class="p">]]</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">heat</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">vmax</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span> <span class="c1">#norm = mpl.colors.LogNorm(vmin=1,vmax=max(heat))</span>
+            <span class="n">cm</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s1">&#39;Pastel1&#39;</span><span class="p">)</span>
+            <span class="n">R</span><span class="p">,</span><span class="n">G</span><span class="p">,</span><span class="n">B</span><span class="p">,</span><span class="n">A</span> <span class="o">=</span> <span class="n">cm</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">reg_list</span><span class="p">[</span><span class="n">reg_name</span><span class="p">]))</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="p">[</span><span class="n">R</span><span class="p">,</span><span class="n">G</span><span class="p">,</span><span class="n">B</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">R</span><span class="p">,</span><span class="n">G</span><span class="p">,</span><span class="n">B</span><span class="p">,</span><span class="n">A</span> <span class="o">=</span> <span class="n">cm</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">heat</span><span class="p">[</span><span class="n">reg_name</span><span class="p">])))</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="p">[</span><span class="n">R</span><span class="p">,</span><span class="n">G</span><span class="p">,</span><span class="n">B</span><span class="p">]</span>
+            
+        <span class="c1"># check number of parts (could use MultiPolygon class of shapely?)</span>
+        <span class="n">nparts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">parts</span><span class="p">)</span> <span class="c1"># total parts</span>
+        <span class="k">if</span> <span class="n">nparts</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">polygon</span> <span class="o">=</span> <span class="n">Polygon</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+            <span class="n">patch</span> <span class="o">=</span> <span class="n">PolygonPatch</span><span class="p">(</span><span class="n">polygon</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">patch</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># loop over parts of each shape, plot separately</span>
+            <span class="k">for</span> <span class="n">ip</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nparts</span><span class="p">):</span> <span class="c1"># loop over parts, plot separately</span>
+                <span class="n">i0</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">ip</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">ip</span> <span class="o">&lt;</span> <span class="n">nparts</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">i1</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">ip</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">i1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+
+                <span class="n">polygon</span> <span class="o">=</span> <span class="n">Polygon</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">i0</span><span class="p">:</span><span class="n">i1</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">patch</span> <span class="o">=</span> <span class="n">PolygonPatch</span><span class="p">(</span><span class="n">polygon</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">patch</span><span class="p">)</span>
+                
+        <span class="n">reg_x</span><span class="p">[</span><span class="n">reg_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">shape</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">shape</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">reg_y</span><span class="p">[</span><span class="n">reg_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">shape</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">shape</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+        
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">reg_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">heat</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">reg_x</span><span class="p">[</span><span class="n">k</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">reg_y</span><span class="p">[</span><span class="n">k</span><span class="p">]),</span> <span class="n">k</span><span class="p">,</span> <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span>
+                        <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&#34;white&#34;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>     
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">reg_x</span><span class="p">[</span><span class="n">k</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">reg_y</span><span class="p">[</span><span class="n">k</span><span class="p">]),</span> <span class="s2">&#34;</span><span class="si">{}</span><span class="se">\n</span><span class="s2">(</span><span class="si">{}</span><span class="s2">K)&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">heat</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">/</span><span class="mi">1000</span><span class="p">),</span> <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> 
+                     <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span><span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&#34;white&#34;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>       
+
+    <span class="c1"># display</span>
+    <span class="n">limits</span> <span class="o">=</span> <span class="n">get_boundaries</span><span class="p">(</span><span class="n">sf</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">limits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">limits</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">draw_zone_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">sf</span><span class="p">,</span> <span class="n">heat</span><span class="o">=</span><span class="p">{},</span> <span class="n">text</span><span class="o">=</span><span class="p">[],</span> <span class="n">arrows</span><span class="o">=</span><span class="p">[]):</span>
+    <span class="n">continent</span> <span class="o">=</span> <span class="p">[</span><span class="mi">235</span><span class="o">/</span><span class="mi">256</span><span class="p">,</span> <span class="mi">151</span><span class="o">/</span><span class="mi">256</span><span class="p">,</span> <span class="mi">78</span><span class="o">/</span><span class="mi">256</span><span class="p">]</span>
+    <span class="n">ocean</span> <span class="o">=</span> <span class="p">(</span><span class="mi">89</span><span class="o">/</span><span class="mi">256</span><span class="p">,</span> <span class="mi">171</span><span class="o">/</span><span class="mi">256</span><span class="p">,</span> <span class="mi">227</span><span class="o">/</span><span class="mi">256</span><span class="p">)</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">ocean</span><span class="p">)</span>
+    
+    <span class="c1"># colorbar</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">heat</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">heat</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span><span class="n">vmax</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="n">heat</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="c1">#norm = mpl.colors.LogNorm(vmin=1,vmax=max(heat))</span>
+        <span class="n">cm</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s1">&#39;Reds&#39;</span><span class="p">)</span>
+        <span class="n">sm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">)</span>
+        <span class="n">sm</span><span class="o">.</span><span class="n">set_array</span><span class="p">([])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="n">ticks</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">heat</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span><span class="nb">max</span><span class="p">(</span><span class="n">heat</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span><span class="mi">8</span><span class="p">),</span>
+                     <span class="n">boundaries</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">heat</span><span class="o">.</span><span class="n">values</span><span class="p">())</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="nb">max</span><span class="p">(</span><span class="n">heat</span><span class="o">.</span><span class="n">values</span><span class="p">())</span><span class="o">+</span><span class="mi">10</span><span class="p">,</span><span class="mf">.1</span><span class="p">))</span>
+    
+    <span class="k">for</span> <span class="n">sr</span> <span class="ow">in</span> <span class="n">sf</span><span class="o">.</span><span class="n">shapeRecords</span><span class="p">():</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">sr</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">rec</span> <span class="o">=</span> <span class="n">sr</span><span class="o">.</span><span class="n">record</span>
+        <span class="n">loc_id</span> <span class="o">=</span> <span class="n">rec</span><span class="p">[</span><span class="n">shp_dic</span><span class="p">[</span><span class="s1">&#39;LocationID&#39;</span><span class="p">]]</span>
+        <span class="n">zone</span> <span class="o">=</span> <span class="n">rec</span><span class="p">[</span><span class="n">shp_dic</span><span class="p">[</span><span class="s1">&#39;zone&#39;</span><span class="p">]]</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">heat</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="n">continent</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">loc_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">heat</span><span class="p">:</span>
+                <span class="n">R</span><span class="p">,</span><span class="n">G</span><span class="p">,</span><span class="n">B</span><span class="p">,</span><span class="n">A</span> <span class="o">=</span> <span class="n">cm</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">R</span><span class="p">,</span><span class="n">G</span><span class="p">,</span><span class="n">B</span><span class="p">,</span><span class="n">A</span> <span class="o">=</span> <span class="n">cm</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">heat</span><span class="p">[</span><span class="n">loc_id</span><span class="p">]))</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="p">[</span><span class="n">R</span><span class="p">,</span><span class="n">G</span><span class="p">,</span><span class="n">B</span><span class="p">]</span>
+
+        <span class="c1"># check number of parts (could use MultiPolygon class of shapely?)</span>
+        <span class="n">nparts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">parts</span><span class="p">)</span> <span class="c1"># total parts</span>
+        <span class="k">if</span> <span class="n">nparts</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">polygon</span> <span class="o">=</span> <span class="n">Polygon</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+            <span class="n">patch</span> <span class="o">=</span> <span class="n">PolygonPatch</span><span class="p">(</span><span class="n">polygon</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">patch</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># loop over parts of each shape, plot separately</span>
+            <span class="k">for</span> <span class="n">ip</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nparts</span><span class="p">):</span> <span class="c1"># loop over parts, plot separately</span>
+                <span class="n">i0</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">ip</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">ip</span> <span class="o">&lt;</span> <span class="n">nparts</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">i1</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">ip</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">i1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+
+                <span class="n">polygon</span> <span class="o">=</span> <span class="n">Polygon</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">i0</span><span class="p">:</span><span class="n">i1</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">patch</span> <span class="o">=</span> <span class="n">PolygonPatch</span><span class="p">(</span><span class="n">polygon</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">patch</span><span class="p">)</span>
+        
+        <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">shape</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">shape</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">rec</span><span class="p">[</span><span class="n">shp_dic</span><span class="p">[</span><span class="s1">&#39;Shape_Area&#39;</span><span class="p">]]</span> <span class="o">&gt;</span> <span class="mf">0.0001</span><span class="p">):</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">loc_id</span><span class="p">),</span> <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>            
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">loc_id</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+            <span class="c1">#plt.text(x+0.01, y-0.01, str(loc_id), fontsize=12, color=&#34;white&#34;, bbox=dict(facecolor=&#39;black&#39;, alpha=0.5))</span>
+            <span class="n">eta_x</span> <span class="o">=</span> <span class="mf">0.05</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">[</span><span class="n">text</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">loc_id</span><span class="p">)])</span>
+            <span class="n">eta_y</span> <span class="o">=</span> <span class="mf">0.05</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">[</span><span class="n">text</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">loc_id</span><span class="p">)])</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s2">&#34;[</span><span class="si">{}</span><span class="s2">] </span><span class="si">{}</span><span class="s2">&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loc_id</span><span class="p">,</span> <span class="n">zone</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">eta_x</span><span class="p">,</span> <span class="n">y</span><span class="o">+</span><span class="n">eta_y</span><span class="p">),</span>
+                        <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&#34;white&#34;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+                        <span class="n">arrowprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.05</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">arrows</span><span class="p">)</span><span class="o">!=</span><span class="mi">0</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span> <span class="n">arrows</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">xy</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="s1">&#39;dest&#39;</span><span class="p">],</span> <span class="n">xytext</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">],</span> <span class="n">size</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="s1">&#39;cnt&#39;</span><span class="p">],</span>
+                    <span class="n">arrowprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">arrowstyle</span><span class="o">=</span><span class="s2">&#34;fancy&#34;</span><span class="p">,</span> <span class="n">fc</span><span class="o">=</span><span class="s2">&#34;0.6&#34;</span><span class="p">,</span> <span class="n">ec</span><span class="o">=</span><span class="s2">&#34;none&#34;</span><span class="p">))</span>
+    
+    <span class="c1"># display</span>
+    <span class="n">limits</span> <span class="o">=</span> <span class="n">get_boundaries</span><span class="p">(</span><span class="n">sf</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">limits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">limits</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+</code></pre></td></tr></table>
+</div>
+</div>
+    
+	</div>
+  <footer class="article-footer clearfix">
+  
+
+<div class="article-tags">
+  <span></span>
+  
+  <a href="https://binnz.github.io/tags/data-mining">Data-Mining</a>
+  
+</div>
+
+
+
+
+
+<div class="article-categories">
+  <span></span>
+  
+  <a class="article-category-link" href="https://binnz.github.io/categories/programming">Programming</a>
+  
+</div>
+
+
+
+  <div class="article-share" id="share">
+    <div data-url="https://binnz.github.io/post/2018-05-14-nyc/" data-title="Analyze the NYC Taxi Data" data-tsina="" class="share clearfix">
+    </div>
+  </div>
+</footer>
+
+	</article>
+  
+
+
+<section class="comment">
+<div id="disqus_thread"></div>
+</section>
+<script>
+  <!-- detect whether Disuqs can load -->
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', '//disqus.com/next/config.json?' + new Date().getTime(), true);
+  xhr.timeout = 3000; 
+
+  xhr.onload = function() { 
+
+
+var disqus_config = function () {
+this.page.url = "https://binnz.github.io/post/2018-05-14-nyc/";
+this.page.identifier = "https://binnz.github.io/post/2018-05-14-nyc/";
+};
+(function() { 
+var d = document, s = d.createElement('script');
+
+s.src = '//disc.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+}
+  xhr.ontimeout = function() {
+  <!-- cannot load Disqus, skip it. -->
+  return;
+}
+xhr.send(null);
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+    <div class="openaside"><a class="navbutton" href="#" title="Show SideBar"></a></div>
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide SideBar"></a></div>
+<aside class="clearfix">
+  
+
+<div class="categorieslist">
+  <p class="asidetitle">Categories</p>
+  <ul>
+    
+    <li><a href="https://binnz.github.io/categories/install" title="install">install<sup>2</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/life" title="life">life<sup>1</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/notes" title="notes">notes<sup>50</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/programming" title="programming">programming<sup>25</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/projects" title="projects">projects<sup>2</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/publications" title="publications">publications<sup>1</sup></a></li>
+    
+  </ul>
+</div>
+
+
+
+  
+
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+      
+			<li><a href="https://binnz.github.io/tags/ANDROID" title="android">android<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/APACHE-PIG" title="apache-pig">apache-pig<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/ASSOCIATION-ANALYSIS" title="association-analysis">association-analysis<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/BEER" title="beer">beer<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CLASSIFICATION" title="classification">classification<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CLUSTERING" title="clustering">clustering<sup>19</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CONFERENCE" title="conference">conference<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATA-MINING" title="data-mining">data-mining<sup>64</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATA-SCIENCE" title="data-science">data-science<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATABASE" title="database">database<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DEEP-LEARNING" title="deep-learning">deep-learning<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/ELASTICSEARCH" title="elasticsearch">elasticsearch<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/GRAPH" title="graph">graph<sup>12</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/HADOOP" title="hadoop">hadoop<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/INFORMATION-RETRIEVAL" title="information-retrieval">information-retrieval<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/JAVA" title="java">java<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/MACHINE-LEARNING" title="machine-learning">machine-learning<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NEURAL-NETWORK" title="neural-network">neural-network<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NLP" title="nlp">nlp<sup>4</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NLTK" title="nltk">nltk<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/PYTHON" title="python">python<sup>15</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/R" title="r">r<sup>4</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/RELATION-ALGEBRA" title="relation-algebra">relation-algebra<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SCIKIT-LEARN" title="scikit-learn">scikit-learn<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SPARK" title="spark">spark<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SQL" title="sql">sql<sup>3</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/STATISTICS" title="statistics">statistics<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/STREAMING" title="streaming">streaming<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/TIME-SERIES" title="time-series">time-series<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/TRAVEL" title="travel">travel<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/UNIT-TEST" title="unit-test">unit-test<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/VBA" title="vba">vba<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/WINDOWS" title="windows">windows<sup>1</sup></a></li>
+      
+		</ul>
+</div>
+
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle">Archives</p>
+    <ul class="archive-list">
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2021-06">2021年06月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2020-05">2020年05月</a><span class="archive-list-count">12</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2019-09">2019年09月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-09">2018年09月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-08">2018年08月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-06">2018年06月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-05">2018年05月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-04">2018年04月</a><span class="archive-list-count">5</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-03">2018年03月</a><span class="archive-list-count">5</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-01">2018年01月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-12">2017年12月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-11">2017年11月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-10">2017年10月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-09">2017年09月</a><span class="archive-list-count">10</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-08">2017年08月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-07">2017年07月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-05">2017年05月</a><span class="archive-list-count">3</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-04">2017年04月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-03">2017年03月</a><span class="archive-list-count">20</span>
+      </li>
+      
+    </ul>
+
+  </div>
+
+
+  
+
+<div class="tagcloudlist">
+  <p class="asidetitle">Tags Cloud</p>
+  <div class="tagcloudlist clearfix">
+    
+    <a href="https://binnz.github.io/tags/android" style="font-size: 12px;">android</a>
+    
+    <a href="https://binnz.github.io/tags/apache-pig" style="font-size: 12px;">apache-pig</a>
+    
+    <a href="https://binnz.github.io/tags/association-analysis" style="font-size: 12px;">association-analysis</a>
+    
+    <a href="https://binnz.github.io/tags/beer" style="font-size: 12px;">beer</a>
+    
+    <a href="https://binnz.github.io/tags/classification" style="font-size: 12px;">classification</a>
+    
+    <a href="https://binnz.github.io/tags/clustering" style="font-size: 12px;">clustering</a>
+    
+    <a href="https://binnz.github.io/tags/conference" style="font-size: 12px;">conference</a>
+    
+    <a href="https://binnz.github.io/tags/data-mining" style="font-size: 12px;">data-mining</a>
+    
+    <a href="https://binnz.github.io/tags/data-science" style="font-size: 12px;">data-science</a>
+    
+    <a href="https://binnz.github.io/tags/database" style="font-size: 12px;">database</a>
+    
+    <a href="https://binnz.github.io/tags/deep-learning" style="font-size: 12px;">deep-learning</a>
+    
+    <a href="https://binnz.github.io/tags/elasticsearch" style="font-size: 12px;">elasticsearch</a>
+    
+    <a href="https://binnz.github.io/tags/graph" style="font-size: 12px;">graph</a>
+    
+    <a href="https://binnz.github.io/tags/hadoop" style="font-size: 12px;">hadoop</a>
+    
+    <a href="https://binnz.github.io/tags/information-retrieval" style="font-size: 12px;">information-retrieval</a>
+    
+    <a href="https://binnz.github.io/tags/java" style="font-size: 12px;">java</a>
+    
+    <a href="https://binnz.github.io/tags/machine-learning" style="font-size: 12px;">machine-learning</a>
+    
+    <a href="https://binnz.github.io/tags/neural-network" style="font-size: 12px;">neural-network</a>
+    
+    <a href="https://binnz.github.io/tags/nlp" style="font-size: 12px;">nlp</a>
+    
+    <a href="https://binnz.github.io/tags/nltk" style="font-size: 12px;">nltk</a>
+    
+    <a href="https://binnz.github.io/tags/python" style="font-size: 12px;">python</a>
+    
+    <a href="https://binnz.github.io/tags/r" style="font-size: 12px;">r</a>
+    
+    <a href="https://binnz.github.io/tags/relation-algebra" style="font-size: 12px;">relation-algebra</a>
+    
+    <a href="https://binnz.github.io/tags/scikit-learn" style="font-size: 12px;">scikit-learn</a>
+    
+    <a href="https://binnz.github.io/tags/spark" style="font-size: 12px;">spark</a>
+    
+    <a href="https://binnz.github.io/tags/sql" style="font-size: 12px;">sql</a>
+    
+    <a href="https://binnz.github.io/tags/statistics" style="font-size: 12px;">statistics</a>
+    
+    <a href="https://binnz.github.io/tags/streaming" style="font-size: 12px;">streaming</a>
+    
+    <a href="https://binnz.github.io/tags/time-series" style="font-size: 12px;">time-series</a>
+    
+    <a href="https://binnz.github.io/tags/travel" style="font-size: 12px;">travel</a>
+    
+    <a href="https://binnz.github.io/tags/unit-test" style="font-size: 12px;">unit-test</a>
+    
+    <a href="https://binnz.github.io/tags/vba" style="font-size: 12px;">vba</a>
+    
+    <a href="https://binnz.github.io/tags/windows" style="font-size: 12px;">windows</a>
+    
+  </div>
+</div>
+
+
+
+  
+
+</aside>
+</div>
+
+  </div>
+  <footer><div id="footer" >
+  <div class="line">
+    <span></span>
+    
+    <div style='background:no-repeat url("https://binnz.github.io/img/US-MT-EPS-02-6001.png") left top;-webkit-background-size:6.875em 6.875em;-moz-background-size:6.875em 6.875em;background-size:6.875em 6.875em;' class="author" ></div>
+  </div>
+  <section class="info">
+    <p>hehe</p>
+  </section>
+  <div class="social-font clearfix">
+    <a href='http://weibo.com/coderzh' target="_blank" title="weibo"></a>
+    <a href='https://twitter.com/coderzh' target="_blank" title="twitter"></a>
+    <a href='https://github.com/binnz' target="_blank" class="icon-github" title="github"></a>
+    <a href='https://www.facebook.com/coderzh' target="_blank" title="facebook"></a>
+    <a href='https://www.linkedin.com/coderzh' target="_blank" title="linkedin"></a>
+  </div>
+  <p class="copyright">Powered by <a href="http://gohugo.io" target="_blank" title="hugo">hugo</a> and Theme by <a href="https://github.com/coderzh/hugo-pacman-theme" target="_blank" title="hugo-pacman-theme">hugo-pacman-theme</a> © 2021
+    
+    <a href="https://binnz.github.io/" title="California Dreaming">California Dreaming</a>
+    
+  </p>
+</div>
+</footer>
+  <script src="https://binnz.github.io/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+done = false;
+$(document).ready(function(){
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize();
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  $('form.search').on('submit', function (event) {
+    if (false === done) {
+      event.preventDefault();
+      var orgVal = $(this).find('#search').val();
+      $(this).find('#search').val('site:https:\/\/binnz.github.io\/ ' + orgVal);
+      done = true;
+      $(this).submit();
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://b.bshare.cn/barCode?site=weixin&url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});
+</script>
+
+
+
+
+
+</body>
+</html>

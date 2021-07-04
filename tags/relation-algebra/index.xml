@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Relation-Algebra on California Dreaming</title>
+    <link>https://binnz.github.io/tags/relation-algebra/</link>
+    <description>Recent content in Relation-Algebra on California Dreaming</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Tue, 01 Jun 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://binnz.github.io/tags/relation-algebra/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Introduction to Database</title>
+      <link>https://binnz.github.io/post/2021-06-01-database/</link>
+      <pubDate>Tue, 01 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2021-06-01-database/</guid>
+      <description>&lt;p&gt;What is Database Management System(DBMS)?
+In short, a DBMS should support the following functionalities:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;store data (large amount of data!)&lt;/li&gt;
+&lt;li&gt;query data&lt;/li&gt;
+&lt;li&gt;modify data (add, update, delete, &amp;hellip;)&lt;/li&gt;
+&lt;li&gt;enable durability (recover from failure)&lt;/li&gt;
+&lt;li&gt;control access of many users
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;isolation&lt;/em&gt; (each transaction appears to execute in isolation from other transactions)&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;atomicity&lt;/em&gt; (prevents updates to the database occurring only partially)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Allow users to create new databases and specify their schemas using a data definition language&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

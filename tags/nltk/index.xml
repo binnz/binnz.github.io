@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>NLTK on California Dreaming</title>
+    <link>https://binnz.github.io/tags/nltk/</link>
+    <description>Recent content in NLTK on California Dreaming</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 30 Oct 2017 00:00:00 +0000</lastBuildDate><atom:link href="https://binnz.github.io/tags/nltk/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Basic Functions in Natural Language Processing</title>
+      <link>https://binnz.github.io/post/2017-10-30-basic-nlp/</link>
+      <pubDate>Mon, 30 Oct 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-10-30-basic-nlp/</guid>
+      <description>&lt;p&gt;In this article, I will introduce some basic functions being uesd in Natural Language Processing using python package &lt;code&gt;nltk&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;To use the package &lt;code&gt;nltk&lt;/code&gt;, you should download the library and corpus you need beforehands.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

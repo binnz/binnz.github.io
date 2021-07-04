@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Information-Retrieval on California Dreaming</title>
+    <link>https://binnz.github.io/tags/information-retrieval/</link>
+    <description>Recent content in Information-Retrieval on California Dreaming</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Tue, 09 May 2017 00:00:00 +0000</lastBuildDate><atom:link href="https://binnz.github.io/tags/information-retrieval/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>EmailPro - Writing Email Like a Pro</title>
+      <link>https://binnz.github.io/post/2017-05-09-emailpro/</link>
+      <pubDate>Tue, 09 May 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-05-09-emailpro/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;http://amyhsu.pythonanywhere.com/static/resources/emailpro/emailpro.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;EmailPro是一套英文信件寫作輔助系統，提升您在Gmail上寫作英文信件時的寫作效率與質量。EmailPro通過文字預測提供您目前寫作的下一步寫作建議，讓您可以在保持流暢寫作的同時，頻繁地使用正確的英文搭配詞組，並避免常見的語法錯誤。&lt;/p&gt;
+&lt;p&gt;EmailPro is a computer assisted English email writing system that provides you with multiple appropriate pattern/collocation suggestions depending on previous writing to prevent you from common grammar mistakes and help you adopt collocations correctly and frequently.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

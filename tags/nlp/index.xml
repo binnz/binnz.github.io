@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>NLP on California Dreaming</title>
+    <link>https://binnz.github.io/tags/nlp/</link>
+    <description>Recent content in NLP on California Dreaming</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 30 Oct 2017 00:00:00 +0000</lastBuildDate><atom:link href="https://binnz.github.io/tags/nlp/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Basic Functions in Natural Language Processing</title>
+      <link>https://binnz.github.io/post/2017-10-30-basic-nlp/</link>
+      <pubDate>Mon, 30 Oct 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-10-30-basic-nlp/</guid>
+      <description>&lt;p&gt;In this article, I will introduce some basic functions being uesd in Natural Language Processing using python package &lt;code&gt;nltk&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;To use the package &lt;code&gt;nltk&lt;/code&gt;, you should download the library and corpus you need beforehands.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Data Manipulation and Visualization Using Elasticsearch and Kibana</title>
+      <link>https://binnz.github.io/post/2017-09-24-elasticsearch-kibana/</link>
+      <pubDate>Sun, 24 Sep 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-09-24-elasticsearch-kibana/</guid>
+      <description>&lt;p&gt;Elasticsearch is a &lt;strong&gt;distributed&lt;/strong&gt;, &lt;strong&gt;real-time&lt;/strong&gt;, search and analytics platform.&lt;/p&gt;
+&lt;p&gt;Using a restful API, Elasticsearch saves data and indexes it automatically. It assigns types to fields and that way a search can be done smartly and quickly using filters and different queries.&lt;/p&gt;
+&lt;p&gt;It’s uses &lt;strong&gt;JVM&lt;/strong&gt; in order to be as fast as possible. It distributes indexes in “shards” of data. It replicates shards in different nodes, so it’s distributed and clusters can function even if not all nodes are operational. Adding nodes is super easy and that’s what makes it so scalable.&lt;/p&gt;
+&lt;p&gt;ES uses &lt;strong&gt;Lucene&lt;/strong&gt; to solve searches. This is quite an advantage with comparing with, for example, Django query strings. A &lt;strong&gt;restful API&lt;/strong&gt; call allows us to perform searches using json objects as parameters, making it much more flexible and giving each search parameter within the object a different weight, importance and or priority.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Connect to Elastic Cloud with R Client</title>
+      <link>https://binnz.github.io/post/2017-09-20-elasticsearch-r/</link>
+      <pubDate>Wed, 20 Sep 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-09-20-elasticsearch-r/</guid>
+      <description>&lt;p&gt;&lt;code&gt;Elastic&lt;/code&gt; (part of the &lt;a href=&#34;http://ropensci.org/&#34;&gt;rOpenSci project&lt;/a&gt;) is a general purpose R interface to Elasticsearch.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/ropensci/elastic&#34;&gt;Github Page&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://ropensci.org/tutorials/elastic_tutorial.html&#34;&gt;Tutorial&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+    <item>
+      <title>EmailPro - Writing Email Like a Pro</title>
+      <link>https://binnz.github.io/post/2017-05-09-emailpro/</link>
+      <pubDate>Tue, 09 May 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2017-05-09-emailpro/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;http://amyhsu.pythonanywhere.com/static/resources/emailpro/emailpro.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;EmailPro是一套英文信件寫作輔助系統，提升您在Gmail上寫作英文信件時的寫作效率與質量。EmailPro通過文字預測提供您目前寫作的下一步寫作建議，讓您可以在保持流暢寫作的同時，頻繁地使用正確的英文搭配詞組，並避免常見的語法錯誤。&lt;/p&gt;
+&lt;p&gt;EmailPro is a computer assisted English email writing system that provides you with multiple appropriate pattern/collocation suggestions depending on previous writing to prevent you from common grammar mistakes and help you adopt collocations correctly and frequently.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Apache-Pig on California Dreaming</title>
+    <link>https://binnz.github.io/tags/apache-pig/</link>
+    <description>Recent content in Apache-Pig on California Dreaming</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 14 Jun 2018 00:00:00 +0000</lastBuildDate><atom:link href="https://binnz.github.io/tags/apache-pig/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Analyze Airline On-time Performance Dataset</title>
+      <link>https://binnz.github.io/post/2018-06-14-flight/</link>
+      <pubDate>Thu, 14 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://binnz.github.io/post/2018-06-14-flight/</guid>
+      <description>&lt;p&gt;In this document, we will walk through the data exploration of &lt;a href=&#34;http://stat-computing.org/dataexpo/2009/&#34;&gt;Airline on-time performance dataset&lt;/a&gt; with &lt;a href=&#34;https://pig.apache.org/&#34;&gt;Apache Pig&lt;/a&gt; as our exploring tool.   We will analyze &lt;strong&gt;8 years&lt;/strong&gt; of flight data to answer the following 3 analytic questions.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Find the maximal delays (you should consider both ArrDelay and DepDelay) for each month of 2008.&lt;/li&gt;
+&lt;li&gt;How many flights were delayed caused by weather between 2000 ~ 2005? Please show the counting for each year.&lt;/li&gt;
+&lt;li&gt;List Top 5 airports which occur delays most in 2007. (Please show the IATA airport code)&lt;/li&gt;
+&lt;/ol&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

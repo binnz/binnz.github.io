@@ -1,0 +1,1923 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Data Preprocessing on Airline Data - California Dreaming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+  
+  <meta name="description" content="Data Source and Variable Definition:
+Statistical Computing Statistical Graphics
+We are going to use flight information for 2000.">
+  
+  <meta itemprop="name" content="Data Preprocessing on Airline Data - California Dreaming">
+  <meta itemprop="description" content="Data Source and Variable Definition:
+Statistical Computing Statistical Graphics
+We are going to use flight information for 2000.">
+  <meta itemprop="image" content="https://binnz.github.io/img/author.jpg">
+  
+  
+  <meta name="twitter:description" content="">
+  
+  <link rel="shortcut icon" href="https://binnz.github.io/img/favicon.ico"/>
+  <link rel="apple-touch-icon" href="https://binnz.github.io/apple-touch-icon.png" />
+  <link rel="apple-touch-icon-precomposed" href="https://binnz.github.io/apple-touch-icon.png" />
+  <link rel="stylesheet" href="https://binnz.github.io/highlight/styles/github.css">
+  <script src="https://binnz.github.io/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  
+  <link rel="stylesheet" href="https://binnz.github.io/font/hack/css/hack.min.css">
+  <link rel="stylesheet" href="https://binnz.github.io/css/style.css">
+</head>
+
+<body>
+  <header>
+    <div>
+  <div style="height:150px; width:100%; clear:both;"></div>
+  <div id="textlogo">
+    <h1 class="site-name"><a href="https://binnz.github.io/" title="California Dreaming">California Dreaming</a></h1>
+    <h2 class="blog-motto"></h2>
+  </div>
+  <div class="navbar"><a class="navbutton navmobile" href="#" title="menu"></a></div>
+			<div style="height:50px; width:100%; clear:both;"></div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="menu">
+			</a><div style="height:50px; width:100%; clear:both;"></div></div>
+  <nav class="animated">
+    <ul>
+      
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/post/">Archives</a></li>
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      <li>
+        <form class="search" method="get" action="https://www.google.com/search">
+          <div>
+            <input type="text" id="search" name="q" placeholder='Search'>
+          </div>
+        </form>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+  </header>
+  <div id="container">
+    <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+      <a href="https://binnz.github.io/post/2017-03-21-data-preprocessing-on-airline-data/" title="Data Preprocessing on Airline Data" itemprop="url">Data Preprocessing on Airline Data</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="" title="">you</a>
+    
+  </p>
+  <p class="article-time">
+    <time datetime="2017-03-21 00:00:00 &#43;0000 UTC" itemprop="datePublished">2017-03-21</time>
+  </p>
+</header>
+
+	<div class="article-content">
+    
+    <p><strong>Data Source and Variable Definition:</strong></p>
+<p><a href="http://stat-computing.org/dataexpo/2009/the-data.html">Statistical Computing Statistical Graphics</a>
+We are going to use flight information for <em>2000</em>.</p>
+<p><strong>Python Libraries to be used:</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">OneHotEncoder</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">LabelEncoder</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="load-dataset">Load Dataset</h2>
+<h4 id="pandasread_csv">pandas.read_csv()</h4>
+<p><em>Useful parameters</em>:</p>
+<ul>
+<li>sep : str, default ‘,’</li>
+<li>header : int or list of ints. Row number(s) to use as the column names, and the start of the data.</li>
+<li>index_col : int or sequence or False, default None. Column to use as the row labels of the DataFrame.</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data/air2000_test.csv&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Year</th>
+      <th>Month</th>
+      <th>DayofMonth</th>
+      <th>DayOfWeek</th>
+      <th>DepTime</th>
+      <th>CRSDepTime</th>
+      <th>ArrTime</th>
+      <th>CRSArrTime</th>
+      <th>UniqueCarrier</th>
+      <th>FlightNum</th>
+      <th>...</th>
+      <th>TaxiIn</th>
+      <th>TaxiOut</th>
+      <th>Cancelled</th>
+      <th>CancellationCode</th>
+      <th>Diverted</th>
+      <th>CarrierDelay</th>
+      <th>WeatherDelay</th>
+      <th>NASDelay</th>
+      <th>SecurityDelay</th>
+      <th>LateAircraftDelay</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2000</td>
+      <td>1</td>
+      <td>28</td>
+      <td>5</td>
+      <td>1647.0</td>
+      <td>1647</td>
+      <td>1906.0</td>
+      <td>1859</td>
+      <td>HP</td>
+      <td>154</td>
+      <td>...</td>
+      <td>15</td>
+      <td>11</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2000</td>
+      <td>1</td>
+      <td>29</td>
+      <td>6</td>
+      <td>1648.0</td>
+      <td>1647</td>
+      <td>1939.0</td>
+      <td>1859</td>
+      <td>HP</td>
+      <td>154</td>
+      <td>...</td>
+      <td>5</td>
+      <td>47</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2000</td>
+      <td>1</td>
+      <td>30</td>
+      <td>7</td>
+      <td>NaN</td>
+      <td>1647</td>
+      <td>NaN</td>
+      <td>1859</td>
+      <td>HP</td>
+      <td>154</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2000</td>
+      <td>1</td>
+      <td>31</td>
+      <td>1</td>
+      <td>1645.0</td>
+      <td>1647</td>
+      <td>1852.0</td>
+      <td>1859</td>
+      <td>HP</td>
+      <td>154</td>
+      <td>...</td>
+      <td>7</td>
+      <td>14</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2000</td>
+      <td>1</td>
+      <td>1</td>
+      <td>6</td>
+      <td>842.0</td>
+      <td>846</td>
+      <td>1057.0</td>
+      <td>1101</td>
+      <td>HP</td>
+      <td>609</td>
+      <td>...</td>
+      <td>3</td>
+      <td>8</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 29 columns</p>
+</div>
+<h2 id="dealing-with-missing-data">Dealing with Missing Data</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># count the number of missing values per column</span>
+<span class="n">display</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+</code></pre></td></tr></table>
+</div>
+</div><pre><code>Year                    0
+Month                   0
+DayofMonth              0
+DayOfWeek               0
+DepTime                40
+CRSDepTime              0
+ArrTime                42
+CRSArrTime              0
+UniqueCarrier           0
+FlightNum               0
+TailNum                 0
+ActualElapsedTime      42
+CRSElapsedTime          0
+AirTime                42
+ArrDelay               42
+DepDelay               40
+Origin                  0
+Dest                    0
+Distance                0
+TaxiIn                  0
+TaxiOut                 0
+Cancelled               0
+CancellationCode     1000
+Diverted                0
+CarrierDelay         1000
+WeatherDelay         1000
+NASDelay             1000
+SecurityDelay        1000
+LateAircraftDelay    1000
+dtype: int64
+</code></pre>
+<h3 id="eliminating-samples-or-features-with-missing-values">Eliminating Samples or Features with Missing Values</h3>
+<p>One of the easiest ways to deal with missing data is to simply remove the corresponding features (columns) or samples (rows) from the dataset entirely. We can call the dropna() method of Dataframe to eliminate rows or columns:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># drop columns with ALL NaN</span>
+<span class="n">df_drop_col</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">df_drop_col</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Year</th>
+      <th>Month</th>
+      <th>DayofMonth</th>
+      <th>DayOfWeek</th>
+      <th>DepTime</th>
+      <th>CRSDepTime</th>
+      <th>ArrTime</th>
+      <th>CRSArrTime</th>
+      <th>UniqueCarrier</th>
+      <th>FlightNum</th>
+      <th>...</th>
+      <th>AirTime</th>
+      <th>ArrDelay</th>
+      <th>DepDelay</th>
+      <th>Origin</th>
+      <th>Dest</th>
+      <th>Distance</th>
+      <th>TaxiIn</th>
+      <th>TaxiOut</th>
+      <th>Cancelled</th>
+      <th>Diverted</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2000</td>
+      <td>1</td>
+      <td>28</td>
+      <td>5</td>
+      <td>1647.0</td>
+      <td>1647</td>
+      <td>1906.0</td>
+      <td>1859</td>
+      <td>HP</td>
+      <td>154</td>
+      <td>...</td>
+      <td>233.0</td>
+      <td>7.0</td>
+      <td>0.0</td>
+      <td>ATL</td>
+      <td>PHX</td>
+      <td>1587</td>
+      <td>15</td>
+      <td>11</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2000</td>
+      <td>1</td>
+      <td>29</td>
+      <td>6</td>
+      <td>1648.0</td>
+      <td>1647</td>
+      <td>1939.0</td>
+      <td>1859</td>
+      <td>HP</td>
+      <td>154</td>
+      <td>...</td>
+      <td>239.0</td>
+      <td>40.0</td>
+      <td>1.0</td>
+      <td>ATL</td>
+      <td>PHX</td>
+      <td>1587</td>
+      <td>5</td>
+      <td>47</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2000</td>
+      <td>1</td>
+      <td>30</td>
+      <td>7</td>
+      <td>NaN</td>
+      <td>1647</td>
+      <td>NaN</td>
+      <td>1859</td>
+      <td>HP</td>
+      <td>154</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>ATL</td>
+      <td>PHX</td>
+      <td>1587</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2000</td>
+      <td>1</td>
+      <td>31</td>
+      <td>1</td>
+      <td>1645.0</td>
+      <td>1647</td>
+      <td>1852.0</td>
+      <td>1859</td>
+      <td>HP</td>
+      <td>154</td>
+      <td>...</td>
+      <td>226.0</td>
+      <td>-7.0</td>
+      <td>-2.0</td>
+      <td>ATL</td>
+      <td>PHX</td>
+      <td>1587</td>
+      <td>7</td>
+      <td>14</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2000</td>
+      <td>1</td>
+      <td>1</td>
+      <td>6</td>
+      <td>842.0</td>
+      <td>846</td>
+      <td>1057.0</td>
+      <td>1101</td>
+      <td>HP</td>
+      <td>609</td>
+      <td>...</td>
+      <td>244.0</td>
+      <td>-4.0</td>
+      <td>-4.0</td>
+      <td>ATL</td>
+      <td>PHX</td>
+      <td>1587</td>
+      <td>3</td>
+      <td>8</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 23 columns</p>
+</div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># drop rows with ANY NaN</span>
+<span class="n">df_drop_col_row</span> <span class="o">=</span> <span class="n">df_drop_col</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="n">df_drop_col</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">df_drop_col_row</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Year</th>
+      <th>Month</th>
+      <th>DayofMonth</th>
+      <th>DayOfWeek</th>
+      <th>DepTime</th>
+      <th>CRSDepTime</th>
+      <th>ArrTime</th>
+      <th>CRSArrTime</th>
+      <th>UniqueCarrier</th>
+      <th>FlightNum</th>
+      <th>...</th>
+      <th>AirTime</th>
+      <th>ArrDelay</th>
+      <th>DepDelay</th>
+      <th>Origin</th>
+      <th>Dest</th>
+      <th>Distance</th>
+      <th>TaxiIn</th>
+      <th>TaxiOut</th>
+      <th>Cancelled</th>
+      <th>Diverted</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2000</td>
+      <td>1</td>
+      <td>28</td>
+      <td>5</td>
+      <td>1647.0</td>
+      <td>1647</td>
+      <td>1906.0</td>
+      <td>1859</td>
+      <td>HP</td>
+      <td>154</td>
+      <td>...</td>
+      <td>233.0</td>
+      <td>7.0</td>
+      <td>0.0</td>
+      <td>ATL</td>
+      <td>PHX</td>
+      <td>1587</td>
+      <td>15</td>
+      <td>11</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2000</td>
+      <td>1</td>
+      <td>29</td>
+      <td>6</td>
+      <td>1648.0</td>
+      <td>1647</td>
+      <td>1939.0</td>
+      <td>1859</td>
+      <td>HP</td>
+      <td>154</td>
+      <td>...</td>
+      <td>239.0</td>
+      <td>40.0</td>
+      <td>1.0</td>
+      <td>ATL</td>
+      <td>PHX</td>
+      <td>1587</td>
+      <td>5</td>
+      <td>47</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2000</td>
+      <td>1</td>
+      <td>31</td>
+      <td>1</td>
+      <td>1645.0</td>
+      <td>1647</td>
+      <td>1852.0</td>
+      <td>1859</td>
+      <td>HP</td>
+      <td>154</td>
+      <td>...</td>
+      <td>226.0</td>
+      <td>-7.0</td>
+      <td>-2.0</td>
+      <td>ATL</td>
+      <td>PHX</td>
+      <td>1587</td>
+      <td>7</td>
+      <td>14</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2000</td>
+      <td>1</td>
+      <td>1</td>
+      <td>6</td>
+      <td>842.0</td>
+      <td>846</td>
+      <td>1057.0</td>
+      <td>1101</td>
+      <td>HP</td>
+      <td>609</td>
+      <td>...</td>
+      <td>244.0</td>
+      <td>-4.0</td>
+      <td>-4.0</td>
+      <td>ATL</td>
+      <td>PHX</td>
+      <td>1587</td>
+      <td>3</td>
+      <td>8</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>2000</td>
+      <td>1</td>
+      <td>2</td>
+      <td>7</td>
+      <td>849.0</td>
+      <td>846</td>
+      <td>1148.0</td>
+      <td>1101</td>
+      <td>HP</td>
+      <td>609</td>
+      <td>...</td>
+      <td>267.0</td>
+      <td>47.0</td>
+      <td>3.0</td>
+      <td>ATL</td>
+      <td>PHX</td>
+      <td>1587</td>
+      <td>8</td>
+      <td>24</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 23 columns</p>
+</div>
+<h2 id="split-target-class-from-attributes">Split Target Class From Attributes</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">X</span> <span class="o">=</span> <span class="n">df_drop_col_row</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;ArrDelay&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">arrDelay</span><span class="o">&lt;=</span><span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">arrDelay</span> <span class="ow">in</span> <span class="n">df_drop_col_row</span><span class="p">[</span><span class="s1">&#39;ArrDelay&#39;</span><span class="p">]]</span>
+<span class="c1">#cols = df_drop_col_row.columns</span>
+<span class="c1">#new_cols = [&#39;ArrDelay&#39;] + list(set(cols)-set([&#39;ArrDelay&#39;]))</span>
+<span class="c1">#X = df_drop_col_row[new_cols]</span>
+<span class="n">X</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Year</th>
+      <th>Month</th>
+      <th>DayofMonth</th>
+      <th>DayOfWeek</th>
+      <th>DepTime</th>
+      <th>CRSDepTime</th>
+      <th>ArrTime</th>
+      <th>CRSArrTime</th>
+      <th>UniqueCarrier</th>
+      <th>FlightNum</th>
+      <th>...</th>
+      <th>CRSElapsedTime</th>
+      <th>AirTime</th>
+      <th>DepDelay</th>
+      <th>Origin</th>
+      <th>Dest</th>
+      <th>Distance</th>
+      <th>TaxiIn</th>
+      <th>TaxiOut</th>
+      <th>Cancelled</th>
+      <th>Diverted</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2000</td>
+      <td>1</td>
+      <td>28</td>
+      <td>5</td>
+      <td>1647.0</td>
+      <td>1647</td>
+      <td>1906.0</td>
+      <td>1859</td>
+      <td>HP</td>
+      <td>154</td>
+      <td>...</td>
+      <td>252.0</td>
+      <td>233.0</td>
+      <td>0.0</td>
+      <td>ATL</td>
+      <td>PHX</td>
+      <td>1587</td>
+      <td>15</td>
+      <td>11</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2000</td>
+      <td>1</td>
+      <td>29</td>
+      <td>6</td>
+      <td>1648.0</td>
+      <td>1647</td>
+      <td>1939.0</td>
+      <td>1859</td>
+      <td>HP</td>
+      <td>154</td>
+      <td>...</td>
+      <td>252.0</td>
+      <td>239.0</td>
+      <td>1.0</td>
+      <td>ATL</td>
+      <td>PHX</td>
+      <td>1587</td>
+      <td>5</td>
+      <td>47</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2000</td>
+      <td>1</td>
+      <td>31</td>
+      <td>1</td>
+      <td>1645.0</td>
+      <td>1647</td>
+      <td>1852.0</td>
+      <td>1859</td>
+      <td>HP</td>
+      <td>154</td>
+      <td>...</td>
+      <td>252.0</td>
+      <td>226.0</td>
+      <td>-2.0</td>
+      <td>ATL</td>
+      <td>PHX</td>
+      <td>1587</td>
+      <td>7</td>
+      <td>14</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2000</td>
+      <td>1</td>
+      <td>1</td>
+      <td>6</td>
+      <td>842.0</td>
+      <td>846</td>
+      <td>1057.0</td>
+      <td>1101</td>
+      <td>HP</td>
+      <td>609</td>
+      <td>...</td>
+      <td>255.0</td>
+      <td>244.0</td>
+      <td>-4.0</td>
+      <td>ATL</td>
+      <td>PHX</td>
+      <td>1587</td>
+      <td>3</td>
+      <td>8</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>2000</td>
+      <td>1</td>
+      <td>2</td>
+      <td>7</td>
+      <td>849.0</td>
+      <td>846</td>
+      <td>1148.0</td>
+      <td>1101</td>
+      <td>HP</td>
+      <td>609</td>
+      <td>...</td>
+      <td>255.0</td>
+      <td>267.0</td>
+      <td>3.0</td>
+      <td>ATL</td>
+      <td>PHX</td>
+      <td>1587</td>
+      <td>8</td>
+      <td>24</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 22 columns</p>
+</div>
+<h2 id="dealing-with-categorical-dara">Dealing with categorical Dara</h2>
+<p>One-Hot Encoding is to create a new dummy feature column for each unique value in the nominal feature. To perform this transformation, we can use the OneHotEncoder from Scikit-learn:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Shape of input before one-hot: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+</code></pre></td></tr></table>
+</div>
+</div><pre><code>Shape of input before one-hot: (958, 22)
+</code></pre>
+<h3 id="select-categorical-columns">Select categorical columns</h3>
+<ol>
+<li>Recognize non-numeric columns as categorical columns</li>
+<li>Manually select some numeric columns (ex. &lsquo;Year&rsquo;, &lsquo;Month&rsquo;) as categorical columns</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Recognize non-numeric columns as categorical columns</span>
+<span class="n">cols</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">columns</span>
+<span class="n">num_cols</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">_get_numeric_data</span><span class="p">()</span><span class="o">.</span><span class="n">columns</span>
+<span class="n">catego_cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">num_cols</span><span class="p">))</span>
+
+<span class="c1"># Add other categorical columns</span>
+<span class="n">catego_cols</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">&#39;Year&#39;</span><span class="p">,</span> <span class="s1">&#39;Month&#39;</span><span class="p">,</span> <span class="s1">&#39;DayofMonth&#39;</span><span class="p">,</span> <span class="s1">&#39;DayOfWeek&#39;</span><span class="p">,</span> <span class="s1">&#39;FlightNum&#39;</span><span class="p">])</span><span class="c1">#, &#39;Origin&#39;, &#39;Dest&#39;])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Categorical Columns: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">catego_cols</span><span class="p">))</span>
+</code></pre></td></tr></table>
+</div>
+</div><pre><code>Categorical Columns: ['Origin', 'Dest', 'TailNum', 'UniqueCarrier', 'Year', 'Month', 'DayofMonth', 'DayOfWeek', 'FlightNum']
+</code></pre>
+<h3 id="encode-categorical-columns">Encode categorical columns</h3>
+<p>First, convert string to interger since The input to OneHotEncoder transformer should be a matrix of integers.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># encode label first</span>
+<span class="n">catego_le</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">catego_cols</span><span class="p">:</span>
+    <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">catego_le</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">classes_list</span> <span class="o">=</span> <span class="n">catego_le</span><span class="o">.</span><span class="n">classes_</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    
+<span class="n">X</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Year</th>
+      <th>Month</th>
+      <th>DayofMonth</th>
+      <th>DayOfWeek</th>
+      <th>DepTime</th>
+      <th>CRSDepTime</th>
+      <th>ArrTime</th>
+      <th>CRSArrTime</th>
+      <th>UniqueCarrier</th>
+      <th>FlightNum</th>
+      <th>...</th>
+      <th>CRSElapsedTime</th>
+      <th>AirTime</th>
+      <th>DepDelay</th>
+      <th>Origin</th>
+      <th>Dest</th>
+      <th>Distance</th>
+      <th>TaxiIn</th>
+      <th>TaxiOut</th>
+      <th>Cancelled</th>
+      <th>Diverted</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>0</td>
+      <td>27</td>
+      <td>4</td>
+      <td>1647.0</td>
+      <td>1647</td>
+      <td>1906.0</td>
+      <td>1859</td>
+      <td>0</td>
+      <td>3</td>
+      <td>...</td>
+      <td>252.0</td>
+      <td>233.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1587</td>
+      <td>15</td>
+      <td>11</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>0</td>
+      <td>28</td>
+      <td>5</td>
+      <td>1648.0</td>
+      <td>1647</td>
+      <td>1939.0</td>
+      <td>1859</td>
+      <td>0</td>
+      <td>3</td>
+      <td>...</td>
+      <td>252.0</td>
+      <td>239.0</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1587</td>
+      <td>5</td>
+      <td>47</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0</td>
+      <td>0</td>
+      <td>30</td>
+      <td>0</td>
+      <td>1645.0</td>
+      <td>1647</td>
+      <td>1852.0</td>
+      <td>1859</td>
+      <td>0</td>
+      <td>3</td>
+      <td>...</td>
+      <td>252.0</td>
+      <td>226.0</td>
+      <td>-2.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1587</td>
+      <td>7</td>
+      <td>14</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5</td>
+      <td>842.0</td>
+      <td>846</td>
+      <td>1057.0</td>
+      <td>1101</td>
+      <td>0</td>
+      <td>13</td>
+      <td>...</td>
+      <td>255.0</td>
+      <td>244.0</td>
+      <td>-4.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1587</td>
+      <td>3</td>
+      <td>8</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>6</td>
+      <td>849.0</td>
+      <td>846</td>
+      <td>1148.0</td>
+      <td>1101</td>
+      <td>0</td>
+      <td>13</td>
+      <td>...</td>
+      <td>255.0</td>
+      <td>267.0</td>
+      <td>3.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1587</td>
+      <td>8</td>
+      <td>24</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 22 columns</p>
+</div>
+<p>Then we can convert categorical columns using OneHotEncoder.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># find the index of the categorical feature</span>
+<span class="n">catego_cols_idx</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="nb">str</span> <span class="ow">in</span> <span class="n">catego_cols</span><span class="p">:</span>
+    <span class="n">catego_cols_idx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
+
+<span class="c1"># give the column index you want to do one-hot encoding</span>
+<span class="n">ohe</span> <span class="o">=</span> <span class="n">OneHotEncoder</span><span class="p">(</span><span class="n">categorical_features</span> <span class="o">=</span> <span class="n">catego_cols_idx</span><span class="p">)</span>
+
+<span class="c1"># fit one-hot encoder</span>
+<span class="n">onehot_data</span> <span class="o">=</span> <span class="n">ohe</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Shape of input after one-hot: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">onehot_data</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+</code></pre></td></tr></table>
+</div>
+</div><pre><code>Shape of input after one-hot: (958, 449)
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">onehot_data</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>9</th>
+      <th>...</th>
+      <th>439</th>
+      <th>440</th>
+      <th>441</th>
+      <th>442</th>
+      <th>443</th>
+      <th>444</th>
+      <th>445</th>
+      <th>446</th>
+      <th>447</th>
+      <th>448</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>1859.0</td>
+      <td>259.0</td>
+      <td>252.0</td>
+      <td>233.0</td>
+      <td>0.0</td>
+      <td>1587.0</td>
+      <td>15.0</td>
+      <td>11.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>1859.0</td>
+      <td>291.0</td>
+      <td>252.0</td>
+      <td>239.0</td>
+      <td>1.0</td>
+      <td>1587.0</td>
+      <td>5.0</td>
+      <td>47.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>1859.0</td>
+      <td>247.0</td>
+      <td>252.0</td>
+      <td>226.0</td>
+      <td>-2.0</td>
+      <td>1587.0</td>
+      <td>7.0</td>
+      <td>14.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>1101.0</td>
+      <td>255.0</td>
+      <td>255.0</td>
+      <td>244.0</td>
+      <td>-4.0</td>
+      <td>1587.0</td>
+      <td>3.0</td>
+      <td>8.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>1101.0</td>
+      <td>299.0</td>
+      <td>255.0</td>
+      <td>267.0</td>
+      <td>3.0</td>
+      <td>1587.0</td>
+      <td>8.0</td>
+      <td>24.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 449 columns</p>
+</div>
+<h2 id="append-target-class-back-to-dataset">Append Target Class Back to Dataset</h2>
+<p>Note that the <strong>target</strong> class should be at the <strong>last</strong> column.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ArrDelay&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
+<span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>9</th>
+      <th>...</th>
+      <th>440</th>
+      <th>441</th>
+      <th>442</th>
+      <th>443</th>
+      <th>444</th>
+      <th>445</th>
+      <th>446</th>
+      <th>447</th>
+      <th>448</th>
+      <th>ArrDelay</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>259.0</td>
+      <td>252.0</td>
+      <td>233.0</td>
+      <td>0.0</td>
+      <td>1587.0</td>
+      <td>15.0</td>
+      <td>11.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>291.0</td>
+      <td>252.0</td>
+      <td>239.0</td>
+      <td>1.0</td>
+      <td>1587.0</td>
+      <td>5.0</td>
+      <td>47.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>247.0</td>
+      <td>252.0</td>
+      <td>226.0</td>
+      <td>-2.0</td>
+      <td>1587.0</td>
+      <td>7.0</td>
+      <td>14.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>255.0</td>
+      <td>255.0</td>
+      <td>244.0</td>
+      <td>-4.0</td>
+      <td>1587.0</td>
+      <td>3.0</td>
+      <td>8.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>299.0</td>
+      <td>255.0</td>
+      <td>267.0</td>
+      <td>3.0</td>
+      <td>1587.0</td>
+      <td>8.0</td>
+      <td>24.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 450 columns</p>
+</div>
+<h2 id="export-preprocessed-data">Export Preprocessed Data</h2>
+<p>Note that we set <strong>headre=False</strong> to avoid mapreduce function mistaken header as a data row.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;logistic_input&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div>
+    
+	</div>
+  <footer class="article-footer clearfix">
+  
+
+<div class="article-tags">
+  <span></span>
+  
+  <a href="https://binnz.github.io/tags/python">Python</a>
+  
+  <a href="https://binnz.github.io/tags/scikit-learn">Scikit-Learn</a>
+  
+  <a href="https://binnz.github.io/tags/data-mining">Data-Mining</a>
+  
+</div>
+
+
+
+
+
+<div class="article-categories">
+  <span></span>
+  
+  <a class="article-category-link" href="https://binnz.github.io/categories/programming">Programming</a>
+  
+</div>
+
+
+
+  <div class="article-share" id="share">
+    <div data-url="https://binnz.github.io/post/2017-03-21-data-preprocessing-on-airline-data/" data-title="Data Preprocessing on Airline Data" data-tsina="" class="share clearfix">
+    </div>
+  </div>
+</footer>
+
+	</article>
+  
+
+
+<section class="comment">
+<div id="disqus_thread"></div>
+</section>
+<script>
+  <!-- detect whether Disuqs can load -->
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', '//disqus.com/next/config.json?' + new Date().getTime(), true);
+  xhr.timeout = 3000; 
+
+  xhr.onload = function() { 
+
+
+var disqus_config = function () {
+this.page.url = "https://binnz.github.io/post/2017-03-21-data-preprocessing-on-airline-data/";
+this.page.identifier = "https://binnz.github.io/post/2017-03-21-data-preprocessing-on-airline-data/";
+};
+(function() { 
+var d = document, s = d.createElement('script');
+
+s.src = '//disc.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+}
+  xhr.ontimeout = function() {
+  <!-- cannot load Disqus, skip it. -->
+  return;
+}
+xhr.send(null);
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+    <div class="openaside"><a class="navbutton" href="#" title="Show SideBar"></a></div>
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide SideBar"></a></div>
+<aside class="clearfix">
+  
+
+<div class="categorieslist">
+  <p class="asidetitle">Categories</p>
+  <ul>
+    
+    <li><a href="https://binnz.github.io/categories/install" title="install">install<sup>2</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/life" title="life">life<sup>1</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/notes" title="notes">notes<sup>50</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/programming" title="programming">programming<sup>25</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/projects" title="projects">projects<sup>2</sup></a></li>
+    
+    <li><a href="https://binnz.github.io/categories/publications" title="publications">publications<sup>1</sup></a></li>
+    
+  </ul>
+</div>
+
+
+
+  
+
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+      
+			<li><a href="https://binnz.github.io/tags/ANDROID" title="android">android<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/APACHE-PIG" title="apache-pig">apache-pig<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/ASSOCIATION-ANALYSIS" title="association-analysis">association-analysis<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/BEER" title="beer">beer<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CLASSIFICATION" title="classification">classification<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CLUSTERING" title="clustering">clustering<sup>19</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/CONFERENCE" title="conference">conference<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATA-MINING" title="data-mining">data-mining<sup>64</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATA-SCIENCE" title="data-science">data-science<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DATABASE" title="database">database<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/DEEP-LEARNING" title="deep-learning">deep-learning<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/ELASTICSEARCH" title="elasticsearch">elasticsearch<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/GRAPH" title="graph">graph<sup>12</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/HADOOP" title="hadoop">hadoop<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/INFORMATION-RETRIEVAL" title="information-retrieval">information-retrieval<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/JAVA" title="java">java<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/MACHINE-LEARNING" title="machine-learning">machine-learning<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NEURAL-NETWORK" title="neural-network">neural-network<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NLP" title="nlp">nlp<sup>4</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/NLTK" title="nltk">nltk<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/PYTHON" title="python">python<sup>15</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/R" title="r">r<sup>4</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/RELATION-ALGEBRA" title="relation-algebra">relation-algebra<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SCIKIT-LEARN" title="scikit-learn">scikit-learn<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SPARK" title="spark">spark<sup>9</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/SQL" title="sql">sql<sup>3</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/STATISTICS" title="statistics">statistics<sup>5</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/STREAMING" title="streaming">streaming<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/TIME-SERIES" title="time-series">time-series<sup>2</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/TRAVEL" title="travel">travel<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/UNIT-TEST" title="unit-test">unit-test<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/VBA" title="vba">vba<sup>1</sup></a></li>
+      
+			<li><a href="https://binnz.github.io/tags/WINDOWS" title="windows">windows<sup>1</sup></a></li>
+      
+		</ul>
+</div>
+
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle">Archives</p>
+    <ul class="archive-list">
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2021-06">2021年06月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2020-05">2020年05月</a><span class="archive-list-count">12</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2019-09">2019年09月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-09">2018年09月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-08">2018年08月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-06">2018年06月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-05">2018年05月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-04">2018年04月</a><span class="archive-list-count">5</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-03">2018年03月</a><span class="archive-list-count">5</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2018-01">2018年01月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-12">2017年12月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-11">2017年11月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-10">2017年10月</a><span class="archive-list-count">1</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-09">2017年09月</a><span class="archive-list-count">10</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-08">2017年08月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-07">2017年07月</a><span class="archive-list-count">4</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-05">2017年05月</a><span class="archive-list-count">3</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-04">2017年04月</a><span class="archive-list-count">2</span>
+      </li>
+      
+      
+      <li class="archive-list-item">
+        <a class="archive-list-link" href="https://binnz.github.io/post/#2017-03">2017年03月</a><span class="archive-list-count">20</span>
+      </li>
+      
+    </ul>
+
+  </div>
+
+
+  
+
+<div class="tagcloudlist">
+  <p class="asidetitle">Tags Cloud</p>
+  <div class="tagcloudlist clearfix">
+    
+    <a href="https://binnz.github.io/tags/android" style="font-size: 12px;">android</a>
+    
+    <a href="https://binnz.github.io/tags/apache-pig" style="font-size: 12px;">apache-pig</a>
+    
+    <a href="https://binnz.github.io/tags/association-analysis" style="font-size: 12px;">association-analysis</a>
+    
+    <a href="https://binnz.github.io/tags/beer" style="font-size: 12px;">beer</a>
+    
+    <a href="https://binnz.github.io/tags/classification" style="font-size: 12px;">classification</a>
+    
+    <a href="https://binnz.github.io/tags/clustering" style="font-size: 12px;">clustering</a>
+    
+    <a href="https://binnz.github.io/tags/conference" style="font-size: 12px;">conference</a>
+    
+    <a href="https://binnz.github.io/tags/data-mining" style="font-size: 12px;">data-mining</a>
+    
+    <a href="https://binnz.github.io/tags/data-science" style="font-size: 12px;">data-science</a>
+    
+    <a href="https://binnz.github.io/tags/database" style="font-size: 12px;">database</a>
+    
+    <a href="https://binnz.github.io/tags/deep-learning" style="font-size: 12px;">deep-learning</a>
+    
+    <a href="https://binnz.github.io/tags/elasticsearch" style="font-size: 12px;">elasticsearch</a>
+    
+    <a href="https://binnz.github.io/tags/graph" style="font-size: 12px;">graph</a>
+    
+    <a href="https://binnz.github.io/tags/hadoop" style="font-size: 12px;">hadoop</a>
+    
+    <a href="https://binnz.github.io/tags/information-retrieval" style="font-size: 12px;">information-retrieval</a>
+    
+    <a href="https://binnz.github.io/tags/java" style="font-size: 12px;">java</a>
+    
+    <a href="https://binnz.github.io/tags/machine-learning" style="font-size: 12px;">machine-learning</a>
+    
+    <a href="https://binnz.github.io/tags/neural-network" style="font-size: 12px;">neural-network</a>
+    
+    <a href="https://binnz.github.io/tags/nlp" style="font-size: 12px;">nlp</a>
+    
+    <a href="https://binnz.github.io/tags/nltk" style="font-size: 12px;">nltk</a>
+    
+    <a href="https://binnz.github.io/tags/python" style="font-size: 12px;">python</a>
+    
+    <a href="https://binnz.github.io/tags/r" style="font-size: 12px;">r</a>
+    
+    <a href="https://binnz.github.io/tags/relation-algebra" style="font-size: 12px;">relation-algebra</a>
+    
+    <a href="https://binnz.github.io/tags/scikit-learn" style="font-size: 12px;">scikit-learn</a>
+    
+    <a href="https://binnz.github.io/tags/spark" style="font-size: 12px;">spark</a>
+    
+    <a href="https://binnz.github.io/tags/sql" style="font-size: 12px;">sql</a>
+    
+    <a href="https://binnz.github.io/tags/statistics" style="font-size: 12px;">statistics</a>
+    
+    <a href="https://binnz.github.io/tags/streaming" style="font-size: 12px;">streaming</a>
+    
+    <a href="https://binnz.github.io/tags/time-series" style="font-size: 12px;">time-series</a>
+    
+    <a href="https://binnz.github.io/tags/travel" style="font-size: 12px;">travel</a>
+    
+    <a href="https://binnz.github.io/tags/unit-test" style="font-size: 12px;">unit-test</a>
+    
+    <a href="https://binnz.github.io/tags/vba" style="font-size: 12px;">vba</a>
+    
+    <a href="https://binnz.github.io/tags/windows" style="font-size: 12px;">windows</a>
+    
+  </div>
+</div>
+
+
+
+  
+
+</aside>
+</div>
+
+  </div>
+  <footer><div id="footer" >
+  <div class="line">
+    <span></span>
+    
+    <div style='background:no-repeat url("https://binnz.github.io/img/US-MT-EPS-02-6001.png") left top;-webkit-background-size:6.875em 6.875em;-moz-background-size:6.875em 6.875em;background-size:6.875em 6.875em;' class="author" ></div>
+  </div>
+  <section class="info">
+    <p>hehe</p>
+  </section>
+  <div class="social-font clearfix">
+    <a href='http://weibo.com/coderzh' target="_blank" title="weibo"></a>
+    <a href='https://twitter.com/coderzh' target="_blank" title="twitter"></a>
+    <a href='https://github.com/binnz' target="_blank" class="icon-github" title="github"></a>
+    <a href='https://www.facebook.com/coderzh' target="_blank" title="facebook"></a>
+    <a href='https://www.linkedin.com/coderzh' target="_blank" title="linkedin"></a>
+  </div>
+  <p class="copyright">Powered by <a href="http://gohugo.io" target="_blank" title="hugo">hugo</a> and Theme by <a href="https://github.com/coderzh/hugo-pacman-theme" target="_blank" title="hugo-pacman-theme">hugo-pacman-theme</a> © 2021
+    
+    <a href="https://binnz.github.io/" title="California Dreaming">California Dreaming</a>
+    
+  </p>
+</div>
+</footer>
+  <script src="https://binnz.github.io/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+done = false;
+$(document).ready(function(){
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize();
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  $('form.search').on('submit', function (event) {
+    if (false === done) {
+      event.preventDefault();
+      var orgVal = $(this).find('#search').val();
+      $(this).find('#search').val('site:https:\/\/binnz.github.io\/ ' + orgVal);
+      done = true;
+      $(this).submit();
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://b.bshare.cn/barCode?site=weixin&url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});
+</script>
+
+
+
+
+
+</body>
+</html>
