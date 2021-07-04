@@ -1,20 +1,19 @@
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
-	<meta name="generator" content="Hugo 0.84.4" />
   <meta charset="UTF-8">
-  <title>California Dreaming</title>
+  <title>LunarVim - California Dreaming</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
-  <meta name="keywords" content="">
-  <meta name="description" content="California Dreaming">
   
-  <meta itemprop="name" content="California Dreaming">
-  <meta itemprop="description" content="California Dreaming">
+  <meta name="description" content="">
+  
+  <meta itemprop="name" content="LunarVim - California Dreaming">
+  <meta itemprop="description" content="">
   <meta itemprop="image" content="https://binnz.github.io/img/author.jpg">
   
   
   <meta name="twitter:description" content="">
-  <link rel="alternate" href="https://binnz.github.io/feed.xml" title="California Dreaming" type="application/rss+xml"/>
+  
   <link rel="shortcut icon" href="https://binnz.github.io/img/favicon.ico"/>
   <link rel="apple-touch-icon" href="https://binnz.github.io/apple-touch-icon.png" />
   <link rel="apple-touch-icon-precomposed" href="https://binnz.github.io/apple-touch-icon.png" />
@@ -62,21 +61,87 @@
 
   </header>
   <div id="container">
-    <div id="main">
-      
-      <section class="post" itemscope itemprop="blogPost">
-    <a href="https://binnz.github.io/post/2021-07-04-lunarvim/" title="LunarVim" itemprop="url">
-    <h1 itemprop="name">LunarVim</h1>
-    <p itemprop="description"></p>
+    <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+      <a href="https://binnz.github.io/post/2021-07-04-lunarvim/" title="LunarVim" itemprop="url">LunarVim</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="" title="">you</a>
+    
+  </p>
+  <p class="article-time">
     <time datetime="0001-01-01 00:00:00 &#43;0000 UTC" itemprop="datePublished">0001-01-01</time>
-  </a>
-</section>
+  </p>
+</header>
 
-      
-      <nav id="page-nav" class="clearfix">
-        <a class="page-number" href="https://binnz.github.io/post/">More...</a>
-      </nav>
+	<div class="article-content">
+    
+    
+    
+	</div>
+  <footer class="article-footer clearfix">
+  
+
+<div class="article-tags">
+  <span></span>
+  
+  <a href="https://binnz.github.io/tags/vim">vim</a>
+  
+</div>
+
+
+
+
+
+  <div class="article-share" id="share">
+    <div data-url="https://binnz.github.io/post/2021-07-04-lunarvim/" data-title="LunarVim" data-tsina="" class="share clearfix">
     </div>
+  </div>
+</footer>
+
+	</article>
+  
+
+
+<section class="comment">
+<div id="disqus_thread"></div>
+</section>
+<script>
+  <!-- detect whether Disuqs can load -->
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', '//disqus.com/next/config.json?' + new Date().getTime(), true);
+  xhr.timeout = 3000; 
+
+  xhr.onload = function() { 
+
+
+var disqus_config = function () {
+this.page.url = "https://binnz.github.io/post/2021-07-04-lunarvim/";
+this.page.identifier = "https://binnz.github.io/post/2021-07-04-lunarvim/";
+};
+(function() { 
+var d = document, s = d.createElement('script');
+
+s.src = '//disc.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+}
+  xhr.ontimeout = function() {
+  <!-- cannot load Disqus, skip it. -->
+  return;
+}
+xhr.send(null);
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
     <div class="openaside"><a class="navbutton" href="#" title="Show SideBar"></a></div>
 <div id="asidepart">
 <div class="closeaside"><a class="closebutton" href="#" title="Hide SideBar"></a></div>
@@ -127,10 +192,6 @@
 
 
   
-<div class="rsspart">
-  <a rel="nofollow" href="https://binnz.github.io/feed.xml" type="application/rss+xml" target="_blank"></a>
-</div>
-
 
 </aside>
 </div>
@@ -211,6 +272,38 @@ $(document).ready(function(){
       $(this).submit();
     }
   });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
 });
 </script>
 

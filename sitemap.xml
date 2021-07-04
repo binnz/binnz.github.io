@@ -10,7 +10,19 @@
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
+    <loc>https://binnz.github.io/post/2021-07-04-lunarvim/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://binnz.github.io/post/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
     <loc>https://binnz.github.io/tags/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://binnz.github.io/tags/vim/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
